@@ -21,10 +21,11 @@ from .canonical import (
     utf16_sort_key,
 )
 from .errors import ValidationError
+from .targets import TARGETS
 
 
 TOKEN_PATTERN = re.compile(r"^[a-z][a-z0-9_.-]*$")
-ARCHITECTURES = {"x86_64", "ppc64le"}
+ARCHITECTURES = {target.architecture for target in TARGETS.values()}
 
 
 class CaseLike(Protocol):
@@ -147,13 +148,16 @@ def project_used_isa(registry: ISARegistry, cases: Iterable[CaseLike]) -> UsedIS
     used: set[str] = set()
     ordered_cases = sorted(cases, key=lambda case: utf16_sort_key(case.id))
     for case in ordered_cases:
-        intel = case.required_isa("intel")
-        power = case.required_isa("openpower")
-        registry.closure(intel, architecture="x86_64")
-        registry.closure(power, architecture="ppc64le")
-        used.update(registry.closure(intel, architecture="x86_64"))
-        used.update(registry.closure(power, architecture="ppc64le"))
-        case_entries.append({"id": case.id, "intel": list(intel), "openpower": list(power)})
+        entry: dict[str, JSONValue] = {"id": case.id}
+        # The legacy CaseLike protocol only supplied the two required roles.
+        # New CaseDefinition objects additionally enumerate optional bindings.
+        for role in getattr(case, "target_roles", ("intel", "openpower")):
+            if role not in TARGETS:
+                raise ValidationError(f"unknown runner role: {role}")
+            required = case.required_isa(role)
+            used.update(registry.closure(required, architecture=TARGETS[role].architecture))
+            entry[role] = list(required)
+        case_entries.append(entry)
     token_entries: list[JSONValue] = [registry.get(name) for name in sorted(used, key=utf16_sort_key)]
     data: dict[str, JSONValue] = {
         "cases": case_entries,

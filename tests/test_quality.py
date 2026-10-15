@@ -45,7 +45,7 @@ class QualityTests(unittest.TestCase):
         self.assertEqual(metrics.valid_contracts, 254)
         self.assertEqual(metrics.development_models, 254)
         self.assertEqual(metrics.standard_boundary_floors, 254)
-        self.assertEqual(metrics.architecture_bindings, 508)
+        self.assertEqual(metrics.architecture_bindings, 1016)
 
     def test_model_mismatches_are_distinct_from_assertions_and_execution_errors(self):
         evidence = {"case_id": "example", "input_id": "a" * 64}

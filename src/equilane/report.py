@@ -18,6 +18,7 @@ from .errors import ValidationError
 from .isa import ISARegistry, project_used_isa
 from .records import derive_input_id
 from .reproduction import reproduction_commands
+from .targets import TARGETS, TARGET_TARGETS
 
 
 class InputArtifactLike(Protocol):
@@ -158,9 +159,17 @@ def write_failure_bundle(
     isa_registry: ISARegistry,
     input_record: dict[str, JSONValue],
     comparison: ComparisonLike,
+    target_role: str = "openpower",
 ) -> Path:
     """Publish one fully projected failure bundle, with ``failure.json`` last."""
 
+    if target_role not in TARGET_TARGETS:
+        raise ValidationError("unknown comparison target role")
+    for role, artifact in (("intel", intel_artifact), (target_role, openpower_artifact)):
+        runner = artifact.manifest.get("runner")
+        if not isinstance(runner, dict) or runner.get("role") != role:
+            raise ValidationError("failure artifact role does not match its target")
+    target = TARGETS[target_role]
     if comparison.outcome != "mismatch" or comparison.first_difference is None:
         raise ValidationError("failure bundles require an ordinary mismatch")
     input_id = str(input_record["input_id"])
@@ -177,7 +186,7 @@ def write_failure_bundle(
     try:
         contracts = temporary / "contracts"
         baseline_intel = temporary / "baseline" / "intel"
-        baseline_power = temporary / "baseline" / "openpower"
+        baseline_power = temporary / "baseline" / target_role
         contracts.mkdir(parents=True)
         baseline_intel.mkdir(parents=True)
         baseline_power.mkdir(parents=True)
@@ -223,7 +232,7 @@ def write_failure_bundle(
             baseline_intel / "intel-results.jsonl", [intel_record]
         )
         _, power_length, power_sha = write_jsonl(
-            baseline_power / "power-results.jsonl", [power_record]
+            baseline_power / target.results_file, [power_record]
         )
         environment = input_record["environment"]
         assert isinstance(environment, dict)
@@ -246,7 +255,7 @@ def write_failure_bundle(
             input_sha=input_sha,
             case_sha=case_sha,
             used_sha=used.sha256,
-            file_name="power-results.jsonl",
+            file_name=target.results_file,
             byte_length=power_length,
             result_sha=power_sha,
         )
@@ -255,7 +264,7 @@ def write_failure_bundle(
             dump_bytes(intel_manifest, newline=True),
         )
         atomic_write(
-            baseline_power / "power-results.manifest.json",
+            baseline_power / target.manifest_file,
             dump_bytes(power_manifest, newline=True),
         )
 
@@ -270,7 +279,7 @@ def write_failure_bundle(
             "artifact_type": "ioitf.failure",
             "baseline": {
                 "intel_manifest": "baseline/intel/intel-results.manifest.json",
-                "openpower_manifest": "baseline/openpower/power-results.manifest.json",
+                f"{target_role}_manifest": f"baseline/{target_role}/{target.manifest_file}",
             },
             "case_definitions_sha256": case_sha,
             "case_id": case_id,
@@ -285,7 +294,7 @@ def write_failure_bundle(
             "first_difference": comparison.first_difference,
             "input_id": input_id,
             "mismatch_count": comparison.mismatch_count,
-            "reproduce": reproduction_commands(),
+            "reproduce": reproduction_commands(target_role=target_role),
             "schema_version": 1,
             "source_artifacts": {
                 "case_definitions_sha256": source_input["case_definitions_sha256"],
@@ -293,13 +302,16 @@ def write_failure_bundle(
                 "input_sha256": source_vectors["sha256"],
                 "intel_isa_registry_sha256": intel_artifact.manifest["isa_registry_sha256"],
                 "intel_results_sha256": source_intel_results["sha256"],
-                "openpower_isa_registry_sha256": openpower_artifact.manifest["isa_registry_sha256"],
-                "openpower_results_sha256": source_power_results["sha256"],
+                f"{target_role}_isa_registry_sha256": openpower_artifact.manifest["isa_registry_sha256"],
+                f"{target_role}_results_sha256": source_power_results["sha256"],
                 "used_isa_contract_sha256": source_input["used_isa_contract_sha256"],
             },
             "test_vectors_manifest": "test-vectors.manifest.json",
             "used_isa_contract_sha256": used.sha256,
         }
+
+        if target_role != "openpower":
+            failure["target_role"] = target_role
 
         # Validate the three projected artifacts before publishing failure.json.
         from .artifacts import validate_input_artifact, validate_result_artifact
@@ -317,7 +329,7 @@ def write_failure_bundle(
             input_artifact=bundle_input,
         )
         validate_result_artifact(
-            baseline_power / "power-results.manifest.json",
+            baseline_power / target.manifest_file,
             bundle_cases,
             isa_registry,
             input_artifact=bundle_input,

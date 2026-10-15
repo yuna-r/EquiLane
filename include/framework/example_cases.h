@@ -23,6 +23,14 @@ IOITF_CASE_API int power_mm_add_pd(const ioitf_input*, ioitf_output*);
 IOITF_CASE_API int power_mm_set1_pd(const ioitf_input*, ioitf_output*);
 IOITF_CASE_API int power_mm_shuffle_epi32(const ioitf_input*, ioitf_output*);
 
+/* AArch64 NEON and RISC-V64 RVV architecture-specific examples. */
+IOITF_CASE_API int arm_mm_add_pd(const ioitf_input*, ioitf_output*);
+IOITF_CASE_API int arm_mm_set1_pd(const ioitf_input*, ioitf_output*);
+IOITF_CASE_API int arm_mm_shuffle_epi32(const ioitf_input*, ioitf_output*);
+IOITF_CASE_API int riscv_mm_add_pd(const ioitf_input*, ioitf_output*);
+IOITF_CASE_API int riscv_mm_set1_pd(const ioitf_input*, ioitf_output*);
+IOITF_CASE_API int riscv_mm_shuffle_epi32(const ioitf_input*, ioitf_output*);
+
 /* Development-only scalar fixture; never valid as Intel/POWER evidence. */
 IOITF_CASE_API int portable_mm_add_pd(const ioitf_input*, ioitf_output*);
 IOITF_CASE_API int portable_mm_set1_pd(const ioitf_input*, ioitf_output*);

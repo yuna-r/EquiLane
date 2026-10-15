@@ -355,6 +355,24 @@ static void check_invalid_immediate(ioitf_case_fn function,
     CHECK(output.normalized_fp_exceptions == 0);
 }
 
+#if defined(IOITF_TEST_INTEL_ADAPTER)
+#define NATIVE_ADD intel_mm_add_pd
+#define NATIVE_SET1 intel_mm_set1_pd
+#define NATIVE_SHUFFLE intel_mm_shuffle_epi32
+#elif defined(IOITF_TEST_OPENPOWER_ADAPTER)
+#define NATIVE_ADD power_mm_add_pd
+#define NATIVE_SET1 power_mm_set1_pd
+#define NATIVE_SHUFFLE power_mm_shuffle_epi32
+#elif defined(IOITF_TEST_ARM_ADAPTER)
+#define NATIVE_ADD arm_mm_add_pd
+#define NATIVE_SET1 arm_mm_set1_pd
+#define NATIVE_SHUFFLE arm_mm_shuffle_epi32
+#elif defined(IOITF_TEST_RISCV_ADAPTER)
+#define NATIVE_ADD riscv_mm_add_pd
+#define NATIVE_SET1 riscv_mm_set1_pd
+#define NATIVE_SHUFFLE riscv_mm_shuffle_epi32
+#endif
+
 static void test_invalid_input_status(void)
 {
     check_invalid_immediate(portable_mm_shuffle_epi32,
@@ -363,12 +381,8 @@ static void test_invalid_input_status(void)
                             SHUFFLE_U8_OVERFLOW_ARGUMENTS);
     check_invalid_immediate(portable_mm_shuffle_epi32,
                             SHUFFLE_NEGATIVE_ARGUMENTS);
-#if defined(IOITF_TEST_INTEL_ADAPTER)
-    check_invalid_immediate(intel_mm_shuffle_epi32,
-                            SHUFFLE_UNREGISTERED_ARGUMENTS);
-#elif defined(IOITF_TEST_OPENPOWER_ADAPTER)
-    check_invalid_immediate(power_mm_shuffle_epi32,
-                            SHUFFLE_UNREGISTERED_ARGUMENTS);
+#if defined(NATIVE_SHUFFLE)
+    check_invalid_immediate(NATIVE_SHUFFLE, SHUFFLE_UNREGISTERED_ARGUMENTS);
 #endif
 }
 
@@ -398,47 +412,26 @@ static void test_portable_cases(void)
 
 static void test_native_cases_when_available(void)
 {
-#if defined(IOITF_TEST_INTEL_ADAPTER)
-    check_case(intel_mm_add_pd, ADD_ARGUMENTS,
+#if defined(NATIVE_ADD)
+    check_case(NATIVE_ADD, ADD_ARGUMENTS,
                IOITF_ROUND_NEAREST_EVEN, ADD_EXPECTED, 0);
-    check_case(intel_mm_set1_pd, SET1_NEGATIVE_ZERO_ARGUMENTS,
+    check_case(NATIVE_SET1, SET1_NEGATIVE_ZERO_ARGUMENTS,
                IOITF_ROUND_NEAREST_EVEN, SET1_NEGATIVE_ZERO_EXPECTED, 0);
-    check_case(intel_mm_set1_pd, SET1_SIGNALING_NAN_ARGUMENTS,
+    check_case(NATIVE_SET1, SET1_SIGNALING_NAN_ARGUMENTS,
                IOITF_ROUND_NEAREST_EVEN, SET1_SIGNALING_NAN_EXPECTED, 0);
-    check_case(intel_mm_add_pd, ROUNDING_ARGUMENTS,
+    check_case(NATIVE_ADD, ROUNDING_ARGUMENTS,
                IOITF_ROUND_NEAREST_EVEN, ROUND_NEAREST_EXPECTED,
                0);
-    check_case(intel_mm_add_pd, ROUNDING_ARGUMENTS,
+    check_case(NATIVE_ADD, ROUNDING_ARGUMENTS,
                IOITF_ROUND_TOWARD_ZERO, ROUND_ZERO_EXPECTED,
                0);
-    check_case(intel_mm_shuffle_epi32, SHUFFLE_0_ARGUMENTS,
+    check_case(NATIVE_SHUFFLE, SHUFFLE_0_ARGUMENTS,
                IOITF_ROUND_NEAREST_EVEN, SHUFFLE_0_EXPECTED, 0);
-    check_case(intel_mm_shuffle_epi32, SHUFFLE_1_ARGUMENTS,
+    check_case(NATIVE_SHUFFLE, SHUFFLE_1_ARGUMENTS,
                IOITF_ROUND_NEAREST_EVEN, SHUFFLE_1_EXPECTED, 0);
-    check_case(intel_mm_shuffle_epi32, SHUFFLE_27_ARGUMENTS,
+    check_case(NATIVE_SHUFFLE, SHUFFLE_27_ARGUMENTS,
                IOITF_ROUND_NEAREST_EVEN, SHUFFLE_27_EXPECTED, 0);
-    check_case(intel_mm_shuffle_epi32, SHUFFLE_255_ARGUMENTS,
-               IOITF_ROUND_NEAREST_EVEN, SHUFFLE_255_EXPECTED, 0);
-#elif defined(IOITF_TEST_OPENPOWER_ADAPTER)
-    check_case(power_mm_add_pd, ADD_ARGUMENTS,
-               IOITF_ROUND_NEAREST_EVEN, ADD_EXPECTED, 0);
-    check_case(power_mm_set1_pd, SET1_NEGATIVE_ZERO_ARGUMENTS,
-               IOITF_ROUND_NEAREST_EVEN, SET1_NEGATIVE_ZERO_EXPECTED, 0);
-    check_case(power_mm_set1_pd, SET1_SIGNALING_NAN_ARGUMENTS,
-               IOITF_ROUND_NEAREST_EVEN, SET1_SIGNALING_NAN_EXPECTED, 0);
-    check_case(power_mm_add_pd, ROUNDING_ARGUMENTS,
-               IOITF_ROUND_NEAREST_EVEN, ROUND_NEAREST_EXPECTED,
-               0);
-    check_case(power_mm_add_pd, ROUNDING_ARGUMENTS,
-               IOITF_ROUND_TOWARD_ZERO, ROUND_ZERO_EXPECTED,
-               0);
-    check_case(power_mm_shuffle_epi32, SHUFFLE_0_ARGUMENTS,
-               IOITF_ROUND_NEAREST_EVEN, SHUFFLE_0_EXPECTED, 0);
-    check_case(power_mm_shuffle_epi32, SHUFFLE_1_ARGUMENTS,
-               IOITF_ROUND_NEAREST_EVEN, SHUFFLE_1_EXPECTED, 0);
-    check_case(power_mm_shuffle_epi32, SHUFFLE_27_ARGUMENTS,
-               IOITF_ROUND_NEAREST_EVEN, SHUFFLE_27_EXPECTED, 0);
-    check_case(power_mm_shuffle_epi32, SHUFFLE_255_ARGUMENTS,
+    check_case(NATIVE_SHUFFLE, SHUFFLE_255_ARGUMENTS,
                IOITF_ROUND_NEAREST_EVEN, SHUFFLE_255_EXPECTED, 0);
 #endif
 }

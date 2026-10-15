@@ -10,7 +10,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
 option(IOITF_BUILD_NATIVE_ADAPTER
-       "Build the architecture-specific Intel or OpenPOWER adapter" ON)
+       "Build the architecture-specific Intel, OpenPOWER, ARM or RISC-V adapter" ON)
 option(IOITF_BUILD_PORTABLE_ADAPTER
        "Build the development-only portable adapter" ON)
 
@@ -149,6 +149,49 @@ elseif(IOITF_BUILD_NATIVE_ADAPTER AND CMAKE_SYSTEM_NAME STREQUAL "Linux" AND
   endif()
   set(IOITF_NATIVE_TARGET ioitf_adapter_openpower)
   set(IOITF_NATIVE_TEST_DEFINITION IOITF_TEST_OPENPOWER_ADAPTER=1)
+elseif(IOITF_BUILD_NATIVE_ADAPTER AND
+       IOITF_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64|riscv64)$")
+  if(NOT IOITF_STRICT_FP_VERIFIED)
+    message(FATAL_ERROR "The native adapter requires verified strict FP flags")
+  endif()
+  if(IOITF_SYSTEM_PROCESSOR STREQUAL "riscv64")
+    set(IOITF_NEW_ROLE riscv)
+    set(IOITF_NEW_OPTIONS -march=rv64gcv -mabi=lp64d -mrvv-vector-bits=scalable)
+    set(IOITF_NATIVE_TEST_DEFINITION IOITF_TEST_RISCV_ADAPTER=1)
+  else()
+    set(IOITF_NEW_ROLE arm)
+    set(IOITF_NEW_OPTIONS -march=armv8-a+simd)
+    set(IOITF_NATIVE_TEST_DEFINITION IOITF_TEST_ARM_ADAPTER=1)
+  endif()
+  set(IOITF_NATIVE_TARGET ioitf_adapter_${IOITF_NEW_ROLE})
+  add_library(${IOITF_NATIVE_TARGET} SHARED
+              ${IOITF_COMMON_ADAPTER_SOURCE}
+              adapters/${IOITF_NEW_ROLE}/sse2_pd.c)
+  ioitf_configure_adapter(${IOITF_NATIVE_TARGET})
+  target_include_directories(${IOITF_NATIVE_TARGET} PRIVATE adapters/${IOITF_NEW_ROLE})
+  target_compile_options(${IOITF_NATIVE_TARGET} PRIVATE ${IOITF_NEW_OPTIONS})
+  add_library(ioitf_${IOITF_NEW_ROLE}_official_suite OBJECT
+              10_official_suite/${IOITF_NEW_ROLE}/f32x4.c
+              10_official_suite/${IOITF_NEW_ROLE}/f64x2.c
+              10_official_suite/${IOITF_NEW_ROLE}/i8x16.c
+              10_official_suite/${IOITF_NEW_ROLE}/i16x8.c
+              10_official_suite/${IOITF_NEW_ROLE}/i32x4.c
+              10_official_suite/${IOITF_NEW_ROLE}/i64x2.c)
+  target_compile_options(ioitf_${IOITF_NEW_ROLE}_official_suite PRIVATE
+                         ${IOITF_NEW_OPTIONS} ${IOITF_STRICT_FP_OPTIONS}
+                         -Wall -Wextra -Wpedantic)
+  if(BUILD_TESTING AND IOITF_NEW_ROLE STREQUAL "arm")
+    add_executable(ioitf_arm_wrappers_selftest tests/native/test_arm_wrappers.c
+                   $<TARGET_OBJECTS:ioitf_arm_official_suite>)
+    target_compile_options(ioitf_arm_wrappers_selftest PRIVATE
+                           ${IOITF_STRICT_FP_OPTIONS} ${IOITF_NEW_OPTIONS})
+    target_include_directories(ioitf_arm_wrappers_selftest PRIVATE
+                               10_official_suite/arm)
+    if(UNIX AND NOT APPLE)
+      target_link_libraries(ioitf_arm_wrappers_selftest PRIVATE m)
+    endif()
+    add_test(NAME arm_neon_wrappers COMMAND ioitf_arm_wrappers_selftest)
+  endif()
 elseif(IOITF_BUILD_NATIVE_ADAPTER)
   message(STATUS
     "No evidence-producing native adapter for ${CMAKE_SYSTEM_PROCESSOR}; "
@@ -190,3 +233,8 @@ endif()
 if(TARGET ioitf_adapter_openpower)
   install(TARGETS ioitf_adapter_openpower LIBRARY DESTINATION lib)
 endif()
+foreach(role IN ITEMS arm riscv)
+  if(TARGET ioitf_adapter_${role})
+    install(TARGETS ioitf_adapter_${role} LIBRARY DESTINATION lib)
+  endif()
+endforeach()

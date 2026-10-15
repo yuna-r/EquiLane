@@ -19,7 +19,7 @@ equilane check
 {"case_count":254,"record_count":2032,"status":"pass"}
 ```
 
-実行中はvectors生成、Intel / OpenPOWER fixture、比較、レポート生成の進捗が表示されます。
+実行中はvectors生成、Intel / 選択した対象のfixture、比較、レポート生成の進捗が表示されます。
 進捗はstderr、最後のJSONはstdoutなので、スクリプトからもそのまま扱えます。
 進捗を消したい場合だけ`equilane check --quiet`を使います。
 
@@ -31,7 +31,7 @@ equilane check --jobs 8
 ```
 
 `auto`は利用可能な論理CPU数、数字はworker process数です。指定しなければ従来どおり
-1 processで動きます。vectors生成、Intel / OpenPOWER fixture、比較をケース単位で並列化し、
+1 processで動きます。vectors生成、Intel / 選択した対象のfixture、比較をケース単位で並列化し、
 完了後は元の順番へ戻すため、1 processと同じ並び・SHA-256の成果物になります。
 `--quality`を併用した場合はsanitizer buildの並列数にも同じ値を使います。
 小さいsmoke runではprocess起動分だけ不利なことがあるため、件数が多いとき向けです。
@@ -60,11 +60,11 @@ Quality metrics
   valid contracts              254 / 254
   portable models              254 / 254
   standard boundary floors     254 / 254
-  architecture bindings        508 / 508
+  architecture bindings      1016 / 1016
   contract drift                       0
 ```
 
-coverageやsanitizerまで確認したいときだけ、`--quality`を付けます。
+独立した回帰テストやsanitizerを確認したいときだけ、`--quality`を付けます。
 
 ```sh
 equilane check --quality
@@ -72,27 +72,28 @@ equilane check --quality
 
 このオプションでは通常のequivalence checkに加え、次の重い品質ゲートを順番に実行します。
 
-- Python全回帰テスト + 標準ライブラリtraceによるsource line coverage
+- Python全回帰テスト（coverageは`--coverage`指定時のみ）
 - ASan / UBSanを有効にしたportable C build + CTest
-- Intel x86_64 / OpenPOWER ppc64le official suiteのClang cross build
+- Intel x86_64 / OpenPOWER ppc64le / ARM64 NEON / RISC-V64 RVVのClang cross build
 
 実行中は`[7/8] Run quality gates`の下に3本の進捗バーを表示します。Pythonは
-テスト件数、sanitizerは3工程、cross buildは12コンパイルを分母に、実測値で
+テスト件数、sanitizerは3工程、cross buildは24コンパイルを分母に、実測値で
 `0%`から`100%`へ進みます。
 
 ```text
 [7/8] Run quality gates
-  [1/3] Python tests + coverage      [=======-----------]  39% 35/89
+  [1/3] Python tests (coverage optional)      [=======-----------]  39% 35/89
   [2/3] C sanitizers                 [============------]  66% 2/3
-  [3/3] Intel + OpenPOWER cross build [===============---]  83% 10/12
+  [3/3] 4-architecture cross build    [===============---]  83% 20/24
 ```
 
 ここで出るsource line coverageは、等価性の一致率とは別の値です。Python実装の
 実行可能行のうち回帰テストで通った割合を表し、現在は記録のみで合否基準にはしていません。
 
-結果は`<check output>/quality/summary.json`へ、coverage注釈と各コマンドのlogは
+結果は`<check output>/quality/summary.json`へ、各コマンドのlogと、明示指定した場合のcoverage注釈は
 同じ`quality/`以下へ残ります。3ゲートのどれかが失敗するとコマンドも非0で終了します。
 通常の`equilane check`ではこれらを実行しないため、普段の速度は変わりません。
+source line coverageは`--quality --coverage`のときだけ計測します。
 
 `--quality --showcase-report` を併用すると、HTMLにもモデル出力と独立した期待値の差を
 表示します。その他のテスト失敗・実行エラーと区別し、入力・期待値・実測値を確認できます。
@@ -104,12 +105,12 @@ fixture比較が一致してもquality検証が失敗した場合は、レポー
 
 > ここで動くのはローカル開発用fixtureです。CPU実機で一致した証拠ではありません。
 
-## おまけ：かわいいレポート
+## レポート
 
-ちょっと楽しいおまけとして、`--showcase-report`を付けると、いつもの成果物に
+`--showcase-report`を付けると、いつもの成果物に
 淡い色と丸いカード、ムササビのマスコットを使ったHTMLレポートが加わります。プレビューはsmoke実行と独立したモデル検証の
-実測結果です。fixture比較の一致と、モデル出力の不一致171件を区別して表示しています。
-内訳は公式nearest-even契約の36件と、丸めモードを拡張した検証用契約の135件です。
+実測結果です。fixture比較の一致と、モデル出力の不一致2,159件を区別して表示しています。
+内訳は公式nearest-even契約の106件と、丸めモードを拡張した検証用契約の2,053件です。
 
 ![Showcase report preview](assets/showcase-report-preview.svg)
 
@@ -140,10 +141,10 @@ deterministic streamをどれだけ通したかは、レポートの矩形ロー
 
 表示デザインを変えても、判定元はcanonical JSON成果物です。
 
-## IntelとOpenPOWERを見比べる
+## Intelと各アーキテクチャを見比べる
 
 Repositoryの一番上に来る[`10_official_suite/`](10_official_suite/)へ、
-254個のcontractと、Intel / OpenPOWERそれぞれの全254操作をまとめてあります。
+254個のcontractと、Intel / OpenPOWER / ARM / RISC-Vそれぞれの全254操作をまとめてあります。
 
 | Intel Intrinsic | OpenPOWER / VSX |
 |---|---|
@@ -163,7 +164,27 @@ Clangのcross buildも1コマンドです。
 ./10_official_suite/cross-compile.sh
 ```
 
-x86-64 ELFとOpenPOWER ELF V2 ABIのppc64le objectを同時に生成します。
+x86-64 / ppc64le / aarch64 / riscv64 のELF objectを、6ブロックずつ合計24個生成します。
+RVVは`-march=rv64gcv -mrvv-vector-bits=scalable`で固定16-byteの論理ベクトルを扱います。
+
+### 比較対象を選ぶ
+
+```sh
+equilane check --target arm --showcase-report
+equilane check --target riscv --showcase-report
+equilane check --target arm --target riscv --showcase-report
+equilane check --target all --showcase-report
+```
+
+Intelを共通の基準にします。複数対象ではIntel fixtureを1回だけ実行し、各対象と比較します。
+HTMLは対象ごとの一致数を表示します。summaryの`record_count`は比較ペア数、
+CLI最終JSONの`record_count`はユニーク入力数です。複数対象の詳細成果物は
+`comparison/<role>/`、合計は`comparison/summary.json`へ残します。
+
+新しい`arm` / `riscv` bindingはプロジェクトの拡張です。古いIntel/OpenPOWERだけの
+case packも読み込めます。そのcaseに追加対象のbindingがなければ`unsupported`として扱います。
+ARMのNaN・signed zero・変換結果やRVVのNaN canonicalizationは、C実装でそのまま返します。
+Python fixtureは共通モデルであり、これらのCPU差を再現するものではありません。
 
 ## ケースをひとつ増やす
 
@@ -260,7 +281,7 @@ ctest --test-dir build/native --output-on-failure
   `_mm_move_epi64`、`_mm_cvtsi64_si128`、`_mm_set1_epi64x`、vector-count shift ×2、
   low-lane extract、set、low-lane load / store
 
-254ケースすべてをportable fixtureで確認でき、公式Intel/OpenPOWER sourceにも
+254ケースすべてをportable fixtureで確認でき、公式Intel/OpenPOWER/ARM/RISC-V sourceにも
 全254操作が揃っています。
 
 </details>
@@ -286,6 +307,14 @@ intel:
 openpower:
   symbol: power_mm_add_pd
   required_isa: [power8, vsx]
+
+arm:
+  symbol: arm_mm_add_pd
+  required_isa: [neon]
+
+riscv:
+  symbol: riscv_mm_add_pd
+  required_isa: [rvv]
 
 signature:
   arguments:
@@ -343,13 +372,15 @@ JSON形式のcaseも読み込めます。
 
 - `adapters/intel/`: Intel Intrinsicを呼ぶ実装
 - `adapters/openpower/`: OpenPOWER互換実装を呼ぶ実装
+- `adapters/arm/`: ARM64 NEONの実装
+- `adapters/riscv/`: RISC-V64 RVVの実装
 - `adapters/portable/`: ホストで確認できる補助実装
 - `include/framework/example_cases.h`: 公開C symbol
 - `tests/native/test_native.c`: ABIと代表入力のテスト
 
 IntelとOpenPOWERのコードは、それぞれの対象CPU上で別々にビルド・実行します。
-arm64 macOSではportable adapterのみ、Linux x86_64ではIntel adapter、ppc64leでは
-OpenPOWER adapterも対象になります。
+arm64 macOS / LinuxではARM adapter、Linux x86_64ではIntel adapter、ppc64leでは
+OpenPOWER adapter、riscv64ではRVV adapterも対象になります。
 
 詳しくは[NATIVE_STATUS.md](NATIVE_STATUS.md)を参照してください。
 
@@ -404,7 +435,7 @@ Frameworkとテストsuiteは分けてあります。
 
 ```text
 EquiLane/
-├── 10_official_suite/     # 254 cases + Intel/OpenPOWER各254操作
+├── 10_official_suite/     # 254 cases + 4アーキテクチャ各254操作
 ├── src/equilane/             # CLIとartifact処理
 ├── adapters/              # native / portable adapter
 ├── contracts/             # ISA registry
@@ -468,6 +499,18 @@ equilane verify-replay \
 ```
 
 `--failure`には`failure.json`またはbundleディレクトリを指定できます。
+
+ARM/RISC-Vでは`--openpower`の代わりに`--target-role arm --target replay/arm/arm-results.manifest.json`
+などを指定します。対象を省略して`--target`だけ渡すとbundleの対象を使います。
+開発fixtureだけの再実行は、ローカルの同じcase packを使って次のように実行できます。
+
+```sh
+equilane replay --failure artifacts/comparison/failures/$INPUT_ID/failure.json \
+  --role arm --output replay/arm --i-understand-this-is-not-native-evidence
+```
+
+このopt-inなしのnative replayは引き続き未実装です。bundleのJSONをコードとして実行せず、
+ローカルcase packの契約を照合してから開発モデルを読み込みます。
 
 Bundleは、ファイルのSHA-256、case contract、input ID、使用ISA、両方の基準結果、
 不一致件数、最初の差分を検証します。bundle外へ出るpathやsymlinkも拒否します。

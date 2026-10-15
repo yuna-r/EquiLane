@@ -307,7 +307,7 @@ class CaseAndGeneratorTests(unittest.TestCase):
         used = project_used_isa(self.isa, self.cases)
         self.assertEqual(
             [token["token"] for token in used.data["tokens"]],
-            ["power8", "sse2", "vsx"],
+            ["neon", "power8", "rvv", "sse2", "vsx"],
         )
 
     def test_case_contracts_are_flat_python_case_packs(self) -> None:

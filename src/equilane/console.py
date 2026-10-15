@@ -45,7 +45,7 @@ def print_quality_metrics(
     stream: TextIO | None = None,
 ) -> None:
     destination = sys.stderr if stream is None else stream
-    bindings = metrics.cases * 2
+    bindings = metrics.architecture_bindings
     rows = [
         ("valid contracts", f"{metrics.valid_contracts:,} / {metrics.cases:,}"),
         ("portable models", f"{metrics.development_models:,} / {metrics.cases:,}"),

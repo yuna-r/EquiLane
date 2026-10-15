@@ -44,6 +44,7 @@ from .isa import (
 )
 from .records import require_sha256
 from .reproduction import reproduction_commands
+from .targets import TARGETS, TARGET_TARGETS
 
 
 _FAILURE_KEYS = {
@@ -63,33 +64,41 @@ _FAILURE_KEYS = {
     "test_vectors_manifest",
     "used_isa_contract_sha256",
 }
-_SOURCE_KEYS = (
-    "case_definitions_sha256",
-    "input_isa_registry_sha256",
-    "input_sha256",
-    "intel_isa_registry_sha256",
-    "intel_results_sha256",
-    "openpower_isa_registry_sha256",
-    "openpower_results_sha256",
-    "used_isa_contract_sha256",
-)
-_FIXED_PATHS = {
-    "test_vectors_manifest": "test-vectors.manifest.json",
-    "intel_manifest": "baseline/intel/intel-results.manifest.json",
-    "openpower_manifest": "baseline/openpower/power-results.manifest.json",
-    "case_definitions": "contracts/case-definitions.json",
-    "used_isa": "contracts/isa-used.json",
-}
-_BUNDLE_MEMBERS = (
-    "test-vectors.manifest.json",
-    "test-vectors.jsonl",
-    "contracts/case-definitions.json",
-    "contracts/isa-used.json",
-    "baseline/intel/intel-results.manifest.json",
-    "baseline/intel/intel-results.jsonl",
-    "baseline/openpower/power-results.manifest.json",
-    "baseline/openpower/power-results.jsonl",
-)
+def _target_role(failure: dict[str, JSONValue]) -> str:
+    role = failure.get("target_role", "openpower")
+    if not isinstance(role, str) or role not in TARGET_TARGETS:
+        raise ValidationError("failure.target_role: unknown comparison target")
+    return role
+
+
+def _source_keys(role: str) -> tuple[str, ...]:
+    return (
+        "case_definitions_sha256", "input_isa_registry_sha256", "input_sha256",
+        "intel_isa_registry_sha256", "intel_results_sha256",
+        f"{role}_isa_registry_sha256", f"{role}_results_sha256",
+        "used_isa_contract_sha256",
+    )
+
+
+def _fixed_paths(role: str) -> dict[str, str]:
+    return {
+        "test_vectors_manifest": "test-vectors.manifest.json",
+        "intel_manifest": "baseline/intel/intel-results.manifest.json",
+        f"{role}_manifest": f"baseline/{role}/{TARGETS[role].manifest_file}",
+        "case_definitions": "contracts/case-definitions.json",
+        "used_isa": "contracts/isa-used.json",
+    }
+
+
+def _bundle_members(role: str) -> tuple[str, ...]:
+    return (
+        "test-vectors.manifest.json", "test-vectors.jsonl",
+        "contracts/case-definitions.json", "contracts/isa-used.json",
+        "baseline/intel/intel-results.manifest.json",
+        "baseline/intel/intel-results.jsonl",
+        f"baseline/{role}/{TARGETS[role].manifest_file}",
+        f"baseline/{role}/{TARGETS[role].results_file}",
+    )
 
 
 @dataclass(frozen=True)
@@ -105,6 +114,14 @@ class FailureBundle:
     input_artifact: InputArtifact
     baseline_intel: ResultArtifact
     baseline_openpower: ResultArtifact
+
+    @property
+    def target_role(self) -> str:
+        return _target_role(self.failure)
+
+    @property
+    def baseline_target(self) -> ResultArtifact:
+        return self.baseline_openpower
 
 
 @dataclass(frozen=True)
@@ -243,7 +260,12 @@ def _validate_contract_reference(
 
 def _validate_failure_shape(value: JSONValue, *, location: str) -> dict[str, JSONValue]:
     failure = require_object(value, location)
-    require_exact_keys(failure, _FAILURE_KEYS, location=location)
+    role = _target_role(failure)
+    paths = _fixed_paths(role)
+    require_exact_keys(
+        failure, _FAILURE_KEYS | ({"target_role"} if "target_role" in failure else set()),
+        location=location,
+    )
     if failure["artifact_type"] != "ioitf.failure":
         raise ValidationError(f"{location}.artifact_type: expected ioitf.failure")
     if require_int(failure["schema_version"], f"{location}.schema_version") != 1:
@@ -267,19 +289,19 @@ def _validate_failure_shape(value: JSONValue, *, location: str) -> dict[str, JSO
     baseline = require_object(failure["baseline"], f"{location}.baseline")
     require_exact_keys(
         baseline,
-        {"intel_manifest", "openpower_manifest"},
+        {"intel_manifest", f"{role}_manifest"},
         location=f"{location}.baseline",
     )
-    for key in ("intel_manifest", "openpower_manifest"):
-        if baseline[key] != _FIXED_PATHS[key]:
+    for key in ("intel_manifest", f"{role}_manifest"):
+        if baseline[key] != paths[key]:
             raise ValidationError(
-                f"{location}.baseline.{key}: expected {_FIXED_PATHS[key]!r}"
+                f"{location}.baseline.{key}: expected {paths[key]!r}"
             )
 
-    if failure["test_vectors_manifest"] != _FIXED_PATHS["test_vectors_manifest"]:
+    if failure["test_vectors_manifest"] != paths["test_vectors_manifest"]:
         raise ValidationError(
             f"{location}.test_vectors_manifest: expected "
-            f"{_FIXED_PATHS['test_vectors_manifest']!r}"
+            f"{paths['test_vectors_manifest']!r}"
         )
 
     contracts = require_object(failure["contracts"], f"{location}.contracts")
@@ -291,26 +313,26 @@ def _validate_failure_shape(value: JSONValue, *, location: str) -> dict[str, JSO
     _validate_contract_reference(
         contracts["case_definitions"],
         location=f"{location}.contracts.case_definitions",
-        expected_file=_FIXED_PATHS["case_definitions"],
+        expected_file=paths["case_definitions"],
     )
     _validate_contract_reference(
         contracts["used_isa"],
         location=f"{location}.contracts.used_isa",
-        expected_file=_FIXED_PATHS["used_isa"],
+        expected_file=paths["used_isa"],
     )
 
     reproduce = require_object(failure["reproduce"], f"{location}.reproduce")
     require_exact_keys(
-        reproduce, {"intel", "openpower", "verify"}, location=f"{location}.reproduce"
+        reproduce, {"intel", role, "verify"}, location=f"{location}.reproduce"
     )
-    if reproduce not in (reproduction_commands(), reproduction_commands("ioitf")):
+    if reproduce not in (reproduction_commands(target_role=role), reproduction_commands("ioitf", target_role=role)):
         raise ValidationError(f"{location}.reproduce: commands do not match schema v1")
 
     source = require_object(failure["source_artifacts"], f"{location}.source_artifacts")
     require_exact_keys(
-        source, set(_SOURCE_KEYS), location=f"{location}.source_artifacts"
+        source, set(_source_keys(role)), location=f"{location}.source_artifacts"
     )
-    for key in _SOURCE_KEYS:
+    for key in _source_keys(role):
         require_sha256(source[key], f"{location}.source_artifacts.{key}")
     return failure
 
@@ -326,19 +348,21 @@ def _validate_bundle_snapshot(
     used_bytes: bytes,
     used_value: JSONValue,
 ) -> FailureBundle:
+    role = _target_role(failure)
+    paths = _fixed_paths(role)
     file_paths = {
         name: snapshot_root.joinpath(*relative.split("/"))
-        for name, relative in _FIXED_PATHS.items()
+        for name, relative in paths.items()
     }
     if not isinstance(case_value, list) or len(case_value) != 1:
         raise ValidationError("failure bundle must contain exactly one case definition")
     case_sha = sha256_bytes(case_bytes)
 
-    used_object = require_object(used_value, str(original_root / _FIXED_PATHS["used_isa"]))
+    used_object = require_object(used_value, str(original_root / paths["used_isa"]))
     require_exact_keys(
         used_object,
         {"cases", "schema_version", "tokens"},
-        location=str(original_root / _FIXED_PATHS["used_isa"]),
+        location=str(original_root / paths["used_isa"]),
     )
     minimal_registry_data: dict[str, JSONValue] = {
         "schema_version": 1,
@@ -346,7 +370,7 @@ def _validate_bundle_snapshot(
     }
     embedded_isa = validate_isa_registry(
         minimal_registry_data,
-        source=f"{original_root / _FIXED_PATHS['used_isa']} tokens",
+        source=f"{original_root / paths['used_isa']} tokens",
     )
     cases = load_case_definitions(
         file_paths["case_definitions"], isa_registry=embedded_isa
@@ -355,7 +379,7 @@ def _validate_bundle_snapshot(
         used_object,
         registry=embedded_isa,
         cases=cases,
-        source=str(original_root / _FIXED_PATHS["used_isa"]),
+        source=str(original_root / paths["used_isa"]),
     )
     used_sha = sha256_bytes(used_bytes)
     if case_sha != cases.sha256:
@@ -387,14 +411,14 @@ def _validate_bundle_snapshot(
         input_artifact=inputs,
     )
     power = validate_result_artifact(
-        file_paths["openpower_manifest"],
+        file_paths[f"{role}_manifest"],
         cases,
         embedded_isa,
         input_artifact=inputs,
     )
     if inputs.record_count != 1 or intel.record_count != 1 or power.record_count != 1:
         raise ValidationError("failure bundle artifacts must contain exactly one record")
-    if intel.role != "intel" or power.role != "openpower":
+    if intel.role != "intel" or power.role != role:
         raise ValidationError("failure baseline roles do not match their fixed paths")
 
     input_record = inputs.records[0]
@@ -404,7 +428,7 @@ def _validate_bundle_snapshot(
         raise ValidationError("failure identity does not match its single input")
     if failure["comparison"] != cases.get(case_id).comparison:
         raise ValidationError("failure comparison does not match its case contract")
-    for role, artifact in (("intel", intel), ("openpower", power)):
+    for role, artifact in (("intel", intel), (role, power)):
         record = artifact.records[input_id]
         if record["input_id"] != input_id or record["case_id"] != case_id:
             raise ValidationError(f"failure {role} baseline identity mismatch")
@@ -415,6 +439,7 @@ def _validate_bundle_snapshot(
         intel.records[input_id],
         power.records[input_id],
         validate=False,
+        target_role=role,
     )
     if comparison.outcome != "mismatch" or comparison.first_difference is None:
         raise ValidationError("failure baselines do not contain an ordinary mismatch")
@@ -427,18 +452,18 @@ def _validate_bundle_snapshot(
     # to the supplied bundle while retaining the validated in-memory data.
     inputs = replace(
         inputs,
-        manifest_path=original_root / _FIXED_PATHS["test_vectors_manifest"],
+        manifest_path=original_root / paths["test_vectors_manifest"],
         vectors_path=original_root / "test-vectors.jsonl",
     )
     intel = replace(
         intel,
-        manifest_path=original_root / _FIXED_PATHS["intel_manifest"],
+        manifest_path=original_root / paths["intel_manifest"],
         results_path=original_root / "baseline/intel/intel-results.jsonl",
     )
     power = replace(
         power,
-        manifest_path=original_root / _FIXED_PATHS["openpower_manifest"],
-        results_path=original_root / "baseline/openpower/power-results.jsonl",
+        manifest_path=original_root / paths[f"{role}_manifest"],
+        results_path=original_root / f"baseline/{role}/{TARGETS[role].results_file}",
     )
     return FailureBundle(
         root=original_root,
@@ -458,11 +483,14 @@ def load_failure_bundle(path: str | Path) -> FailureBundle:
 
     marker = _failure_path(path)
     root = marker.parent
-    files = _snapshot_bundle_files(root, ("failure.json", *_BUNDLE_MEMBERS))
+    files = _snapshot_bundle_files(root, ("failure.json",))
     failure_value = _read_canonical_value(files["failure.json"], source=str(marker))
     failure = _validate_failure_shape(failure_value, location=str(marker))
-    case_relative = _FIXED_PATHS["case_definitions"]
-    used_relative = _FIXED_PATHS["used_isa"]
+    role = _target_role(failure)
+    paths = _fixed_paths(role)
+    files.update(_snapshot_bundle_files(root, _bundle_members(role)))
+    case_relative = paths["case_definitions"]
+    used_relative = paths["used_isa"]
     case_value = _read_canonical_value(
         files[case_relative], source=str(root / case_relative)
     )
@@ -611,9 +639,13 @@ def verify_replay_artifacts(
     *,
     intel_manifest: str | Path,
     openpower_manifest: str | Path,
+    target_role: str | None = None,
 ) -> tuple[ReplayVerification, ResultArtifact, ResultArtifact]:
     """Validate replay artifacts and compare them with both bundle baselines."""
 
+    role = bundle.target_role
+    if target_role is not None and target_role != role:
+        raise ValidationError("replay target does not match failure bundle")
     intel = validate_result_artifact(
         intel_manifest,
         bundle.cases,
@@ -626,7 +658,7 @@ def verify_replay_artifacts(
         bundle.isa_registry,
         input_artifact=bundle.input_artifact,
     )
-    if intel.role != "intel" or power.role != "openpower":
+    if intel.role != "intel" or power.role != role:
         raise ValidationError("replay result roles do not match their command arguments")
 
     input_record = bundle.input_artifact.records[0]
@@ -635,7 +667,7 @@ def verify_replay_artifacts(
     result_differences: list[JSONValue] = []
     for role, baseline, replay in (
         ("intel", bundle.baseline_intel, intel),
-        ("openpower", bundle.baseline_openpower, power),
+        (role, bundle.baseline_openpower, power),
     ):
         difference = _first_difference(
             _result_projection(baseline.records[input_id]),
@@ -651,6 +683,7 @@ def verify_replay_artifacts(
         intel.records[input_id],
         power.records[input_id],
         validate=False,
+        target_role=role,
     )
     replay_comparison: dict[str, JSONValue] = {
         "first_difference": comparison.first_difference,
@@ -668,7 +701,7 @@ def verify_replay_artifacts(
         reproduced=not result_differences and comparison_matches,
         environment_differences={
             "intel": _environment_differences(bundle.baseline_intel, intel),
-            "openpower": _environment_differences(bundle.baseline_openpower, power),
+            role: _environment_differences(bundle.baseline_openpower, power),
         },
         result_differences=result_differences,
         replay_comparison=replay_comparison,

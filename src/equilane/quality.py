@@ -57,7 +57,7 @@ def collect_quality_metrics(cases: Iterable[CaseDefinition]) -> QualityMetrics:
         models += 1
         if development.minimum_counts.get("standard", 0) > 0:
             boundary_floors += 1
-        for role in ("intel", "openpower"):
+        for role in case.target_roles:
             definition = case.data[role]
             if isinstance(definition, dict) and isinstance(definition.get("symbol"), str):
                 bindings += 1
@@ -277,8 +277,8 @@ def run_quality_gates(
     cross_log = output / "cross-build.log"
     cross_script = root / "10_official_suite" / "cross-compile.sh"
     cross_command = [str(cross_script), str(output / "cross-build")]
-    cross_label = "Intel + OpenPOWER cross build"
-    cross_work = [0, 12]
+    cross_label = "Intel + OpenPOWER + ARM64 + RISC-V64 cross build"
+    cross_work = [0, 24]
 
     def cross_progress(current: int, total: int) -> None:
         cross_work[:] = [current, total]
@@ -286,7 +286,7 @@ def run_quality_gates(
             progress(QualityGateUpdate(3, 3, cross_label, current, total))
 
     if progress is not None:
-        progress(QualityGateUpdate(3, 3, cross_label, 0, 12))
+        progress(QualityGateUpdate(3, 3, cross_label, 0, 24))
     if cross_script.is_file():
         cross_process = _execute(
             cross_command,

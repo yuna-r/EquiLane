@@ -1,62 +1,78 @@
 # Native implementation status
 
-This directory implements the first native slice of IOITF-SPEC-001 section 6.
+EquiLane keeps the Intel/OpenPOWER ABI v1 boundary and adds ARM64 NEON and
+RISC-V64 RVV 1.0 targets. The normal `check` command uses development fixtures;
+its comparisons share a Python model and do not measure CPU differences.
 
-The development suite contains 254 case packs. This native slice currently
-covers `_mm_add_pd`, `_mm_set1_pd`, and `_mm_shuffle_epi32`; the other case
-packs remain development-fixture-only until architecture adapters are added.
+| Target | Official C wrappers | Example ABI callbacks | Execution checked here |
+|---|---:|---:|---|
+| Intel / SSE2 | 254 | 3 | x86_64 probes under Rosetta |
+| OpenPOWER / POWER8 VSX | 254 | 3 | Cross-build only |
+| ARM64 / NEON | 254 | 3 | Native arm64 Mac |
+| RISC-V64 / RVV 1.0 | 254 | 3 | QEMU RV64, VLEN 128 and 256 |
 
-Implemented:
-
-- ABI version 1 C structs, enum values, LP64 sizes, and every normative
-  `offsetof` assertion.
-- Strict, case-specific decoding of the RFC 8785 byte representation used by
-  `_mm_add_pd`, `_mm_set1_pd`, and `_mm_shuffle_epi32`. The decoder deliberately
-  accepts only each complete canonical signature and the registered shuffle
-  immediates; it is not a general JSON parser.
-- The output-capacity handshake. A too-small first call publishes the exact
-  required size and does not call the SUT.
-- Canonical f64x2 return encoding, logical lane conversion, requested rounding
-  mode, and normalized IEEE exception flags. Native input preparation occurs
-  before flags are cleared; the observation interval invokes only the target
-  operation; native result extraction occurs after flags are captured.
-- The three native-slice cases have `observe_fp_exceptions: false`, so their public ABI
-  output is always zero. The same internal capture path is independently tested
-  through a test-only side channel, including the `inexact` bit.
-- Linux x86_64 SSE2 adapters with public add, broadcast, and immediate-shuffle
-  symbols. Shuffle uses a literal dispatch for `0`, `1`, `27`, and `255`.
-- A canonical but undeclared `imm8` is returned as
-  `IOITF_CALL_OK`/`IOITF_OUTPUT_INVALID_INPUT` without invoking the SUT;
-  malformed or noncanonical ABI bytes remain `IOITF_CALL_INVALID_ABI`.
-- A Linux ppc64le VSX compatibility implementation boundary with the public symbols
-  `power_mm_add_pd`, `power_mm_set1_pd`, and `power_mm_shuffle_epi32`.
-- Reader-facing Intel SSE2 and OpenPOWER VSX examples for all 254 official cases
-  under `10_official_suite/`. The paired sources cross-compile to x86-64 and
-  ppc64le ELF objects with LLVM Clang; native builds also compile the matching
-  `ioitf_*_official_suite` object target.
-- A scalar portable adapter and self-test for development hosts such as arm64
-  macOS. Its `portable_*` symbols are fixtures and must never be recorded as
-  Intel or OpenPOWER evidence.
-
-The native self-test covers ABI rejection, rejection of a noncanonical payload,
-the exact-size retry protocol, output bounds, lane-independent known results,
-negative-zero replication, all registered immediate shuffles, dynamic rounding,
-and the inexact flag.
-
-Not yet implemented:
-
-- Symbolic pointer/buffer cases and `encoded_memory_effects`.
-- A native runner, process/signal isolation, dynamic symbol registry, ISA
-  detector, MXCSR/FPSCR/VSCR preflight, or build-manifest evidence collector.
-- Cross-compilation of the full ppc64le ABI adapter, execution on a ppc64le
-  host, and collection as conformance evidence. The reader-facing official
-  suite already cross-compiles; only execution can turn it into native evidence.
-- General RFC 8785 JSON decoding for arbitrary case signatures.
-
-Build and run on a development host:
+Every target has six C blocks (`f32x4`, `f64x2`, `i8x16`, `i16x8`, `i32x4`,
+`i64x2`). Their 24 standalone objects cross-compile without target libc sysroots:
 
 ```sh
-cmake -S . -B build/native -DBUILD_TESTING=ON
-cmake --build build/native
+./10_official_suite/cross-compile.sh
+```
+
+The ARM and RISC-V bindings are project extensions. Old case packs containing
+only Intel and OpenPOWER remain valid; missing extra bindings yield `unsupported`.
+The new targets use little-endian LP64 architecture profiles (`aarch64`, `riscv64`).
+
+## Native checks
+
+On ARM64 macOS or Linux, CMake builds the NEON adapter and wrapper self-test.
+The latter performs 4,596 checks even in Release builds: integer boundaries,
+saturating packs, complete shuffle immediates, full-width shifts, scalar inactive
+lanes, subnormal widening and unaligned memory guards. Native NaN, zero-tie and
+float-to-integer differences are printed without normalization.
+
+```sh
+cmake -S . -B build/native -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release
+cmake --build build/native --parallel
 ctest --test-dir build/native --output-on-failure
 ```
+
+With LLVM Clang and `qemu-system-riscv64` available:
+
+```sh
+./tests/native/test_riscv_smoke.sh
+python3 tests/native/test_riscv_suite.py
+```
+
+The smoke performs 18 checks at each VLEN, including memory guards, vector widths,
+saturation, large shifts, dynamic rounding and exception flags. The full suite
+executes all 254 wrappers with three deterministic inputs each. At both VLENs,
+750 of 762 byte results matched the strict SSE2/Rosetta reference; 12 floating
+add/subtract/multiply samples differed because RVV retains its canonical NaN.
+The command records every difference in `build/riscv-native-suite/summary.json`
+and exits with status 1. These are CPU semantic differences, separate from the
+portable model's known bugs. This is emulated execution, with a Rosetta reference.
+
+RVV uses explicit element counts and `-mrvv-vector-bits=scalable`. A larger
+physical register must not overwrite the fixed 16-byte logical vector slots.
+Detailed implementation mappings and observed bits are in [ARM](10_official_suite/arm/README.md)
+and [RISC-V](10_official_suite/riscv/README.md).
+
+## C ABI boundary
+
+All four architecture adapters expose `_mm_add_pd`, `_mm_set1_pd` and
+`_mm_shuffle_epi32` through the canonical ABI. Other wrappers are raw C functions;
+they are not yet wired into the encoded ABI. The RISC-V adapter was cross-compiled,
+but its Linux libc/fenv link and runtime remain unverified.
+
+The common boundary implements LP64 size/offset assertions, strict case-specific
+RFC 8785 decoding, output-capacity negotiation, logical lane encoding, requested
+rounding and FP exception capture. Input preparation precedes flag clearing;
+extraction follows observation. The three public example contracts disable FP
+exception observation, while the internal capture path is independently tested.
+Shuffle accepts only the registered literals `0`, `1`, `27` and `255`.
+The portable adapter remains a development fixture.
+
+Still under development: the native runner and process isolation, dynamic symbol
+registry, CPU/FP-control preflight, build-evidence collector, arbitrary-signature
+JSON decoding, and encoded pointer/memory cases. Official wrapper execution and
+cross-builds do not by themselves produce conformant native result manifests.

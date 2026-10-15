@@ -58,6 +58,14 @@ openpower:
   symbol: power_{symbol}
   required_isa: [power8, vsx]
 
+arm:
+  symbol: arm_{symbol}
+  required_isa: [neon]
+
+riscv:
+  symbol: riscv_{symbol}
+  required_isa: [rvv]
+
 signature:
   arguments:
     - {{name: a, type: vector, element: {element}, lanes: {lane_text}}}
@@ -93,7 +101,7 @@ CASE_ID, MINIMUM_COUNTS, candidates, execute = binary_case(
         encoding="utf-8",
     )
     print(f"created {target}")
-    print("next: add matching intel_*/power_* native symbols, then run equilane check")
+    print("next: add matching intel_*/power_*/arm_*/riscv_* native symbols, then run equilane check --target all")
     return 0
 
 

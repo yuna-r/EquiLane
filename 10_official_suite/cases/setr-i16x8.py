@@ -13,6 +13,14 @@ openpower:
   symbol: power_mm_setr_epi16
   required_isa: [power8, vsx]
 
+arm:
+  symbol: arm_mm_setr_epi16
+  required_isa: [neon]
+
+riscv:
+  symbol: riscv_mm_setr_epi16
+  required_isa: [rvv]
+
 signature:
   arguments:
     - {name: lane0, type: scalar, element: i16}

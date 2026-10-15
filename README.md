@@ -2,7 +2,7 @@
 
 **Intrinsics Equivalence Testing**
 
-Intel Intrinsics と OpenPOWER の実装に同じ入力を渡し、結果の違いを調べるツールです。
+Intel Intrinsics と OpenPOWER・ARM64 NEON・RISC-V64 RVV の実装を、同じ入力で見比べるツールです。
 254のケースと、結果をまとめるHTMLレポートを収録しています。
 
 ![EquiLane report](assets/showcase-report-preview.svg)
@@ -23,15 +23,16 @@ equilane serve
 ```
 
 [localhost:8765](http://localhost:8765) を開くと、新しい検証を実行し、
-過去のレポートも見返せます。出力先は `.equilane/checks/` です。
+過去のレポートも見返せます。画面で比較対象を選べます。出力先は `.equilane/checks/` です。
 
 端末から直接レポートを作る場合：
 
 ```sh
-equilane check --showcase-report
+equilane check --target all --showcase-report
 ```
 
 最後に表示される `showcase_report` のHTMLをブラウザで開きます。
+`--target arm` / `--target riscv` で個別に指定できます。省略時はOpenPOWERです。
 
 独立したモデル検証、sanitizer、cross buildも含める場合：
 
@@ -41,7 +42,6 @@ equilane check --project equilane.toml --quality --showcase-report
 
 現在のportable modelには、NaNと丸め処理の既知の不一致があります。
 `--quality` はこれらをレポートに記録し、検証失敗として終了します。
-現在は `--quality` の設定ファイルを明示してください。省略時の不具合も回帰テストで記録しています。
 詳細は [検出済みの不一致](tests/BUG_HUNT.md) にあります。
 カバレッジは既定では計測しません。必要な場合だけ上のコマンドに `--coverage` を追加します。
 
@@ -62,8 +62,10 @@ equilane check --profile standard --count-per-case 1000 --jobs auto --showcase-r
 
 ## 検証の範囲
 
-現在の比較はローカルの開発用fixtureです。Intel / OpenPOWER実機間の一致を示す証拠ではありません。
-x86_64 / ppc64leのcross buildには対応していますが、ppc64le実機runnerは未実装です。
+通常の比較は共通Pythonモデルを使う開発用fixtureです。各CPUの実機間での一致を示す証拠ではありません。
+4環境それぞれに254操作のC実装があり、クロスビルドに対応しています。
+ARM64はこのMac上のNEONテスト、RISC-V64はQEMUのRVVテストで動作を確認しています。
+実機成果物を収集するnative runnerは引き続き開発中です。
 
 従来の `ioitf` コマンド、Python import、`ioitf.toml` も引き続き使えます。
 成果物の `ioitf.*` 識別子とC ABIは、既存データとの互換性のため維持しています。

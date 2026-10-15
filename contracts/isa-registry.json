@@ -2,10 +2,22 @@
   "schema_version": 1,
   "tokens": [
     {
+      "architecture": "aarch64",
+      "detector": {"id": "linux.auxv.asimd", "version": 1},
+      "implies": [],
+      "token": "neon"
+    },
+    {
       "architecture": "ppc64le",
       "detector": {"id": "linux.auxv.power8", "version": 1},
       "implies": [],
       "token": "power8"
+    },
+    {
+      "architecture": "riscv64",
+      "detector": {"id": "linux.hwprobe.rvv", "version": 1},
+      "implies": [],
+      "token": "rvv"
     },
     {
       "architecture": "x86_64",

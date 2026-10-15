@@ -13,6 +13,14 @@ openpower:
   symbol: power_mm_load_ss
   required_isa: [power8, vsx]
 
+arm:
+  symbol: arm_mm_load_ss
+  required_isa: [neon]
+
+riscv:
+  symbol: riscv_mm_load_ss
+  required_isa: [rvv]
+
 signature:
   arguments:
     - {name: source, type: pointer}

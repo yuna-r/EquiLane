@@ -18,6 +18,8 @@ from typing import Any
 from urllib.parse import unquote, urlsplit
 from uuid import uuid4
 
+from .targets import TARGET_TARGETS
+
 
 _PROFILES = {"smoke", "standard", "stress", "exhaustive-small"}
 _REPORT_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}\Z")
@@ -32,12 +34,13 @@ class CheckOptions:
     jobs: int | str = 1
     quality: bool = False
     coverage: bool = False
+    targets: tuple[str, ...] = ("openpower",)
 
     @classmethod
     def from_json(cls, value: Any) -> CheckOptions:
         if not isinstance(value, dict):
             raise ValueError("check options must be a JSON object")
-        unknown = set(value) - {"profile", "count_per_case", "jobs", "quality", "coverage"}
+        unknown = set(value) - {"profile", "count_per_case", "jobs", "quality", "coverage", "targets"}
         if unknown:
             raise ValueError("unknown check option")
         profile = value.get("profile", "smoke")
@@ -57,7 +60,15 @@ class CheckOptions:
             raise ValueError("coverage must be a boolean")
         if coverage and not quality:
             raise ValueError("coverage requires quality checks")
-        return cls(profile, count, jobs, quality, coverage)
+        targets = value.get("targets", ["openpower"])
+        if not isinstance(targets, list) or not targets:
+            raise ValueError("targets must be a non-empty array")
+        if any(not isinstance(role, str) or role not in TARGET_TARGETS for role in targets):
+            raise ValueError("targets must contain openpower, arm, or riscv")
+        if len(targets) != len(set(targets)):
+            raise ValueError("targets must not contain duplicates")
+        ordered = tuple(role for role in TARGET_TARGETS if role in targets)
+        return cls(profile, count, jobs, quality, coverage, ordered)
 
 
 class ReportStore:
@@ -106,6 +117,21 @@ class ReportStore:
             return None
         if summary["record_count"] != sum(summary[key] for key in counters[1:]):
             return None
+        target_summaries = summary.get("targets")
+        if target_summaries is not None:
+            if not isinstance(target_summaries, dict) or not target_summaries:
+                return None
+            if any(role not in TARGET_TARGETS for role in target_summaries):
+                return None
+            targets = [role for role in TARGET_TARGETS if role in target_summaries]
+        else:
+            role = summary.get("target_role", "openpower")
+            if not isinstance(role, str) or role not in TARGET_TARGETS:
+                return None
+            targets = [role]
+        if summary["record_count"] % len(targets):
+            return None
+        unique_input_count = summary["record_count"] // len(targets)
 
         def metadata(path: Path) -> Any:
             return self._json_file(path) if path.resolve().is_relative_to(directory) else None
@@ -142,6 +168,8 @@ class ReportStore:
             "outcome": summary["outcome"],
             "quality_status": quality_status,
             "quality_mismatches": quality_mismatches,
+            "targets": targets,
+            "unique_input_count": unique_input_count,
         }
 
     def list_reports(self) -> list[dict[str, Any]]:
@@ -187,6 +215,7 @@ class CheckManager:
                 "report_url": None,
                 "error": None,
                 "output": "",
+                "targets": options.targets,
             }
             self._thread = threading.Thread(
                 target=self._run, args=(report_id, options), daemon=True,
@@ -219,6 +248,8 @@ class CheckManager:
             command.append("--quality")
         if options.coverage:
             command.append("--coverage")
+        for role in options.targets:
+            command.extend(["--target", role])
         environment = os.environ.copy()
         source_root = str(Path(__file__).resolve().parents[1])
         environment["PYTHONPATH"] = source_root + os.pathsep + environment.get("PYTHONPATH", "")

@@ -69,6 +69,32 @@ class ReportStoreTests(unittest.TestCase):
             self.assertEqual(reports[0]["quality_status"], "fail")
             self.assertEqual(reports[0]["quality_mismatches"], 171)
             self.assertEqual(reports[1]["quality_status"], "unrecorded")
+            self.assertEqual(reports[1]["targets"], ["openpower"])
+
+    def test_history_preserves_single_and_multi_target_identity(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            single = write_report(root, "arm")
+            multi = write_report(root, "all-targets")
+            for report, metadata in ((single, {"target_role": "arm"}),
+                                     (multi, {"targets": {"riscv": {}, "arm": {}, "openpower": {}}})):
+                path = report.parent / "comparison/summary.json"
+                summary = json.loads(path.read_text())
+                summary.update(metadata)
+                if "targets" in metadata:
+                    summary["record_count"] = summary["matched_inputs"] = 48
+                path.write_text(json.dumps(summary), encoding="utf-8")
+            store = ReportStore(root)
+            self.assertEqual(store.describe("arm")["targets"], ["arm"])
+            self.assertEqual(store.describe("all-targets")["targets"], ["openpower", "arm", "riscv"])
+            self.assertEqual(store.describe("all-targets")["record_count"], 48)
+            self.assertEqual(store.describe("all-targets")["unique_input_count"], 16)
+            self.assertEqual(store.describe("arm")["unique_input_count"], 16)
+            path = multi.parent / "comparison/summary.json"
+            summary = json.loads(path.read_text())
+            summary["record_count"] = summary["matched_inputs"] = 47
+            path.write_text(json.dumps(summary), encoding="utf-8")
+            self.assertIsNone(store.describe("all-targets"))
 
     def test_traversal_and_symlinks_do_not_expose_outside_files(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -93,11 +119,16 @@ class CheckManagerTests(unittest.TestCase):
         self.assertFalse(CheckOptions.from_json({}).coverage)
         self.assertFalse(CheckOptions.from_json({"quality": True}).coverage)
         self.assertTrue(CheckOptions.from_json({"quality": True, "coverage": True}).coverage)
+        self.assertEqual(CheckOptions.from_json({}).targets, ("openpower",))
+        self.assertEqual(CheckOptions.from_json({"targets": ["riscv", "arm"]}).targets, ("arm", "riscv"))
         invalid = [None, [], {"profile": []}, {"profile": "custom"}, {"count_per_case": True},
                    {"count_per_case": 0}, {"count_per_case": 100001}, {"count_per_case": 2.0},
                    {"jobs": True}, {"jobs": 257}, {"jobs": "2"}, {"quality": 1},
                    {"coverage": 1}, {"coverage": "false"}, {"coverage": None},
-                   {"coverage": True}, {"quality": False, "coverage": True}, {"output": "/tmp"}]
+                   {"coverage": True}, {"quality": False, "coverage": True}, {"output": "/tmp"},
+                   {"targets": None}, {"targets": "arm"}, {"targets": []}, {"targets": [True]},
+                   {"targets": [["arm"]]}, {"targets": ["intel"]}, {"targets": ["all"]},
+                   {"targets": ["arm", "arm"]}]
         for value in invalid:
             with self.subTest(value=value), self.assertRaises(ValueError):
                 CheckOptions.from_json(value)
@@ -162,6 +193,20 @@ class CheckManagerTests(unittest.TestCase):
             self.assertEqual(command[command.index("--jobs") + 1], "auto")
             self.assertEqual(command[command.index("--project") + 1], str(manager.project))
             self.assertNotIn("shell", captured["kwargs"])
+
+    def test_selected_targets_are_forwarded_as_separate_cli_arguments(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            manager = CheckManager(PROJECT / "equilane.toml", ReportStore(Path(temporary)))
+            process = mock.Mock(stdout=io.StringIO("target progress\n"))
+            process.wait.return_value = 2
+            options = CheckOptions.from_json({"targets": ["riscv", "openpower", "arm"]})
+            with mock.patch("equilane.server.subprocess.Popen", return_value=process) as launch:
+                started = manager.start(options)
+                manager._thread.join(timeout=3)
+            command = launch.call_args.args[0]
+            selected = [command[index + 1] for index, value in enumerate(command) if value == "--target"]
+            self.assertEqual(selected, ["openpower", "arm", "riscv"])
+            self.assertEqual(started["targets"], ("openpower", "arm", "riscv"))
 
     def test_source_tracing_flag_requires_an_explicit_coverage_option(self) -> None:
         for coverage in (False, True):

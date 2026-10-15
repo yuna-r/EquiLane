@@ -3,7 +3,7 @@
 The fixture writes schema-shaped artifacts, but its build ID is permanently
 prefixed with ``development-fixture:``.  Comparison rejects those artifacts
 unless the caller explicitly opts in.  It must never be presented as native
-x86_64 or ppc64le execution evidence.
+execution evidence for any architecture.
 """
 
 from __future__ import annotations
@@ -28,6 +28,7 @@ from .development import load_development_case
 from .errors import ValidationError
 from .isa import ISARegistry, project_used_isa
 from .records import validate_result_record
+from .targets import FP_CONTROL_KEYS, TARGETS
 
 if TYPE_CHECKING:
     from .artifacts import ResultArtifact
@@ -80,11 +81,15 @@ def _result_record(
         "case_id": case.id,
         "duration_ns": 0,
         "input_id": input_record["input_id"],
-        "observed": load_development_case(case).execute(input_record),
         "runner": role,
         "schema_version": 1,
-        "status": "ok",
     }
+    if role in case.target_roles:
+        result["status"] = "ok"
+        result["observed"] = load_development_case(case).execute(input_record)
+    else:
+        result["status"] = "unsupported"
+        result["error"] = {"code": "target_binding_unavailable", "stage": "capability"}
     validate_result_record(result, case, role=role, input_record=input_record)
     return result
 
@@ -165,19 +170,7 @@ def _result_records(
 
 
 def _probe(architecture: str, roundings: list[str]) -> dict[str, JSONValue]:
-    controls: dict[str, JSONValue]
-    if architecture == "x86_64":
-        controls = {
-            "exception_traps_enabled": False,
-            "mxcsr_daz": False,
-            "mxcsr_ftz": False,
-        }
-    else:
-        controls = {
-            "exception_traps_enabled": False,
-            "fpscr_ni": False,
-            "vscr_nj": False,
-        }
+    controls: dict[str, JSONValue] = {key: False for key in FP_CONTROL_KEYS[architecture]}
     suite: list[JSONValue] = [
         {
             "architecture": architecture,
@@ -206,12 +199,13 @@ def _environment(
     isa_registry: ISARegistry,
     records: tuple[dict[str, JSONValue], ...],
 ) -> dict[str, JSONValue]:
-    architecture = "x86_64" if role == "intel" else "ppc64le"
+    architecture = TARGETS[role].architecture
     required: set[str] = set()
     case_ids = {str(record["case_id"]) for record in records}
     for case_id in case_ids:
         case = cases.get(case_id)
-        required.update(isa_registry.closure(case.required_isa(role), architecture=architecture))
+        if role in case.target_roles:
+            required.update(isa_registry.closure(case.required_isa(role), architecture=architecture))
     available = sorted(required, key=utf16_sort_key)
     roundings = sorted(
         {
@@ -238,19 +232,7 @@ def _environment(
         "object_sha256": source_digest,
         "source_blob_sha256": source_digest,
     }
-    controls: dict[str, JSONValue]
-    if role == "intel":
-        controls = {
-            "exception_traps_enabled": False,
-            "mxcsr_daz": False,
-            "mxcsr_ftz": False,
-        }
-    else:
-        controls = {
-            "exception_traps_enabled": False,
-            "fpscr_ni": False,
-            "vscr_nj": False,
-        }
+    controls: dict[str, JSONValue] = {key: False for key in FP_CONTROL_KEYS[architecture]}
     environment: dict[str, JSONValue] = {
         "architecture": architecture,
         "assertions_enabled": False,
@@ -293,15 +275,15 @@ def run_fixture(
 ) -> FixtureRunResult:
     """Execute the portable fixture and publish a complete result artifact."""
 
-    if role not in {"intel", "openpower"}:
-        raise ValidationError("fixture role must be intel or openpower")
+    if role not in TARGETS:
+        raise ValidationError(f"fixture role must be one of {', '.join(TARGETS)}")
     if not input_artifact.records:
         raise ValidationError("fixture input artifact is empty")
     output_directory = Path(output)
     output_directory.mkdir(parents=True, exist_ok=True)
-    stem = "intel" if role == "intel" else "power"
-    results_path = output_directory / f"{stem}-results.jsonl"
-    manifest_path = output_directory / f"{stem}-results.manifest.json"
+    target = TARGETS[role]
+    results_path = output_directory / target.results_file
+    manifest_path = output_directory / target.manifest_file
     remove_completion_marker(manifest_path)
 
     results = _result_records(
@@ -316,7 +298,7 @@ def run_fixture(
     input_manifest = input_artifact.manifest
     input_vectors = input_manifest["test_vectors"]
     assert isinstance(input_vectors, dict)
-    architecture = "x86_64" if role == "intel" else "ppc64le"
+    architecture = target.architecture
     roundings = sorted(
         {
             str(record["environment"]["rounding"])

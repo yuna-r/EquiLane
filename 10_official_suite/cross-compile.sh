@@ -23,10 +23,17 @@ if ! "$compiler" --print-targets | grep -q 'ppc64le'; then
     exit 1
 fi
 
-mkdir -p "$output_dir/intel" "$output_dir/openpower"
+for backend in aarch64 riscv64; do
+    if ! "$compiler" --print-targets | grep -q "$backend"; then
+        echo "clang with the $backend backend is required" >&2
+        exit 1
+    fi
+done
+
+mkdir -p "$output_dir/intel" "$output_dir/openpower" "$output_dir/arm" "$output_dir/riscv"
 
 completed=0
-progress_total=12
+progress_total=24
 report_progress() {
     completed=$((completed + 1))
     if [ "${IOITF_PROGRESS:-0}" = "1" ]; then
@@ -53,8 +60,28 @@ for block in f32x4 f64x2 i8x16 i16x8 i32x4 i64x2; do
         -c "$suite_dir/openpower/$block.c" \
         -o "$output_dir/openpower/$block.o"
     report_progress
+
+    "$compiler" \
+        --target=aarch64-unknown-linux-gnu \
+        -ffreestanding -march=armv8-a+simd -O2 -ffp-model=strict \
+        -Wall -Wextra -Wpedantic -Werror \
+        -c "$suite_dir/arm/$block.c" \
+        -o "$output_dir/arm/$block.o"
+    report_progress
+
+    # Keep VL explicit: fixed-vector-bits can emit whole-register stores that
+    # overwrite a 16-byte slot on a machine whose VLEN is larger than 128.
+    "$compiler" \
+        --target=riscv64-unknown-linux-gnu \
+        -ffreestanding -march=rv64gcv -mabi=lp64d -mrvv-vector-bits=scalable \
+        -O2 -ffp-model=strict -Wall -Wextra -Wpedantic -Werror \
+        -c "$suite_dir/riscv/$block.c" \
+        -o "$output_dir/riscv/$block.o"
+    report_progress
 done
 
 echo "Cross-compiled official suite:"
 file "$output_dir/intel/"*.o
 file "$output_dir/openpower/"*.o
+file "$output_dir/arm/"*.o
+file "$output_dir/riscv/"*.o

@@ -10,7 +10,7 @@ import sys
 from typing import Sequence
 
 from .branding import COMMAND, DESCRIPTION, NAME, OUTPUT_DIRECTORY
-from .canonical import JSONValue, dumps
+from .canonical import JSONValue, atomic_write, dump_bytes, dumps, read_canonical_json
 from .cases import CaseRegistry, load_case_definitions
 from .comparison import ComparisonContext, compare_artifacts, load_comparison_context
 from .console import (
@@ -39,6 +39,7 @@ from .quality import (
     collect_quality_metrics,
     run_quality_gates,
 )
+from .targets import TARGETS, TARGET_ROLES, TARGET_TARGETS
 
 
 def _parse_jobs(value: str) -> int:
@@ -72,6 +73,21 @@ def _contracts(args: argparse.Namespace) -> tuple[CaseRegistry, ISARegistry]:
 
 def _print(value: JSONValue) -> None:
     print(dumps(value))
+
+
+def _selected_targets(values: Sequence[str] | None) -> tuple[str, ...]:
+    requested = set(values or ("openpower",))
+    if "all" in requested:
+        return TARGET_TARGETS
+    return tuple(role for role in TARGET_TARGETS if role in requested)
+
+
+def _target_manifest(args: argparse.Namespace) -> Path:
+    if args.openpower is not None:
+        if args.target_role not in (None, "openpower"):
+            raise ValidationError("--openpower requires --target-role openpower; use --target")
+        return args.openpower
+    return args.target
 
 
 def _validate_cases(args: argparse.Namespace) -> int:
@@ -202,7 +218,8 @@ def _compare_results(args: argparse.Namespace) -> int:
         isa_registry=isa,
         input_manifest=args.input,
         intel_manifest=args.intel,
-        openpower_manifest=args.openpower,
+        openpower_manifest=_target_manifest(args),
+        target_role=args.target_role,
     )
     result = compare_artifacts(
         context,
@@ -230,20 +247,23 @@ def _verify_replay(args: argparse.Namespace) -> int:
         return EXIT_SPECIFICATION
 
     try:
+        target_role = args.target_role or ("openpower" if args.openpower is not None else bundle.target_role)
         intel_manifest = (
             args.intel
             if args.intel.is_absolute()
             else bundle.root / args.intel
         )
+        selected_manifest = _target_manifest(args)
         openpower_manifest = (
-            args.openpower
-            if args.openpower.is_absolute()
-            else bundle.root / args.openpower
+            selected_manifest
+            if selected_manifest.is_absolute()
+            else bundle.root / selected_manifest
         )
         verification, intel, power = verify_replay_artifacts(
             bundle,
             intel_manifest=intel_manifest,
             openpower_manifest=openpower_manifest,
+            target_role=target_role,
         )
     except ValidationError as exc:
         _print(
@@ -283,6 +303,61 @@ def _verify_replay(args: argparse.Namespace) -> int:
     return EXIT_MATCH if verification.reproduced else EXIT_MISMATCH
 
 
+def _fixture_replay(args: argparse.Namespace) -> int:
+    """Replay an embedded input with explicitly opted-in local Python models."""
+
+    from .artifacts import validate_result_artifact
+    from dataclasses import replace
+    from .development import load_development_case
+    from .fixture import run_fixture
+    from .replay import load_failure_bundle
+
+    if not args.i_understand_this_is_not_native_evidence:
+        raise UnsupportedError(
+            "native replay is not implemented; development replay requires "
+            "--i-understand-this-is-not-native-evidence"
+        )
+    bundle = load_failure_bundle(args.failure)
+    if args.role not in ("intel", bundle.target_role):
+        raise ValidationError("replay role must be Intel or the failure bundle's target")
+    output = Path(args.output)
+    if any((output / target.manifest_file).exists() for target in TARGETS.values()):
+        raise ValidationError("replay output already contains a result manifest; use a fresh directory")
+    local_cases, _ = _contracts(args)
+    models = {}
+    for embedded in bundle.cases:
+        local = local_cases.get(embedded.id)
+        local_data = dict(local.data)
+        for optional in ("arm", "riscv"):
+            if optional not in embedded.data:
+                local_data.pop(optional, None)
+        if local_data != embedded.data:
+            raise ValidationError(f"replay local model contract differs from the failure bundle: {embedded.id}")
+        load_development_case(local)
+        # Keep the authenticated embedded contract, but use the explicitly
+        # configured local model source. Extra files in a bundle are not code.
+        models[embedded.id] = replace(embedded, source_path=local.source_path)
+    replay_cases = CaseRegistry(models, bundle.cases.sha256)
+    result = run_fixture(
+        input_artifact=bundle.input_artifact,
+        cases=replay_cases,
+        isa_registry=bundle.isa_registry,
+        role=args.role,
+        output=output,
+        jobs=args.jobs,
+    )
+    validated = validate_result_artifact(
+        result.manifest_path, bundle.cases, bundle.isa_registry,
+        input_artifact=bundle.input_artifact,
+    )
+    if not validated.development_fixture:
+        raise RunnerError("development replay lost its fixture marker")
+    _print({"status": "fixture_replay_complete", "manifest": str(result.manifest_path),
+            "record_count": result.record_count, "role": args.role,
+            "native_evidence": False})
+    return EXIT_MATCH
+
+
 def _development_check(args: argparse.Namespace) -> int:
     """Run the complete non-native authoring loop with one command."""
 
@@ -291,7 +366,9 @@ def _development_check(args: argparse.Namespace) -> int:
     if args.coverage and not args.quality:
         raise ValidationError("--coverage requires --quality")
     started_at = datetime.now(timezone.utc)
-    progress = CheckProgress(enabled=not args.quiet, steps=8 if args.quality else 7)
+    target_roles = _selected_targets(args.target)
+    total_steps = 5 + 2 * len(target_roles) + int(args.quality)
+    progress = CheckProgress(enabled=not args.quiet, steps=total_steps)
     with progress.stage(1, "Prepare suite"):
         cases_path, isa_path = _contract_paths(args)
         isa = load_isa_registry(isa_path)
@@ -344,39 +421,60 @@ def _development_check(args: argparse.Namespace) -> int:
         )
         intel_artifact = intel.as_validated_artifact()
 
-    with progress.stage(
-        4, "Run OpenPOWER fixture", total=generated.record_count
-    ) as update:
-        openpower = run_fixture(
-            input_artifact=inputs,
-            cases=cases,
-            isa_registry=isa,
-            role="openpower",
-            output=output / "openpower",
-            jobs=args.jobs,
-            progress=update,
-        )
-        openpower_artifact = openpower.as_validated_artifact()
+    target_artifacts = {}
+    next_step = 4
+    for role in target_roles:
+        with progress.stage(
+            next_step, f"Run {TARGETS[role].label} fixture", total=generated.record_count
+        ) as update:
+            fixture = run_fixture(
+                input_artifact=inputs,
+                cases=cases,
+                isa_registry=isa,
+                role=role,
+                output=output / role,
+                jobs=args.jobs,
+                progress=update,
+            )
+            target_artifacts[role] = fixture.as_validated_artifact()
+        next_step += 1
 
     comparison = output / "comparison"
-    with progress.stage(
-        5, "Validate + compare results", total=generated.record_count
-    ) as update:
-        compared = compare_artifacts(
-            ComparisonContext(cases, isa, inputs, intel_artifact, openpower_artifact),
-            output=comparison,
-            allow_development_fixtures=True,
-            progress=update,
-            jobs=args.jobs,
-        )
-        exit_code = compared.exit_code
+    summaries: dict[str, JSONValue] = {}
+    verdicts = []
+    for role in target_roles:
+        label = "Validate + compare results" if len(target_roles) == 1 else f"Compare Intel / {TARGETS[role].label}"
+        destination = comparison if len(target_roles) == 1 else comparison / role
+        with progress.stage(next_step, label, total=generated.record_count) as update:
+            compared = compare_artifacts(
+                ComparisonContext(cases, isa, inputs, intel_artifact, target_artifacts[role], target_role=role),
+                output=destination,
+                allow_development_fixtures=True,
+                progress=update,
+                jobs=args.jobs,
+            )
+            verdicts.append(compared.exit_code)
+            summaries[role] = read_canonical_json(compared.files.summary_path)
+        next_step += 1
+    exit_code = next((code for code in (EXIT_UNSUPPORTED, EXIT_RUNNER, EXIT_MISMATCH) if code in verdicts), EXIT_MATCH)
+    if len(target_roles) > 1:
+        counters = ("record_count", "matched_inputs", "mismatched_inputs", "not_comparable_inputs", "mismatch_atoms")
+        aggregate: dict[str, JSONValue] = {
+            "artifact_type": "ioitf.comparison-summary",
+            "schema_version": 1,
+            "targets": summaries,
+            **{key: sum(int(value[key]) for value in summaries.values()) for key in counters},
+            "failure_bundles": [f"{role}/{bundle}" for role, value in summaries.items()
+                                for bundle in value["failure_bundles"]],
+        }
+        aggregate["outcome"] = ("not_comparable" if aggregate["not_comparable_inputs"] else
+                                "mismatch" if aggregate["mismatched_inputs"] else "pass")
+        atomic_write(comparison / "summary.json", dump_bytes(aggregate, newline=True))
 
     report_label = (
         "Build showcase report" if args.showcase_report and not args.quality else "Finalize artifacts"
     )
-    with progress.stage(6, report_label):
-        from .canonical import read_canonical_json
-
+    with progress.stage(next_step, report_label):
         summary = read_canonical_json(comparison / "summary.json")
         assert isinstance(summary, dict)
         metrics = collect_verification_metrics(cases, summary)
@@ -387,6 +485,8 @@ def _development_check(args: argparse.Namespace) -> int:
             "jobs": args.jobs,
             "native_evidence": False,
             "record_count": generated.record_count,
+            "comparison_record_count": summary["record_count"],
+            "target_roles": list(target_roles),
             "status": summary["outcome"],
         }
         def build_showcase(quality: dict[str, JSONValue] | None = None) -> None:
@@ -404,6 +504,7 @@ def _development_check(args: argparse.Namespace) -> int:
                 generated_at=started_at,
                 native_evidence=False,
                 quality=quality,
+                target_roles=target_roles,
             )
             result["showcase_report"] = str(showcase)
 
@@ -413,8 +514,9 @@ def _development_check(args: argparse.Namespace) -> int:
     quality_metrics = collect_quality_metrics(cases)
     quality_run: QualityRun | None = None
     if args.quality:
-        with progress.stage(7, "Run quality gates"):
-            project_root = Path(args.project).resolve().parent
+        with progress.stage(next_step + 1, "Run quality gates"):
+            project_root = (load_project().path.resolve().parent if args.project is None
+                            else args.project.resolve().parent)
             progress.open_details()
             gate_progress = QualityGateProgress(
                 enabled=progress.enabled,
@@ -439,7 +541,7 @@ def _development_check(args: argparse.Namespace) -> int:
     status = str(summary["outcome"]).upper()
     if quality_run is not None and quality_run.status != "pass":
         status = "QUALITY FAILED"
-    final_step = 8 if args.quality else 7
+    final_step = total_steps
     with progress.stage(final_step, f"{status} - {generated.record_count:,} trials"):
         if args.showcase_report and quality_run is not None:
             quality_summary = read_canonical_json(quality_run.report_path)
@@ -513,6 +615,10 @@ def _parser() -> argparse.ArgumentParser:
     _add_contract_arguments(check)
     check.add_argument("--output", type=Path)
     check.add_argument(
+        "--target", action="append", choices=(*TARGET_TARGETS, "all"),
+        help="target compared with Intel (repeatable; default: openpower)",
+    )
+    check.add_argument(
         "--profile",
         choices=("smoke", "standard", "exhaustive-small", "stress"),
         default="smoke",
@@ -578,7 +684,7 @@ def _parser() -> argparse.ArgumentParser:
     fixture = subcommands.add_parser("fixture-run")
     _add_contract_arguments(fixture)
     fixture.add_argument("--input", required=True, type=Path)
-    fixture.add_argument("--role", choices=("intel", "openpower"), required=True)
+    fixture.add_argument("--role", choices=TARGET_ROLES, required=True)
     fixture.add_argument("--output", required=True, type=Path)
     fixture.add_argument(
         "-j", "--jobs", default=1, type=_parse_jobs,
@@ -595,7 +701,10 @@ def _parser() -> argparse.ArgumentParser:
     _add_contract_arguments(compare)
     compare.add_argument("--input", required=True, type=Path)
     compare.add_argument("--intel", required=True, type=Path)
-    compare.add_argument("--openpower", required=True, type=Path)
+    compare_target = compare.add_mutually_exclusive_group(required=True)
+    compare_target.add_argument("--openpower", type=Path)
+    compare_target.add_argument("--target", type=Path, help="result manifest for --target-role")
+    compare.add_argument("--target-role", choices=TARGET_TARGETS, default="openpower")
     compare.add_argument("--output", required=True, type=Path)
     compare.add_argument(
         "-j", "--jobs", default=1, type=_parse_jobs,
@@ -604,10 +713,22 @@ def _parser() -> argparse.ArgumentParser:
     compare.add_argument("--allow-development-fixtures", action="store_true")
     compare.set_defaults(handler=_compare_results)
 
+    replay = subcommands.add_parser("replay", help="replay a failure input with explicit development opt-in")
+    _add_contract_arguments(replay)
+    replay.add_argument("--failure", required=True, type=Path)
+    replay.add_argument("--role", choices=TARGET_ROLES, required=True)
+    replay.add_argument("--output", required=True, type=Path)
+    replay.add_argument("-j", "--jobs", default=1, type=_parse_jobs)
+    replay.add_argument("--i-understand-this-is-not-native-evidence", action="store_true")
+    replay.set_defaults(handler=_fixture_replay)
+
     verify_replay = subcommands.add_parser("verify-replay")
     verify_replay.add_argument("--failure", required=True, type=Path)
     verify_replay.add_argument("--intel", required=True, type=Path)
-    verify_replay.add_argument("--openpower", required=True, type=Path)
+    replay_target = verify_replay.add_mutually_exclusive_group(required=True)
+    replay_target.add_argument("--openpower", type=Path)
+    replay_target.add_argument("--target", type=Path, help="replay result manifest for --target-role")
+    verify_replay.add_argument("--target-role", choices=TARGET_TARGETS)
     verify_replay.add_argument("--allow-development-fixtures", action="store_true")
     verify_replay.set_defaults(handler=_verify_replay)
     return parser

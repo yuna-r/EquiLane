@@ -17,6 +17,7 @@ from .canonical import (
 )
 from .cases import CaseDefinition, ELEMENT_WIDTHS, ROUNDING_MODES
 from .errors import ValidationError
+from .targets import TARGETS
 
 
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
@@ -343,12 +344,14 @@ def validate_result_record(
     if record["case_id"] != case.id:
         raise ValidationError(f"result.case_id: expected {case.id!r}")
     require_sha256(record["input_id"], "result.input_id")
-    if record["runner"] != role or role not in {"intel", "openpower"}:
+    if record["runner"] != role or role not in TARGETS:
         raise ValidationError(f"result.runner: expected {role!r}")
     if status not in RESULT_STATUSES:
         raise ValidationError("result.status: unknown status")
     require_int(record["duration_ns"], "result.duration_ns", minimum=0)
     if status == "ok":
+        if role not in case.target_roles:
+            raise ValidationError(f"result.runner: case has no binding for target {role!r}")
         _validate_observed(record["observed"], case, input_record=input_record)
         return
     error = require_object(record["error"], "result.error")

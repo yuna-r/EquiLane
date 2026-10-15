@@ -220,7 +220,7 @@ class ShowcaseReportTests(unittest.TestCase):
         self.assertIn("0 non-comparable inputs", html)
         self.assertIn("DEVELOPMENT SIMULATION", html)
         self.assertIn("SSE2 SEMANTICS // DEV FIXTURE", html)
-        self.assertIn("VSX SEMANTICS // DEV FIXTURE", html)
+        self.assertIn("SHARED MODEL // DEV FIXTURE", html)
 
         metrics_end = html.index(
             '</div>\n\n    <section class="load-spectrum-section"'
@@ -397,7 +397,7 @@ class ShowcaseReportTests(unittest.TestCase):
         self.assertIn("PATH EXECUTIONS", html)
         self.assertIn("x86_64 // NATIVE RUNNER", html)
         self.assertIn("ppc64le // NATIVE RUNNER", html)
-        self.assertIn("crossed two native architectures", html)
+        self.assertIn("crossed the selected native architectures", html)
 
     def test_uneven_record_distribution_is_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "divide evenly"):

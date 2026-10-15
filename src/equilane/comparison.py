@@ -29,6 +29,7 @@ from .errors import (
 from .isa import ISARegistry
 from .records import derive_input_id
 from .report import RecordReport, ReportFiles, write_failure_bundle, write_reports
+from .targets import TARGETS, TARGET_TARGETS
 
 
 @dataclass(frozen=True)
@@ -40,6 +41,7 @@ class ComparisonContext:
     input_artifact: InputArtifact
     intel_artifact: ResultArtifact
     openpower_artifact: ResultArtifact
+    target_role: str = "openpower"
 
 
 @dataclass(frozen=True)
@@ -74,9 +76,12 @@ def load_comparison_context(
     input_manifest: str | Path,
     intel_manifest: str | Path,
     openpower_manifest: str | Path,
+    target_role: str = "openpower",
 ) -> ComparisonContext:
     """Validate completed artifacts, classifying bad runner output separately."""
 
+    if target_role not in TARGET_TARGETS:
+        raise ValidationError("unknown comparison target role")
     inputs = validate_input_artifact(input_manifest, cases, isa_registry)
 
     def load_result(manifest: str | Path, label: str) -> ResultArtifact:
@@ -92,7 +97,8 @@ def load_comparison_context(
         isa_registry,
         inputs,
         load_result(intel_manifest, "Intel"),
-        load_result(openpower_manifest, "OpenPOWER"),
+        load_result(openpower_manifest, TARGETS[target_role].label),
+        target_role,
     )
 
 
@@ -205,7 +211,9 @@ def compare_artifacts(
     inputs = context.input_artifact
     intel = context.intel_artifact
     openpower = context.openpower_artifact
-    if intel.role != "intel" or openpower.role != "openpower":
+    if context.target_role not in TARGET_TARGETS:
+        raise ValidationError("unknown comparison target role")
+    if intel.role != "intel" or openpower.role != context.target_role:
         raise ValidationError("result artifact roles do not match their command arguments")
     if (
         intel.development_fixture or openpower.development_fixture
@@ -230,6 +238,7 @@ def compare_artifacts(
         openpower_records=openpower.records,
         jobs=jobs,
         progress=progress,
+        target_role=context.target_role,
     )
     for input_record, comparison in zip(inputs.records, comparisons):
         input_id = str(input_record["input_id"])
@@ -251,11 +260,18 @@ def compare_artifacts(
                 isa_registry=context.isa_registry,
                 input_record=input_record,
                 comparison=comparison,
+                target_role=context.target_role,
             )
             failure_path = str(bundle.relative_to(destination) / "failure.json")
         reports.append(RecordReport(case.id, input_id, comparison, failure_path))
 
     files = write_reports(destination, reports)
+    if context.target_role != "openpower":
+        from .canonical import read_canonical_json
+        summary = read_canonical_json(files.summary_path)
+        assert isinstance(summary, dict)
+        summary["target_role"] = context.target_role
+        atomic_write(files.summary_path, dump_bytes(summary, newline=True))
     mismatch_count = sum(item.comparison.outcome == "mismatch" for item in reports)
     not_comparable = sum(
         item.comparison.outcome == "not_comparable" for item in reports

@@ -13,6 +13,14 @@ openpower:
   symbol: power_mm_set_epi64
   required_isa: [power8, vsx]
 
+arm:
+  symbol: arm_mm_set_epi64
+  required_isa: [neon]
+
+riscv:
+  symbol: riscv_mm_set_epi64
+  required_isa: [rvv]
+
 signature:
   arguments:
     - {name: lane1, type: scalar, element: i64}

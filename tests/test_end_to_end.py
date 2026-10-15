@@ -99,7 +99,7 @@ class EndToEndTests(unittest.TestCase):
             self.assertIn("Quality metrics", progress)
             self.assertRegex(progress, r"valid contracts\s+254 / 254")
             self.assertRegex(progress, r"portable models\s+254 / 254")
-            self.assertRegex(progress, r"architecture bindings\s+508 / 508")
+            self.assertRegex(progress, r"architecture bindings\s+1,016 / 1,016")
 
     def test_check_prints_metrics_without_showcase_report(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

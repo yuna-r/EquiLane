@@ -25,6 +25,7 @@ from .canonical import (
 )
 from .errors import ValidationError
 from .isa import ISARegistry
+from .targets import TARGETS, TARGET_ROLES
 
 
 ELEMENT_WIDTHS = {
@@ -87,10 +88,16 @@ class CaseDefinition:
         return require_object(self.data["environment"], f"case {self.id}.environment")
 
     def required_isa(self, role: str) -> tuple[str, ...]:
+        if role not in TARGETS or role not in self.data:
+            raise ValidationError(f"case {self.id}: no binding for target {role!r}")
         role_value = require_object(self.data[role], f"case {self.id}.{role}")
         values = role_value["required_isa"]
         assert isinstance(values, list)
         return tuple(str(value) for value in values)
+
+    @property
+    def target_roles(self) -> tuple[str, ...]:
+        return tuple(role for role in TARGET_ROLES if role in self.data)
 
 
 @dataclass(frozen=True)
@@ -488,7 +495,7 @@ def validate_case_definition(
             "signature",
             "tags",
         },
-        optional={"immediates", "memory_contract", "regressions"},
+        optional={"immediates", "memory_contract", "regressions", "arm", "riscv"},
         location=source,
     )
     if require_int(case["schema_version"], f"{source}.schema_version") != 1:
@@ -497,13 +504,10 @@ def validate_case_definition(
     if not CASE_ID_PATTERN.fullmatch(case_id):
         raise ValidationError(f"{source}.id: invalid case ID")
     require_string(case["description"], f"{source}.description")
-    _validate_role(case["intel"], f"{source}.intel", isa_registry=isa_registry, architecture="x86_64")
-    _validate_role(
-        case["openpower"],
-        f"{source}.openpower",
-        isa_registry=isa_registry,
-        architecture="ppc64le",
-    )
+    for role, target in TARGETS.items():
+        if role in case:
+            _validate_role(case[role], f"{source}.{role}", isa_registry=isa_registry,
+                           architecture=target.architecture)
     signature = require_object(case["signature"], f"{source}.signature")
     require_exact_keys(signature, {"arguments", "return"}, location=f"{source}.signature")
     raw_arguments = signature["arguments"]

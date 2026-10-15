@@ -13,6 +13,14 @@ openpower:
   symbol: power_mm_avg_epu16
   required_isa: [power8, vsx]
 
+arm:
+  symbol: arm_mm_avg_epu16
+  required_isa: [neon]
+
+riscv:
+  symbol: riscv_mm_avg_epu16
+  required_isa: [rvv]
+
 signature:
   arguments:
     - {name: a, type: vector, element: u16, lanes: 8}

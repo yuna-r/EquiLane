@@ -43,7 +43,22 @@ def collect_verification_metrics(
     mismatched = int(summary["mismatched_inputs"])
     not_comparable = int(summary["not_comparable_inputs"])
     mismatch_atoms = int(summary["mismatch_atoms"])
-    vectors_per_case = trials // case_count if case_count else 0
+    targets = summary.get("targets")
+    target_count = len(targets) if isinstance(targets, dict) and targets else 1
+    if isinstance(targets, dict) and targets:
+        target_trials = [
+            int(target["record_count"])
+            for target in targets.values()
+            if isinstance(target, dict)
+        ]
+        if (len(target_trials) != target_count or len(set(target_trials)) != 1
+            or sum(target_trials) != trials):
+            raise ValueError("comparison targets require the same input stream")
+    if case_count and trials % (case_count * target_count):
+        raise ValueError("verification records must divide evenly across targets")
+    vectors_per_case = trials // (case_count * target_count) if case_count else 0
+    paired_vectors_per_case = vectors_per_case * target_count
+    input_count = trials // target_count
 
     lanes_per_sweep = 0
     bits_per_sweep = 0
@@ -90,9 +105,9 @@ def collect_verification_metrics(
     return VerificationMetrics(
         case_count=case_count,
         trials=trials,
-        implementation_path_evaluations=trials * 2,
-        lane_verdicts=lanes_per_sweep * vectors_per_case,
-        bit_positions=bits_per_sweep * vectors_per_case,
+        implementation_path_evaluations=input_count * (target_count + 1),
+        lane_verdicts=lanes_per_sweep * paired_vectors_per_case,
+        bit_positions=bits_per_sweep * paired_vectors_per_case,
         matched_inputs=matched,
         mismatched_inputs=mismatched,
         not_comparable_inputs=not_comparable,

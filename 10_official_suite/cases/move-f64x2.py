@@ -13,6 +13,14 @@ openpower:
   symbol: power_mm_move_sd
   required_isa: [power8, vsx]
 
+arm:
+  symbol: arm_mm_move_sd
+  required_isa: [neon]
+
+riscv:
+  symbol: riscv_mm_move_sd
+  required_isa: [rvv]
+
 signature:
   arguments:
     - {name: a, type: vector, element: f64, lanes: 2}

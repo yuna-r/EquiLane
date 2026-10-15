@@ -1,8 +1,8 @@
 """CLI regressions exercised through real parsing and the small authoring loop.
 
-Default project discovery currently reaches the quality stage with
-``args.project is None`` and raises TypeError. These are ordinary failing tests,
-not expected failures: the same invocation must keep working when fixed later.
+Default project discovery must resolve the selected project before the quality
+stage, including legacy filenames. These checks reproduce the former
+``Path(None)`` regression and remain ordinary assertions.
 Only heavyweight quality gates are replaced; generation, both fixtures,
 comparison, project discovery, progress, JSON output and HTML rendering run.
 """

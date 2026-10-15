@@ -45,13 +45,12 @@ from .records import (
     validate_input_record,
     validate_result_record,
 )
+from .targets import FP_CONTROL_KEYS, TARGETS
 
 
 PROFILES = {"smoke", "standard", "exhaustive-small", "stress"}
-ROLE_FILES = {
-    "intel": ("intel-results.jsonl", "intel-results.manifest.json", "x86_64"),
-    "openpower": ("power-results.jsonl", "power-results.manifest.json", "ppc64le"),
-}
+ROLE_FILES = {role: (target.results_file, target.manifest_file, target.architecture)
+              for role, target in TARGETS.items()}
 ABI_VERSION = 1
 
 _STABLE_ID = re.compile(r"^[a-z][a-z0-9_.-]*$")
@@ -332,11 +331,7 @@ def _validate_preflight(
     all_boolean: dict[str, bool] = {}
     all_flags: set[str] = set()
     all_modes: set[str] = set()
-    allowed_boolean = (
-        {"exception_traps_enabled", "mxcsr_daz", "mxcsr_ftz"}
-        if architecture == "x86_64"
-        else {"exception_traps_enabled", "fpscr_ni", "vscr_nj"}
-    )
+    allowed_boolean = FP_CONTROL_KEYS[architecture]
     for index, raw_probe in enumerate(suite):
         probe_location = f"{location}.probe_suite[{index}]"
         probe = require_object(raw_probe, probe_location)
@@ -640,11 +635,7 @@ def _validate_environment(
     if any(mode not in ROUNDING_MODES for mode in modes):
         raise ValidationError(f"{location}.fp_rounding_modes: unknown mode")
     controls = require_object(environment["fp_controls"], f"{location}.fp_controls")
-    control_keys = (
-        {"exception_traps_enabled", "mxcsr_daz", "mxcsr_ftz"}
-        if architecture == "x86_64"
-        else {"exception_traps_enabled", "fpscr_ni", "vscr_nj"}
-    )
+    control_keys = FP_CONTROL_KEYS[architecture]
     require_exact_keys(controls, control_keys, location=f"{location}.fp_controls")
     for key in control_keys:
         if require_bool(controls[key], f"{location}.fp_controls.{key}") is not False:
@@ -732,11 +723,7 @@ def _validate_preflight_coverage(
         for input_id in active_ids
     )
     if floating:
-        required_controls = (
-            {"exception_traps_enabled", "mxcsr_daz", "mxcsr_ftz"}
-            if role == "intel"
-            else {"exception_traps_enabled", "fpscr_ni", "vscr_nj"}
-        )
+        required_controls = FP_CONTROL_KEYS[TARGETS[role].architecture]
         missing_controls = required_controls - set(coverage.boolean_controls)
         if missing_controls:
             raise ValidationError(
@@ -799,7 +786,7 @@ def _validate_result_manifest_shape(
         raise ValidationError(f"{location}.runner.abi_version: expected {ABI_VERSION}")
     role = require_string(runner["role"], f"{location}.runner.role")
     if role not in ROLE_FILES:
-        raise ValidationError(f"{location}.runner.role: expected intel or openpower")
+        raise ValidationError(f"{location}.runner.role: expected one of {', '.join(TARGETS)}")
     build_id = require_string(runner["build_id"], f"{location}.runner.build_id")
     return role, build_id.startswith("development-fixture:")
 

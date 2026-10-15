@@ -21,6 +21,7 @@ from .canonical import JSONValue, MAX_SAFE_INTEGER, require_object, utf16_sort_k
 from .cases import CaseDefinition, CaseRegistry
 from .errors import ValidationError
 from .records import FP_EXCEPTION_ORDER, validate_input_record, validate_result_record
+from .targets import TARGET_TARGETS
 
 
 ComparisonOutcome: TypeAlias = Literal["match", "mismatch", "not_comparable"]
@@ -667,8 +668,9 @@ def compare_result_records(
     openpower_result: dict[str, JSONValue],
     *,
     validate: bool = True,
+    target_role: str = "openpower",
 ) -> ComparisonResult:
-    """Compare one Intel/POWER result pair using ``case`` and ``input_record``.
+    """Compare one Intel/target result pair using ``case`` and ``input_record``.
 
     With the default ``validate=True``, malformed inputs and results raise
     :class:`~ioitf.errors.ValidationError` instead of being reported as a SUT
@@ -676,19 +678,21 @@ def compare_result_records(
     invalid result artifact and a valid semantic difference.
     """
 
+    if target_role not in TARGET_TARGETS:
+        raise ValidationError("unknown comparison target role")
     if validate:
         validate_input_record(input_record, case)
         validate_result_record(
             intel_result, case, role="intel", input_record=input_record
         )
         validate_result_record(
-            openpower_result, case, role="openpower", input_record=input_record
+            openpower_result, case, role=target_role, input_record=input_record
         )
     input_id = input_record.get("input_id")
     if intel_result.get("input_id") != input_id:
         raise ValidationError("intel result input_id does not match the input record")
     if openpower_result.get("input_id") != input_id:
-        raise ValidationError("openpower result input_id does not match the input record")
+        raise ValidationError(f"{target_role} result input_id does not match the input record")
     if intel_result.get("case_id") != case.id or openpower_result.get("case_id") != case.id:
         raise ValidationError("result case_id does not match the case definition")
 
@@ -701,7 +705,7 @@ def compare_result_records(
             first_difference={
                 "intel": intel_status,
                 "kind": "status",
-                "openpower": power_status,
+                target_role: power_status,
             },
             reason="status_mismatch",
         )
@@ -714,7 +718,7 @@ def compare_result_records(
         )
 
     intel_observed = require_object(intel_result["observed"], "intel.observed")
-    power_observed = require_object(openpower_result["observed"], "openpower.observed")
+    power_observed = require_object(openpower_result["observed"], f"{target_role}.observed")
 
     memory_violations, buffer_differences = _memory_differences(
         case, input_record, intel_observed, power_observed
@@ -755,12 +759,21 @@ def compare_result_records(
             "kind": "fp_exceptions",
             "openpower": list(power_flags),
         }
+    if target_role != "openpower":
+        if "openpower" in first:
+            first[target_role] = first.pop("openpower")
+        diagnostic = first.get("diagnostic")
+        if isinstance(diagnostic, dict) and "openpower" in diagnostic:
+            diagnostic[target_role] = diagnostic.pop("openpower")
+        if first.get("runner") == "openpower":
+            first["runner"] = target_role
     return ComparisonResult("mismatch", mismatch_count, first, "value_mismatch")
 
 
 def _comparison_batch(
     work: tuple[
         CaseDefinition,
+        str,
         tuple[
             tuple[
                 dict[str, JSONValue],
@@ -771,7 +784,7 @@ def _comparison_batch(
         ],
     ],
 ) -> list[ComparisonResult]:
-    case, records = work
+    case, target_role, records = work
     return [
         compare_result_records(
             case,
@@ -779,6 +792,7 @@ def _comparison_batch(
             intel_record,
             openpower_record,
             validate=False,
+            target_role=target_role,
         )
         for input_record, intel_record, openpower_record in records
     ]
@@ -792,14 +806,18 @@ def compare_result_record_set(
     openpower_records: Mapping[str, dict[str, JSONValue]],
     jobs: int = 1,
     progress: Callable[[int], None] | None = None,
+    target_role: str = "openpower",
 ) -> list[ComparisonResult]:
     """Compare a validated record set, optionally across case-level processes."""
 
+    if target_role not in TARGET_TARGETS:
+        raise ValidationError("unknown comparison target role")
     if jobs < 1:
         raise ValidationError("comparison jobs must be at least 1")
     work: list[
         tuple[
             CaseDefinition,
+            str,
             tuple[
                 tuple[
                     dict[str, JSONValue],
@@ -821,7 +839,7 @@ def compare_result_record_set(
     for input_record in input_records:
         case_id = str(input_record["case_id"])
         if current and case_id != current_id:
-            work.append((cases.get(current_id), tuple(current)))
+            work.append((cases.get(current_id), target_role, tuple(current)))
             current = []
         input_id = str(input_record["input_id"])
         current_id = case_id
@@ -829,7 +847,7 @@ def compare_result_record_set(
             (input_record, intel_records[input_id], openpower_records[input_id])
         )
     if current:
-        work.append((cases.get(current_id), tuple(current)))
+        work.append((cases.get(current_id), target_role, tuple(current)))
 
     if jobs == 1 or len(work) <= 1:
         results: list[ComparisonResult] = []
@@ -842,6 +860,7 @@ def compare_result_record_set(
                     intel_records[input_id],
                     openpower_records[input_id],
                     validate=False,
+                    target_role=target_role,
                 )
             )
             if progress is not None:

@@ -11,6 +11,7 @@ from .canonical import JSONValue, atomic_write, dumps
 from .cases import CaseDefinition
 from .mascot import mascot_markup
 from .metrics import collect_verification_metrics
+from .targets import TARGETS
 
 
 _STYLES = """
@@ -124,6 +125,9 @@ _STYLES = """
     .panel { padding: 26px; border: 1px solid var(--line); border-radius: 22px; background: var(--panel); min-width: 0; }
     .panel-label { color: var(--violet); font: 650 10px/1.5 var(--mono); }
     .routes { display: grid; grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr); align-items: center; gap: 10px; }
+    .routes.multi { grid-template-columns: 1fr; gap: 5px; }
+    .routes.multi .route-node { padding: 12px 16px; }
+    .routes.multi .route-beam::after { width: 26px; height: 26px; font-size: 20px; }
     .route-node { padding: 20px 16px; border: 1px solid #d1e2d5; border-radius: 16px; background: #edf4ee; }
     .route-node:last-child { background: #f3edf8; border-color: #ded6e8; }
     .route-node b { display: block; margin-bottom: 7px; font-size: 18px; }
@@ -311,18 +315,20 @@ def _filter_options(values: Iterable[str]) -> str:
     )
 
 
-def _case_cards(cases: tuple[CaseDefinition, ...], vectors_each: int) -> str:
+def _case_cards(
+    cases: tuple[CaseDefinition, ...], vectors_each: int,
+    target_roles: tuple[str, ...] | None = None,
+) -> str:
     cards: list[str] = []
     for index, case in enumerate(cases, start=1):
         description = case.data["description"]
         comparison = case.comparison["mode"]
-        intel = case.data["intel"]
-        openpower = case.data["openpower"]
-        assert isinstance(intel, dict) and isinstance(openpower, dict)
-        intel_isa = intel["required_isa"]
-        power_isa = openpower["required_isa"]
-        assert isinstance(intel_isa, list) and isinstance(power_isa, list)
-        isa = " / ".join(str(item).upper() for item in intel_isa + power_isa)
+        tokens = []
+        for role in ("intel", *target_roles):
+            binding = case.data.get(role)
+            if isinstance(binding, dict):
+                tokens.extend(binding["required_isa"])
+        isa = " / ".join(str(item).upper() for item in dict.fromkeys(tokens))
         searchable = f"{case.id} {description} {_signature(case)} {comparison} {isa}"
         cards.append(
             f"""
@@ -439,7 +445,7 @@ def _quality_section(quality: Mapping[str, JSONValue] | None) -> str:
       contract 検証とモデル実行が成功した後、比較エンジン <code>equilane.compare</code> を
       通さず、出力を独立した期待値と直接照合して検出しました。
       比較・集計処理の誤判定として検出されたものではありません。</p>
-      <p>OpenPOWER 実機の不具合を示す結果ではありません。モデルはこのリポジトリに含まれる
+      <p>各CPUの実機の不具合を示す結果ではありません。モデルはこのリポジトリに含まれる
       開発用実装です。この結果だけでフレームワーク全体にバグがないとは判断しません。</p>''' if rows else '''<p>モデル出力の不一致はこの実行では記録されていません。
       実施件数・その他の失敗・実行エラーも併せて確認してください。</p>'''
     gate_rows = "".join(
@@ -489,9 +495,25 @@ def render_showcase_html(
     generated_at: datetime,
     native_evidence: bool,
     quality: Mapping[str, JSONValue] | None = None,
+    target_roles: tuple[str, ...] | None = None,
 ) -> str:
     """Render a portable report. All supplied text is escaped before insertion."""
 
+    target_summaries = summary.get("targets")
+    inferred = (
+        tuple(target_summaries) if isinstance(target_summaries, dict) and target_summaries
+        else (str(summary.get("target_role", "openpower")),)
+    )
+    if target_roles is None:
+        target_roles = inferred
+    if (not target_roles or len(set(target_roles)) != len(target_roles)
+        or any(role not in TARGETS or role == "intel" for role in target_roles)):
+        raise ValueError("showcase requires distinct comparison targets")
+    if ((isinstance(target_summaries, dict) or "target_role" in summary)
+        and set(target_roles) != set(inferred)):
+        raise ValueError("showcase targets do not match comparison summary")
+    if len(target_roles) > 1 and not isinstance(target_summaries, dict):
+        raise ValueError("multiple showcase targets require per-target summaries")
     ordered_cases = tuple(cases)
     metrics = collect_verification_metrics(ordered_cases, summary)
     case_count = metrics.case_count
@@ -563,10 +585,37 @@ def render_showcase_html(
         if native_evidence
         else "SSE2 SEMANTICS // DEV FIXTURE"
     )
-    power_path_copy = (
-        "ppc64le // NATIVE RUNNER"
-        if native_evidence
-        else "VSX SEMANTICS // DEV FIXTURE"
+    target_nodes = "".join(
+        '<div class="route-beam"></div>'
+        f'<div class="route-node"><b>{_text(TARGETS[role].label.upper())}</b>'
+        f'<small>{_text(TARGETS[role].architecture + " // NATIVE RUNNER" if native_evidence else "SHARED MODEL // DEV FIXTURE")}</small></div>'
+        for role in target_roles
+    )
+    target_summaries = summary.get("targets")
+    target_rows = ""
+    if isinstance(target_summaries, dict):
+        for role in target_roles:
+            result = target_summaries[role]
+            assert isinstance(result, dict)
+            target_rows += _matrix_row(
+                TARGETS[role].label,
+                f"{result['matched_inputs']:,} / {result['record_count']:,} matched",
+                result['outcome'],
+            )
+    route_title = "Dual-path verification" if len(target_roles) == 1 else "Cross-architecture verification"
+    route_kicker = "Two paths, one input" if len(target_roles) == 1 else f"One baseline, {len(target_roles)} target lanes"
+    input_count = record_count // len(target_roles)
+    record_label = "Input records" if len(target_roles) == 1 else "Comparison pairs"
+    matched_label = "Matched inputs" if len(target_roles) == 1 else "Matched pairs"
+    trial_note = (
+        "Canonical input records presented to the paired equivalence comparison"
+        if len(target_roles) == 1 else
+        f"{input_count:,} canonical input records × {len(target_roles)} comparison targets"
+    )
+    path_note = (
+        "Two implementation-path observations per deterministic trial"
+        if len(target_roles) == 1 else
+        f"{input_count:,} unique inputs × {len(target_roles) + 1} implementation paths; Intel is evaluated once"
     )
     observatory_label = (
         "CROSS-ARCHITECTURE OBSERVATORY"
@@ -574,7 +623,7 @@ def render_showcase_html(
         else "SEMANTIC EQUIVALENCE OBSERVATORY"
     )
     hero_copy = (
-        "The same deterministic inputs crossed two native architectures. Compare their observed outputs, then follow the evidence below."
+        "The same deterministic inputs crossed the selected native architectures. Compare their observed outputs, then follow the evidence below."
         if native_evidence
         else "The same deterministic inputs crossed paired development fixtures. Compare their observed outputs, then follow the evidence below."
     )
@@ -586,7 +635,7 @@ def render_showcase_html(
     path_activity_label = (
         "PATH EXECUTIONS" if native_evidence else "FIXTURE PATH EVALUATIONS"
     )
-    cards = _case_cards(ordered_cases, vectors_each)
+    cards = _case_cards(ordered_cases, vectors_each, target_roles)
     element_options = _filter_options(_case_element(case) for case in ordered_cases)
     comparison_options = _filter_options(str(case.comparison["mode"]) for case in ordered_cases)
 
@@ -631,8 +680,8 @@ def render_showcase_html(
 
     <div class="metrics" data-status="{_text(outcome)}">
       <div class="metric" data-code="A-01"><strong>{case_count}</strong><span>Intrinsic cases</span></div>
-      <div class="metric" data-code="V-02"><strong>{record_count}</strong><span>Input records</span></div>
-      <div class="metric" data-code="M-03"><strong>{matched}</strong><span>Matched inputs</span></div>
+      <div class="metric" data-code="V-02"><strong>{record_count}</strong><span>{record_label}</span></div>
+      <div class="metric" data-code="M-03"><strong>{matched}</strong><span>{matched_label}</span></div>
       <div class="metric" data-code="D-04"><strong>{mismatched + not_comparable}</strong><span>Mismatch / not comparable</span></div>
     </div>
 
@@ -647,12 +696,12 @@ def render_showcase_html(
             <div class="load-cell primary" data-channel="LOAD-01">
               <span>{_text(trial_label)}</span>
               <strong>{record_count:,}</strong>
-              <small>Canonical input records presented to the paired equivalence comparison</small>
+              <small>{_text(trial_note)}</small>
             </div>
             <div class="load-cell" data-channel="PATH-02">
               <span>{_text(path_activity_label)}</span>
               <strong>{path_executions:,}</strong>
-              <small>Two implementation-path observations per deterministic trial</small>
+              <small>{_text(path_note)}</small>
             </div>
             <div class="load-cell" data-channel="LANE-03">
               <span>{_text(lane_metric_label)}</span>
@@ -672,7 +721,7 @@ def render_showcase_html(
             <div class="load-cell divergence" data-channel="DIV-00" data-status="{_text(outcome)}">
               <span>Divergence atoms</span>
               <strong>{mismatch_atoms:,}</strong>
-              <small>{not_comparable:,} non-comparable inputs reported independently</small>
+              <small>{not_comparable:,} non-comparable {"inputs" if len(target_roles) == 1 else "pairs"} reported independently</small>
             </div>
           </div>
           <p class="density-note">Workload counts do not expand the evidence boundary. The capture classification above identifies whether these observations came from native runners or development fixtures.</p>
@@ -711,21 +760,21 @@ def render_showcase_html(
 
     <section id="paths">
       <div class="section-head">
-        <div><div class="kicker">Two paths, one input</div><h2>Dual-path verification</h2></div>
+        <div><div class="kicker">{route_kicker}</div><h2>{route_title}</h2></div>
         <div class="section-code">PROFILE {_text(str(profile).upper())}<br>SEED {_text(seed)}</div>
       </div>
       <div class="split">
-        <div class="panel routes">
+        <div class="panel routes{' multi' if len(target_roles) > 1 else ''}">
           <div class="route-node"><b>INTEL</b><small>{_text(intel_path_copy)}</small></div>
-          <div class="route-beam"></div>
-          <div class="route-node"><b>OPENPOWER</b><small>{_text(power_path_copy)}</small></div>
+          {target_nodes}
         </div>
         <div class="panel">
           <div class="panel-label">Integrity matrix</div>
           <div class="matrix">
+            {target_rows}
             <div class="matrix-row"><span>Case contracts</span><b>LOCKED</b></div>
             <div class="matrix-row"><span>Vector stream</span><b>DETERMINISTIC</b></div>
-            <div class="matrix-row"><span>Matched inputs</span><b>{matched:04d}</b></div>
+            <div class="matrix-row"><span>{matched_label}</span><b>{matched:04d}</b></div>
             <div class="matrix-row"><span>Mismatch atoms</span><b>{mismatch_atoms:04d}</b></div>
             <div class="matrix-row" data-status="{_text(outcome)}"><span>Comparison outcome</span><b>{_text(outcome.upper())}</b></div>
           </div>
@@ -797,6 +846,7 @@ def write_showcase_report(
     generated_at: datetime,
     native_evidence: bool,
     quality: Mapping[str, JSONValue] | None = None,
+    target_roles: tuple[str, ...] | None = None,
 ) -> Path:
     """Atomically write the optional presentation-only HTML report."""
 
@@ -812,6 +862,7 @@ def write_showcase_report(
         generated_at=generated_at,
         native_evidence=native_evidence,
         quality=quality,
+        target_roles=target_roles,
     )
     atomic_write(path, html.encode("utf-8"))
     return path

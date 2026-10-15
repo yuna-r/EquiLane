@@ -38,6 +38,10 @@ _DASHBOARD = r'''<!doctype html>
     .section-kicker { margin:0 0 5px; color:var(--violet); font-size:9px; font-weight:750; letter-spacing:.12em; text-transform:uppercase; }
     h2 { margin:0; font-size:18px; line-height:1.4; letter-spacing:-.025em; }
     .form-copy { margin:7px 0 19px; color:var(--muted); font-size:11px; line-height:1.8; }
+    .target-options { display:grid; gap:8px; margin:0 0 17px; padding:12px; border:1px solid #e1d7eb; border-radius:13px; }
+    .target-options legend { padding:0 4px; color:var(--muted); font-size:10px; font-weight:700; }
+    .target-options label { display:flex; align-items:center; gap:8px; cursor:pointer; font-size:11px; }
+    .target-options input { width:15px; height:15px; margin:0; accent-color:var(--violet); }
     fieldset { min-width:0; margin:0; padding:0; border:0; }
     .field { display:grid; gap:6px; margin-top:14px; }
     .field:first-child { margin-top:0; }
@@ -138,9 +142,14 @@ _DASHBOARD = r'''<!doctype html>
       <aside class="sidebar" aria-label="チェックの実行と履歴">
         <section class="card new-check" aria-labelledby="new-check-title">
           <p class="section-kicker">Make a report</p><h2 id="new-check-title">新しいチェック</h2>
-          <p class="form-copy">同じ入力を2つの経路へ。<br>結果を、読みやすいレポートにまとめます。</p>
+          <p class="form-copy">Intelと、選んだ対象へ同じ入力を。<br>結果を、読みやすいレポートにまとめます。</p>
           <form id="check-form" aria-labelledby="new-check-title">
             <fieldset id="check-controls" disabled>
+              <fieldset class="target-options"><legend>Intelと比較する対象</legend>
+                <label for="target-openpower"><input id="target-openpower" name="targets" value="openpower" type="checkbox" checked>OpenPOWER / PPC</label>
+                <label for="target-arm"><input id="target-arm" name="targets" value="arm" type="checkbox">ARM64 / NEON</label>
+                <label for="target-riscv"><input id="target-riscv" name="targets" value="riscv" type="checkbox">RISC-V64 / RVV 1.0</label>
+              </fieldset>
               <div class="field"><label for="profile">チェックの種類</label><select id="profile" name="profile"><option value="smoke">さくっと / Smoke</option><option value="standard">しっかり / Standard</option><option value="stress">たっぷり / Stress</option></select></div>
               <div class="field-row">
                 <div class="field"><label for="count">入力数 / ケース</label><input id="count" name="count_per_case" type="number" value="8" min="1" max="100000" step="1" required inputmode="numeric" aria-describedby="count-hint"></div>
@@ -184,6 +193,8 @@ _DASHBOARD = r'''<!doctype html>
     const state = {reports: [], selectedId: null, busy: true, submitting: false, completedJob: null, timer: null, outputJob: null, followOutput: true};
     const number = value => value !== null && value !== undefined && value !== '' && Number.isFinite(Number(value)) ? Number(value).toLocaleString('ja-JP') : '—';
     const defaults = {smoke: 8, standard: 1000, stress: 100000};
+    const targetRoles = ['openpower', 'arm', 'riscv'];
+    const targetNames = {openpower: 'OpenPOWER', arm: 'ARM64 / NEON', riscv: 'RISC-V64 / RVV'};
     const formatDate = value => {
       if (!value) return '日時未記録';
       const date = new Date(value);
@@ -226,6 +237,8 @@ _DASHBOARD = r'''<!doctype html>
     };
     const displayBadges = (container, report) => {
       container.replaceChildren(); addBadge(container, comparison(report)); addBadge(container, quality(report));
+      const targets = Array.isArray(report.targets) ? report.targets : ['openpower'];
+      targets.forEach(role => { if (targetNames[role]) addBadge(container, [targetNames[role], 'neutral']); });
     };
     const selectReport = report => {
       const url = reportURL(report.url);
@@ -242,6 +255,11 @@ _DASHBOARD = r'''<!doctype html>
       frame.hidden = false;
       document.querySelectorAll('.history-item').forEach(item => item.setAttribute('aria-pressed', String(item.dataset.reportId === String(report.id))));
     };
+    const reportCounts = report => {
+      const targetCount = Array.isArray(report.targets) ? Math.max(1, report.targets.length) : 1;
+      const inputs = report.unique_input_count ?? Number(report.record_count) / targetCount;
+      return `${number(inputs)} inputs${targetCount > 1 ? ` · ${number(report.record_count)} pairs` : ''}`;
+    };
     const renderHistory = () => {
       const list = el('history-list'); list.replaceChildren();
       el('history-count').textContent = String(state.reports.length);
@@ -250,7 +268,7 @@ _DASHBOARD = r'''<!doctype html>
         const button = document.createElement('button'); button.type = 'button'; button.className = 'history-item';
         button.dataset.reportId = String(report.id); button.setAttribute('aria-pressed', String(report.id === state.selectedId));
         const title = document.createElement('span'); title.className = 'history-title'; title.textContent = formatDate(report.generated_at);
-        const meta = document.createElement('span'); meta.className = 'history-meta'; meta.textContent = `${number(report.case_count)} cases · ${number(report.record_count)} inputs`;
+        const meta = document.createElement('span'); meta.className = 'history-meta'; meta.textContent = `${number(report.case_count)} cases · ${reportCounts(report)}`;
         const badges = document.createElement('span'); badges.className = 'badges'; displayBadges(badges, report);
         button.append(title, meta, badges); button.addEventListener('click', () => selectReport(report)); list.append(button);
       });
@@ -311,6 +329,8 @@ _DASHBOARD = r'''<!doctype html>
       if (/generat.*vector|generate input/i.test(stage)) return '入力データを用意しています。';
       if (/run.*intel|intel runner/i.test(stage)) return 'Intel側の経路を実行しています。';
       if (/run.*openpower|openpower runner/i.test(stage)) return 'OpenPOWER側の経路を実行しています。';
+      if (/run.*arm64|arm runner/i.test(stage)) return 'ARM64側の経路を実行しています。';
+      if (/run.*risc-v|riscv runner/i.test(stage)) return 'RISC-V64側の経路を実行しています。';
       if (/compar/i.test(stage)) return '2つの出力を比べています。';
       if (/coverage/i.test(stage)) return 'カバレッジを計測しています。';
       if (/quality|sanitizer/i.test(stage)) return '独立した品質検証を実施しています。';
@@ -363,7 +383,9 @@ _DASHBOARD = r'''<!doctype html>
       event.preventDefault(); if (state.busy || state.submitting) return;
       const count = Number(el('count').value);
       if (!Number.isInteger(count) || count < 1 || count > 100000) { notice('入力数は1〜100,000の整数で指定してください。'); el('count').focus(); return; }
-      const payload = {profile: el('profile').value, count_per_case: count, jobs: el('jobs').value === 'auto' ? 'auto' : 1, quality: el('quality').checked, coverage: el('quality').checked && el('coverage').checked};
+      const targets = targetRoles.filter(role => el('target-' + role).checked);
+      if (!targets.length) { notice('比較する対象を1つ以上選んでください。'); el('target-openpower').focus(); return; }
+      const payload = {profile: el('profile').value, count_per_case: count, jobs: el('jobs').value === 'auto' ? 'auto' : 1, quality: el('quality').checked, coverage: el('quality').checked && el('coverage').checked, targets};
       state.submitting = true; state.completedJob = null; setBusy(true); el('api-notice').hidden = true;
       jobMessage('チェックを開始しています', '新しいレポートを準備します。');
       try {

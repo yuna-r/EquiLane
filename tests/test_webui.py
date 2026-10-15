@@ -60,7 +60,8 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("<noscript>", self.html)
 
     def test_form_labels_defaults_and_limits_match_the_local_api(self) -> None:
-        self.assertEqual(self.markup.labels, {"profile", "count", "jobs", "quality", "coverage"})
+        self.assertEqual(self.markup.labels, {"profile", "count", "jobs", "quality", "coverage",
+                                             "target-openpower", "target-arm", "target-riscv"})
         self.assertLessEqual(self.markup.labels, self.markup.ids.keys())
         self.assertEqual(self.markup.ids["count"]["value"], "8")
         self.assertEqual(self.markup.ids["count"]["min"], "1")
@@ -69,6 +70,9 @@ class DashboardTests(unittest.TestCase):
         self.assertNotIn("checked", self.markup.ids["quality"])
         self.assertNotIn("checked", self.markup.ids["coverage"])
         self.assertIn("disabled", self.markup.ids["coverage"])
+        self.assertIn("checked", self.markup.ids["target-openpower"])
+        self.assertNotIn("checked", self.markup.ids["target-arm"])
+        self.assertNotIn("checked", self.markup.ids["target-riscv"])
         self.assertEqual(self.markup.ids["coverage"]["aria-describedby"], "coverage-hint")
         self.assertIn("実機によるCPU間検証とは区別", self.html)
         self.assertIn("経路同士の一致とは別", self.html)
@@ -83,15 +87,18 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const code = JSON.parse(fs.readFileSync(0, 'utf8'));
-const ids = ['quality','coverage','profile','count','count-hint','jobs','check-form','api-notice'];
+const ids = ['quality','coverage','profile','count','count-hint','jobs','check-form','api-notice',
+             'target-openpower','target-arm','target-riscv'];
 const elements = Object.fromEntries(ids.map(id => [id, {
   checked: false, disabled: false, value: '', textContent: '', handlers: {},
   addEventListener(name, callback) { this.handlers[name] = callback; }, focus() {}
 }]));
 elements.profile.value = 'smoke'; elements.count.value = '8'; elements.jobs.value = '1';
+elements['target-openpower'].checked = true;
 const state = {busy: false, submitting: false}; const payloads = [];
 const context = {
   el: id => elements[id], state, defaults: {smoke: 8, standard: 1000, stress: 100000},
+  targetRoles: ['openpower','arm','riscv'],
   notice() {}, jobMessage() {}, setBusy(value) {state.busy = value;},
   async refreshStatus() {state.busy = false;},
   async request(path, options) {assert.equal(path, '/api/check'); payloads.push(JSON.parse(options.body));}
@@ -102,6 +109,7 @@ vm.createContext(context); vm.runInContext(code, context);
   const event = {preventDefault() {}};
   await elements['check-form'].handlers.submit(event);
   assert.equal(payloads.at(-1).quality, false); assert.equal(payloads.at(-1).coverage, false);
+  assert.deepEqual(payloads.at(-1).targets, ['openpower']);
   elements.quality.checked = true; elements.quality.handlers.change();
   assert.equal(elements.coverage.disabled, false); assert.equal(elements.coverage.checked, false);
   await elements['check-form'].handlers.submit(event);
@@ -114,6 +122,16 @@ vm.createContext(context); vm.runInContext(code, context);
   elements.coverage.checked = true;
   await elements['check-form'].handlers.submit(event);
   assert.equal(payloads.at(-1).coverage, false);
+  elements['target-arm'].checked = true; elements['target-riscv'].checked = true;
+  await elements['check-form'].handlers.submit(event);
+  assert.deepEqual(payloads.at(-1).targets, ['openpower','arm','riscv']);
+  elements['target-openpower'].checked = false;
+  await elements['check-form'].handlers.submit(event);
+  assert.deepEqual(payloads.at(-1).targets, ['arm','riscv']);
+  elements['target-arm'].checked = false; elements['target-riscv'].checked = false;
+  const before = payloads.length;
+  await elements['check-form'].handlers.submit(event);
+  assert.equal(payloads.length, before);
 })().catch(error => {console.error(error); process.exitCode = 1;});
 """
         result = subprocess.run(
@@ -131,6 +149,27 @@ vm.createContext(context); vm.runInContext(code, context);
         self.assertEqual(self.markup.ids["follow-output"]["aria-controls"], "job-output")
         self.assertIn("LIVE OUTPUT", self.html)
         self.assertIn("CUIの出力を、そのまま表示", self.html)
+
+    @unittest.skipUnless(shutil.which("node"), "Node.js is required for the history count check")
+    def test_history_distinguishes_unique_inputs_from_multiple_target_pairs(self):
+        start = self.markup.script.index("    const reportCounts = report => {")
+        end = self.markup.script.index("    const renderHistory = () => {", start)
+        snippet = self.markup.script[start:end]
+        harness = r"""
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const code = JSON.parse(fs.readFileSync(0, 'utf8'));
+const context = {number: value => Number(value).toLocaleString('ja-JP')};
+vm.createContext(context); vm.runInContext(code + '\nglobalThis.counts = reportCounts;', context);
+assert.equal(context.counts({record_count:6096,unique_input_count:2032,targets:['openpower','arm','riscv']}), '2,032 inputs · 6,096 pairs');
+assert.equal(context.counts({record_count:6096,targets:['openpower','arm','riscv']}), '2,032 inputs · 6,096 pairs');
+assert.equal(context.counts({record_count:2032,targets:['arm']}), '2,032 inputs');
+assert.equal(context.counts({record_count:2032}), '2,032 inputs');
+"""
+        completed = subprocess.run([shutil.which("node"), "-e", harness],
+                                   input=json.dumps(snippet), text=True, capture_output=True, timeout=10)
+        self.assertEqual(completed.returncode, 0, completed.stderr)
 
     @unittest.skipUnless(shutil.which("node"), "Node.js is required for the output interaction check")
     def test_output_keeps_raw_text_completed_logs_and_reader_scroll_position(self) -> None:
