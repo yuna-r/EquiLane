@@ -195,7 +195,7 @@ class QualityTests(unittest.TestCase):
             )
             output = io.StringIO()
             with redirect_stdout(output):
-                exit_code, summary = run_coverage(root, root / "coverage")
+                exit_code, summary = run_coverage(root, root / "coverage", coverage=True)
 
             self.assertEqual(exit_code, 0)
             self.assertEqual(summary["tests_run"], 1)
@@ -211,6 +211,30 @@ class QualityTests(unittest.TestCase):
                     "IOITF_PROGRESS 2 2",
                 ],
             )
+
+    def test_default_test_runner_does_not_construct_a_coverage_tracer(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "src/equilane"
+            tests = root / "tests"
+            source.mkdir(parents=True)
+            tests.mkdir()
+            (source / "sample.py").write_text("value = 42\n", encoding="utf-8")
+            (tests / "test_no_trace_sample.py").write_text(
+                "import unittest\nclass Sample(unittest.TestCase):\n"
+                "    def test_value(self): self.assertEqual(42, 42)\n", encoding="utf-8"
+            )
+            output = root / "results"
+            with redirect_stdout(io.StringIO()), mock.patch(
+                "equilane.quality_runner.trace.Trace", side_effect=AssertionError("tracing was requested")
+            ):
+                exit_code, summary = run_coverage(root, output)
+            self.assertEqual(exit_code, 0)
+            self.assertFalse(summary["coverage_collected"])
+            self.assertIsNone(summary["coverage_percent"])
+            self.assertEqual(summary["tests_run"], 1)
+            self.assertFalse((output / "annotated").exists())
+            self.assertIn("not collected", (output / "coverage-summary.txt").read_text())
 
     def test_deep_gates_write_one_summary_and_three_logs(self) -> None:
         coverage = (

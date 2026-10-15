@@ -33,15 +33,17 @@ equilane check --showcase-report
 
 最後に表示される `showcase_report` のHTMLをブラウザで開きます。
 
-独立したモデル検証、coverage、sanitizer、cross buildも含める場合：
+独立したモデル検証、sanitizer、cross buildも含める場合：
 
 ```sh
-equilane check --quality --showcase-report
+equilane check --project equilane.toml --quality --showcase-report
 ```
 
 現在のportable modelには、NaNと丸め処理の既知の不一致があります。
 `--quality` はこれらをレポートに記録し、検証失敗として終了します。
+現在は `--quality` の設定ファイルを明示してください。省略時の不具合も回帰テストで記録しています。
 詳細は [検出済みの不一致](tests/BUG_HUNT.md) にあります。
+カバレッジは既定では計測しません。必要な場合だけ上のコマンドに `--coverage` を追加します。
 
 入力を増やして比較する場合：
 

@@ -90,9 +90,14 @@ class CheckManagerTests(unittest.TestCase):
     def test_options_reject_coercion_unknown_fields_and_unbounded_work(self) -> None:
         self.assertEqual(CheckOptions.from_json({}), CheckOptions())
         self.assertEqual(CheckOptions.from_json({"jobs": "auto"}).jobs, "auto")
+        self.assertFalse(CheckOptions.from_json({}).coverage)
+        self.assertFalse(CheckOptions.from_json({"quality": True}).coverage)
+        self.assertTrue(CheckOptions.from_json({"quality": True, "coverage": True}).coverage)
         invalid = [None, [], {"profile": []}, {"profile": "custom"}, {"count_per_case": True},
                    {"count_per_case": 0}, {"count_per_case": 100001}, {"count_per_case": 2.0},
-                   {"jobs": True}, {"jobs": 257}, {"jobs": "2"}, {"quality": 1}, {"output": "/tmp"}]
+                   {"jobs": True}, {"jobs": 257}, {"jobs": "2"}, {"quality": 1},
+                   {"coverage": 1}, {"coverage": "false"}, {"coverage": None},
+                   {"coverage": True}, {"quality": False, "coverage": True}, {"output": "/tmp"}]
         for value in invalid:
             with self.subTest(value=value), self.assertRaises(ValueError):
                 CheckOptions.from_json(value)
@@ -153,9 +158,24 @@ class CheckManagerTests(unittest.TestCase):
             self.assertIsNone(status["error"])
             command = captured["command"]
             self.assertIn("--quality", command)
+            self.assertNotIn("--coverage", command)
             self.assertEqual(command[command.index("--jobs") + 1], "auto")
             self.assertEqual(command[command.index("--project") + 1], str(manager.project))
             self.assertNotIn("shell", captured["kwargs"])
+
+    def test_source_tracing_flag_requires_an_explicit_coverage_option(self) -> None:
+        for coverage in (False, True):
+            with self.subTest(coverage=coverage), tempfile.TemporaryDirectory() as temporary:
+                manager = CheckManager(PROJECT / "equilane.toml", ReportStore(Path(temporary)))
+                process = mock.Mock(stdout=io.StringIO("actual CLI output\n"))
+                process.wait.return_value = 2
+                with mock.patch("equilane.server.subprocess.Popen", return_value=process) as launch:
+                    manager.start(CheckOptions(quality=True, coverage=coverage))
+                    manager._thread.join(timeout=3)
+                command = launch.call_args.args[0]
+                self.assertIn("--quality", command)
+                self.assertEqual("--coverage" in command, coverage)
+                self.assertEqual(manager.status()["output"], "actual CLI output\n")
 
     def test_process_launch_error_is_visible_and_allows_a_later_job(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -256,12 +276,20 @@ class DashboardHTTPTests(unittest.TestCase):
                                      headers={"Content-Type": "text/plain"})[0], 415)
         self.assertEqual(self.request("/api/check", method="POST", body={"count_per_case": True},
                                      headers={"Origin": origin})[0], 400)
+        self.assertEqual(self.request("/api/check", method="POST", body={"coverage": True},
+                                     headers={"Origin": origin})[0], 400)
         with mock.patch.object(self.server.checks, "start", return_value={"state": "running"}) as start:
             status, data, _ = self.request("/api/check", method="POST", body={"jobs": "auto"},
                                            headers={"Origin": origin})
             self.assertEqual(status, 202)
             self.assertEqual(json.loads(data)["job"]["state"], "running")
             self.assertEqual(start.call_args.args[0].jobs, "auto")
+            self.assertFalse(start.call_args.args[0].coverage)
+            status, _, _ = self.request("/api/check", method="POST", body={"quality": True, "coverage": True},
+                                        headers={"Origin": origin})
+            self.assertEqual(status, 202)
+            self.assertTrue(start.call_args.args[0].quality)
+            self.assertTrue(start.call_args.args[0].coverage)
         with mock.patch.object(self.server.checks, "start", side_effect=JobConflictError("busy")):
             self.assertEqual(self.request("/api/check", method="POST", body={})[0], 409)
 

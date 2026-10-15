@@ -49,6 +49,8 @@ _DASHBOARD = r'''<!doctype html>
     .quality-option input { width:15px; height:15px; margin:3px 0 0; accent-color:var(--violet); flex-shrink:0; }
     .quality-option label { display:block; cursor:pointer; }
     .quality-option small { display:block; margin-top:3px; font-size:10px; line-height:1.7; color:var(--muted); font-weight:400; }
+    .coverage-option { margin-top:10px; background:#fffdf9; }
+    .coverage-option input:disabled + label { color:var(--muted); }
     .primary-button { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-height:44px; padding:10px 13px; margin-top:17px; border:1px solid #70538f; border-radius:13px; background:#70538f; color:#fff; font-size:12px; font-weight:700; transition:background .15s; }
     .primary-button:hover:not(:disabled) { background:#5f437f; }
     .form-footnote { margin:11px 0 0; color:var(--muted); font-size:10px; line-height:1.8; }
@@ -146,6 +148,7 @@ _DASHBOARD = r'''<!doctype html>
               </div>
               <p class="field-hint" id="count-hint">まずは8入力で、レポートをひとつ。</p>
               <div class="quality-option"><input id="quality" name="quality" type="checkbox"><label for="quality">独立した検証も実施<small>モデルの出力を期待値と照合します。<br>経路同士の一致とは別に、結果を表示します。</small></label></div>
+              <div class="quality-option coverage-option"><input id="coverage" name="coverage" type="checkbox" disabled aria-describedby="coverage-hint"><label for="coverage">カバレッジも計測<small id="coverage-hint">独立した検証の実行時だけ追加できます。<br>実行時間が増えるため、通常はオフです。</small></label></div>
               <button class="primary-button" id="run-button" type="submit"><span aria-hidden="true">＋</span><span id="run-label">レポートを作る</span></button>
             </fieldset>
           </form>
@@ -309,7 +312,8 @@ _DASHBOARD = r'''<!doctype html>
       if (/run.*intel|intel runner/i.test(stage)) return 'Intel側の経路を実行しています。';
       if (/run.*openpower|openpower runner/i.test(stage)) return 'OpenPOWER側の経路を実行しています。';
       if (/compar/i.test(stage)) return '2つの出力を比べています。';
-      if (/quality|coverage|sanitizer/i.test(stage)) return '独立した品質検証を実施しています。';
+      if (/coverage/i.test(stage)) return 'カバレッジを計測しています。';
+      if (/quality|sanitizer/i.test(stage)) return '独立した品質検証を実施しています。';
       if (/showcase|finaliz|report/i.test(stage)) return '結果をレポートにまとめています。';
       return stage.length > 220 ? stage.slice(-220) : stage;
     };
@@ -345,6 +349,12 @@ _DASHBOARD = r'''<!doctype html>
       } catch (error) { notice(error.message); }
       finally { scheduleStatus(); }
     };
+    const syncCoverage = () => {
+      el('coverage').disabled = !el('quality').checked;
+      if (!el('quality').checked) el('coverage').checked = false;
+    };
+    el('quality').addEventListener('change', syncCoverage);
+    syncCoverage();
     el('profile').addEventListener('change', () => {
       el('count').value = String(defaults[el('profile').value]);
       el('count-hint').textContent = el('profile').value === 'smoke' ? 'まずは8入力で、レポートをひとつ。' : '入力数は調整できます。多いほど時間がかかります。';
@@ -353,7 +363,7 @@ _DASHBOARD = r'''<!doctype html>
       event.preventDefault(); if (state.busy || state.submitting) return;
       const count = Number(el('count').value);
       if (!Number.isInteger(count) || count < 1 || count > 100000) { notice('入力数は1〜100,000の整数で指定してください。'); el('count').focus(); return; }
-      const payload = {profile: el('profile').value, count_per_case: count, jobs: el('jobs').value === 'auto' ? 'auto' : 1, quality: el('quality').checked};
+      const payload = {profile: el('profile').value, count_per_case: count, jobs: el('jobs').value === 'auto' ? 'auto' : 1, quality: el('quality').checked, coverage: el('quality').checked && el('coverage').checked};
       state.submitting = true; state.completedJob = null; setBusy(true); el('api-notice').hidden = true;
       jobMessage('チェックを開始しています', '新しいレポートを準備します。');
       try {

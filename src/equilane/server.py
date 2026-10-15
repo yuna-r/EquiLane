@@ -31,12 +31,13 @@ class CheckOptions:
     count_per_case: int = 8
     jobs: int | str = 1
     quality: bool = False
+    coverage: bool = False
 
     @classmethod
     def from_json(cls, value: Any) -> CheckOptions:
         if not isinstance(value, dict):
             raise ValueError("check options must be a JSON object")
-        unknown = set(value) - {"profile", "count_per_case", "jobs", "quality"}
+        unknown = set(value) - {"profile", "count_per_case", "jobs", "quality", "coverage"}
         if unknown:
             raise ValueError("unknown check option")
         profile = value.get("profile", "smoke")
@@ -51,7 +52,12 @@ class CheckOptions:
         quality = value.get("quality", False)
         if type(quality) is not bool:
             raise ValueError("quality must be a boolean")
-        return cls(profile, count, jobs, quality)
+        coverage = value.get("coverage", False)
+        if type(coverage) is not bool:
+            raise ValueError("coverage must be a boolean")
+        if coverage and not quality:
+            raise ValueError("coverage requires quality checks")
+        return cls(profile, count, jobs, quality, coverage)
 
 
 class ReportStore:
@@ -211,6 +217,8 @@ class CheckManager:
         ]
         if options.quality:
             command.append("--quality")
+        if options.coverage:
+            command.append("--coverage")
         environment = os.environ.copy()
         source_root = str(Path(__file__).resolve().parents[1])
         environment["PYTHONPATH"] = source_root + os.pathsep + environment.get("PYTHONPATH", "")

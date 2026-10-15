@@ -64,6 +64,8 @@ def print_quality_metrics(
             rows.append(("regression tests", f"{deep.tests_run:,} executed"))
         if deep.coverage_percent is not None:
             rows.append(("source line coverage", deep.coverage_percent + "%"))
+        else:
+            rows.append(("source line coverage", "not collected"))
         rows.append(
             ("deep quality gates", f"{deep.passed_gates:,} / {deep.total_gates:,}")
         )

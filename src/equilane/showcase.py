@@ -374,6 +374,11 @@ def _quality_section(quality: Mapping[str, JSONValue] | None) -> str:
     scopes = python.get("model_findings_by_contract_scope", {})
     oracle_reference = python.get("model_oracle_reference") or {}
     oracle_references = python.get("model_oracle_references") or [oracle_reference]
+    coverage_label = (
+        f'{python.get("coverage_percent", "未記録")}%'
+        if python.get("coverage_collected") is True else
+        "未計測（既定）" if python.get("coverage_collected") is False else "未記録"
+    )
     reference_details = "".join(
         f'<details><summary>{_text(reference.get("oracle", "独立した期待値"))}</summary>'
         f'<pre>{_text(dumps(reference))}</pre></details>'
@@ -387,6 +392,14 @@ def _quality_section(quality: Mapping[str, JSONValue] | None) -> str:
         "rounding_float_to_integer": "丸めモード未反映：浮動小数点 → 整数",
         "rounding_narrowing": "丸めモード未反映：f64 → f32",
         "rounding_integer_to_float": "丸めモード未反映：整数 → 浮動小数点",
+        "fp_boundary_float_to_integer": "浮動小数点 → 整数の境界",
+        "fp_boundary_halfway_arithmetic": "算術の丸め中間値と隣接値",
+        "fp_boundary_integer_to_float": "整数 → 浮動小数点の精度境界",
+        "fp_boundary_nan_priority": "NaN payload と入力順序",
+        "fp_boundary_narrowing": "f64 → f32 の丸め・桁落ち境界",
+        "fp_boundary_signed_zero_infinity": "符号付きゼロ・無限大・無効演算",
+        "fp_boundary_sqrt": "平方根の丸め境界",
+        "fp_boundary_subnormal_arithmetic": "非正規数と通常数の境界",
     }
     family_rows = "".join(
         _matrix_row(family_labels.get(name, name), count, _finding_status(count))
@@ -449,6 +462,7 @@ def _quality_section(quality: Mapping[str, JSONValue] | None) -> str:
         <p>モデル oracle テスト実施数：{_text(python.get("model_oracle_tests_run", "未集計"))} メソッド。
         独立した出力照合：{_text(python.get("model_oracle_checks_run", "未集計"))}件。
         入力IDを記録した重複のない入力：{_text(python.get("model_oracle_tracked_unique_inputs", "未集計"))}件。
+        カバレッジ：{_text(coverage_label)}。
         実行環境：{_text(dumps(environment))}。</p>
         <h3>期待値の出典</h3>{reference_details}
         <p>固定ビット列、独立した整数演算、保存したSSE2実行結果を使用します。

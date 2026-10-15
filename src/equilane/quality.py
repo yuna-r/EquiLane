@@ -149,8 +149,9 @@ def run_quality_gates(
     *,
     jobs: int | None = None,
     progress: Callable[[QualityGateUpdate], None] | None = None,
+    coverage: bool = False,
 ) -> QualityRun:
-    """Run expensive checks only when the caller explicitly requests them."""
+    """Run independent tests and C gates, tracing coverage only when requested."""
 
     root = project_root.resolve()
     output = output.resolve()
@@ -168,7 +169,9 @@ def run_quality_gates(
         "--output",
         str(coverage_output),
     ]
-    coverage_label = "Python tests + coverage"
+    if coverage:
+        coverage_command.append("--coverage")
+    coverage_label = "Python tests + coverage" if coverage else "Python tests"
     coverage_work = [0, 1]
 
     def coverage_progress(current: int, total: int) -> None:

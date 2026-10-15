@@ -288,6 +288,8 @@ def _development_check(args: argparse.Namespace) -> int:
 
     from .fixture import run_fixture
 
+    if args.coverage and not args.quality:
+        raise ValidationError("--coverage requires --quality")
     started_at = datetime.now(timezone.utc)
     progress = CheckProgress(enabled=not args.quiet, steps=8 if args.quality else 7)
     with progress.stage(1, "Prepare suite"):
@@ -425,6 +427,7 @@ def _development_check(args: argparse.Namespace) -> int:
                     output / "quality",
                     jobs=args.jobs,
                     progress=gate_progress.update,
+                    coverage=args.coverage,
                 )
             finally:
                 gate_progress.close()
@@ -531,7 +534,12 @@ def _parser() -> argparse.ArgumentParser:
     check.add_argument(
         "--quality",
         action="store_true",
-        help="run opt-in coverage, sanitizer, and cross-build quality gates",
+        help="run independent tests, sanitizer, and cross-build quality gates",
+    )
+    check.add_argument(
+        "--coverage",
+        action="store_true",
+        help="collect source line coverage while running --quality",
     )
     check.add_argument(
         "--quiet",

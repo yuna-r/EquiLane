@@ -4,7 +4,7 @@
 近い単位として、1ファイルへまとめます。
 
 現在は算術、乗算、飽和算術、平均/SAD、論理、比較、shift、pack、レーン操作を含む
-146個のportable model case packが
+254個のportable model case packが
 あります。Native adapterの実装例は`_mm_add_pd`、`_mm_set1_pd`、
 `_mm_shuffle_epi32`の3ケースです。
 

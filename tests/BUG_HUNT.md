@@ -12,7 +12,84 @@
 .venv/bin/python -m unittest discover -s tests -p test_adversarial_models.py -v
 ```
 
-## 拡張後の結果
+## 今回追加した探索ケース
+
+公式254 case packの命令契約は維持し、独立した期待値を持つ入力パターンと、
+フレームワークの拒否・比較テストを追加しました。命令の種類数と入力パターン数は別です。
+
+| 追加した検証 | 件数 | 内容 |
+|---|---:|---|
+| 整数モデルの入力・期待値照合 | 17,090 | wrap、飽和、符号、乗算、全imm8、64bit shift count、lane順序、メモリ境界 |
+| 浮動小数点モデルの入力・期待値照合 | 10,708 | 107命令ケース、12系統、4丸めモード、NaN、非正規数、丸め中間値、変換境界 |
+| schema・artifact・replay・比較テスト | 291メソッド | 閉じたschema、改ざん、symlink、全status組合せ、NaN方針、ULP、厳密な許容誤差 |
+| CLI設定選択の回帰テスト | 4メソッド | 新旧設定ファイルの自動選択、quality有無、設定ファイル明示の対照 |
+
+追加後の全体検証は495テストメソッド、独立したモデル出力照合29,314件、
+記録した異なる入力ID29,292件でした。モデル不一致2,159件、その他のassertion失敗13件、
+実行エラー0件、skip 0件です。モデル不一致のうち106件は公式nearest-even契約、
+2,053件は検証用の丸め拡張です。C sanitizerと12オブジェクトのcross buildは成功しています。
+
+整数の期待値は、無限精度の整数演算、固定幅への明示的な符号化、独立したbyte操作で
+計算します。モデルの演算helperや比較エンジンから期待値を作りません。
+shuffleとshiftの全imm8を検査する際は、元の許可値を超える入力だけを
+`validated_immediate_extension` として契約検証します。公式の即値allowlistは変更していません。
+
+浮動小数点の期待値は、モデルをimportしない別のCプログラムから取得しました。
+各packed命令にはレーンごとに異なる値、scalar命令には左右で異なる上位poisonレーンを渡します。
+新corpus内の10,708入力はすべて異なり、そのうち10,704入力は以前の504行corpusにありません。
+4入力は以前の対照ケースと共有しています。`-O0` と `-O2` のstrict FPビルドで全行を再取得し、
+保存値との完全一致を確認しています。
+
+追加FPテストは、arm64 Darwin / Python 3.14.7で1,988パターンのモデル不一致を再現しました。
+このうち公式nearest-even契約での70件は、NaN payload選択54件と無効演算のNaN符号16件です。
+残る1,918件は、対応丸めモードを追加した検証用契約での不一致です。
+既存のNaNと丸め未反映の不具合を、より多くの入力で再現したもので、
+不一致の件数を根本原因の数とは扱いません。整数17,090照合は全件成功しています。
+
+### 新たに再現した不備と検証強化用ケース
+
+- NaN比較方針の4項目と `signed_zero` に配列・辞書を渡すと、文字列型の検査より先に
+  set membershipを実行し、`ValidationError` の代わりに `TypeError` が漏れます。10テストで再現します。
+- `validate_result_record(..., input_record=...)` 単独では、指定した入力と異なる、形式上正しい
+  `input_id` を受理します。1テストで再現します。artifact検証と比較の上位経路はこの不一致を拒否するため、
+  通常の比較pipelineが偽の一致を報告するという意味ではありません。
+  仕様が要求する上位経路の検証とは区別し、下位APIの検証強化を求めるテストとして残しています。
+- `check --quality` の `--project` を省略すると、設定の自動選択後に `Path(None)` を呼び、
+  品質ゲートの実行前に `TypeError` で停止します。`--project equilane.toml` の明示とWeb画面からの実行は
+  別経路です。製品コードの修正は含めず、省略経路を回帰テストに残しています。
+
+失敗は `expectedFailure`、skip、期待値の差し替えで抑制していません。
+schema拒否の例外漏れは、実際の例外を捕捉したうえで `ValidationError` であることをassertし、
+テスト自体の偶発的な実行エラーと区別しています。
+
+```sh
+.venv/bin/python -m unittest discover -s tests -p test_integer_boundary_models.py -v
+.venv/bin/python -m unittest discover -s tests -p test_fp_boundary_models.py -v
+.venv/bin/python -m unittest discover -s tests -p test_protocol_adversarial.py -v
+.venv/bin/python -m unittest discover -s tests -p test_comparison_adversarial.py -v
+.venv/bin/python -m unittest discover -s tests -p test_cli_adversarial.py -v
+```
+
+FP期待値を独立に再取得する手順：
+
+```sh
+clang -arch x86_64 -O0 -msse2 -ffp-model=strict -Wall -Wextra -Werror \
+  tests/native/probe_fp_boundary.c -o /tmp/equilane-fp-boundary-probe
+.venv/bin/python tests/build_fp_boundary_oracles.py \
+  --probe /tmp/equilane-fp-boundary-probe \
+  --execution-context 'x86_64 SSE2 under Rosetta on arm64 Darwin' \
+  --build-command 'clang -arch x86_64 -O0 -msse2 -ffp-model=strict -Wall -Wextra -Werror tests/native/probe_fp_boundary.c -o /tmp/equilane-fp-boundary-probe' \
+  --verify
+```
+
+`-O2` に変えたprobeでも同じ `--verify` が成功します。通常のPythonテストにコンパイラやRosettaは不要です。
+corpusは取得環境、コンパイラ、build command、probe・ソース・全期待値のSHA-256を保存します。
+これはRosetta上のSSE2記録であり、Intel / OpenPOWER実機間のconformance evidenceではありません。
+仕様の参照元は [Intel Intrinsics Guide](https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html)、
+[Intel SDM](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html)、
+[Floating-Point Reference Sheet](https://www.intel.com/content/www/us/en/developer/articles/technical/floating-point-reference-sheet-for-intel-architecture.html) です。
+
+## 今回の追加前に確認していた結果
 
 arm64 Darwin / Python 3.14.7 で **171パターンの出力不一致**を再現しました。
 初回の36件に、丸めモード未反映の135件が追加されています。
@@ -84,7 +161,7 @@ add / sub / mul はビット列を Python の float に変換してホストで�
 ## レポートへの反映
 
 ```sh
-.venv/bin/python -m equilane check --quality --showcase-report
+.venv/bin/python -m equilane check --project equilane.toml --quality --showcase-report
 ```
 
 `showcase.html` の「独立したモデル検証と失敗箇所」に、モデル出力の不一致、その他の
@@ -100,6 +177,9 @@ quality 検証に失敗した場合は冒頭を `QUALITY CHECK FAILED` と表示
 意味ではありません。また、今回の結果だけでフレームワーク全体の無欠陥を主張しません。
 
 機械可読の記録は `quality/summary.json` の `gates.python_coverage` にあります。
+`--quality` では独立テストを実行しますが、カバレッジの計測は既定でオフです。
+明示的に `--coverage` を加えた場合だけソースをtraceします。未計測時の割合は `null` で、
+`coverage_collected: false` と記録します。`python_coverage` キーは既存成果物との互換性のため維持しています。
 
 - `failure_classification`: モデル不一致・その他の assertion 失敗・実行エラーの件数。
 - `model_output_mismatches`: 各入力、入力ID、テストID、期待値、実測値、照合方法。
@@ -108,6 +188,9 @@ quality 検証に失敗した場合は冒頭を `QUALITY CHECK FAILED` と表示
 - `model_findings_by_family` / `model_findings_by_contract_scope`: 原因別と契約範囲別の件数。
 - `model_oracle_checks_run`: 実施した出力照合数（テストメソッド数とは別）。
 - `model_oracle_reference`: SSE2記録数、取得環境、probeと生成スクリプトのSHA-256。
+- `model_oracle_references`: 新旧corpusと独立した整数期待値の出典一覧。
+- `model_oracle_tracked_unique_inputs`: 入力IDを記録した、重複のないモデル検証入力数。
+- `test_assertion_failures` / `test_execution_errors`: モデル不一致以外のテストID、例外名、メッセージ。
 
 NaN oracle の出典はこの文書の SSE2 probe 確認記録です。
 quality 検証時には probe を再実行せず、固定した期待値を使用します。

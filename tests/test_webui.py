@@ -60,15 +60,67 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("<noscript>", self.html)
 
     def test_form_labels_defaults_and_limits_match_the_local_api(self) -> None:
-        self.assertEqual(self.markup.labels, {"profile", "count", "jobs", "quality"})
+        self.assertEqual(self.markup.labels, {"profile", "count", "jobs", "quality", "coverage"})
         self.assertLessEqual(self.markup.labels, self.markup.ids.keys())
         self.assertEqual(self.markup.ids["count"]["value"], "8")
         self.assertEqual(self.markup.ids["count"]["min"], "1")
         self.assertEqual(self.markup.ids["count"]["max"], "100000")
         self.assertIn("disabled", self.markup.ids["check-controls"])
         self.assertNotIn("checked", self.markup.ids["quality"])
+        self.assertNotIn("checked", self.markup.ids["coverage"])
+        self.assertIn("disabled", self.markup.ids["coverage"])
+        self.assertEqual(self.markup.ids["coverage"]["aria-describedby"], "coverage-hint")
         self.assertIn("実機によるCPU間検証とは区別", self.html)
         self.assertIn("経路同士の一致とは別", self.html)
+
+    @unittest.skipUnless(shutil.which("node"), "Node.js is required for the coverage interaction check")
+    def test_coverage_stays_opt_in_and_requires_quality_in_the_post_payload(self) -> None:
+        start = self.markup.script.index("    const syncCoverage = () => {")
+        end = self.markup.script.index("    const connect = async () => {", start)
+        snippet = self.markup.script[start:end]
+        harness = r"""
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const code = JSON.parse(fs.readFileSync(0, 'utf8'));
+const ids = ['quality','coverage','profile','count','count-hint','jobs','check-form','api-notice'];
+const elements = Object.fromEntries(ids.map(id => [id, {
+  checked: false, disabled: false, value: '', textContent: '', handlers: {},
+  addEventListener(name, callback) { this.handlers[name] = callback; }, focus() {}
+}]));
+elements.profile.value = 'smoke'; elements.count.value = '8'; elements.jobs.value = '1';
+const state = {busy: false, submitting: false}; const payloads = [];
+const context = {
+  el: id => elements[id], state, defaults: {smoke: 8, standard: 1000, stress: 100000},
+  notice() {}, jobMessage() {}, setBusy(value) {state.busy = value;},
+  async refreshStatus() {state.busy = false;},
+  async request(path, options) {assert.equal(path, '/api/check'); payloads.push(JSON.parse(options.body));}
+};
+vm.createContext(context); vm.runInContext(code, context);
+(async () => {
+  assert.equal(elements.coverage.disabled, true); assert.equal(elements.coverage.checked, false);
+  const event = {preventDefault() {}};
+  await elements['check-form'].handlers.submit(event);
+  assert.equal(payloads.at(-1).quality, false); assert.equal(payloads.at(-1).coverage, false);
+  elements.quality.checked = true; elements.quality.handlers.change();
+  assert.equal(elements.coverage.disabled, false); assert.equal(elements.coverage.checked, false);
+  await elements['check-form'].handlers.submit(event);
+  assert.equal(payloads.at(-1).quality, true); assert.equal(payloads.at(-1).coverage, false);
+  elements.coverage.checked = true;
+  await elements['check-form'].handlers.submit(event);
+  assert.equal(payloads.at(-1).quality, true); assert.equal(payloads.at(-1).coverage, true);
+  elements.quality.checked = false; elements.quality.handlers.change();
+  assert.equal(elements.coverage.checked, false); assert.equal(elements.coverage.disabled, true);
+  elements.coverage.checked = true;
+  await elements['check-form'].handlers.submit(event);
+  assert.equal(payloads.at(-1).coverage, false);
+})().catch(error => {console.error(error); process.exitCode = 1;});
+"""
+        result = subprocess.run(
+            [shutil.which("node"), "-e", harness],
+            input=json.dumps(snippet), text=True, capture_output=True, timeout=10,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_live_cui_output_is_in_the_main_pane_and_keyboard_accessible(self) -> None:
         self.assertLess(self.html.index('class="report-toolbar"'), self.html.index('id="live-output"'))
