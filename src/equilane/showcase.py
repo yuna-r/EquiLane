@@ -373,6 +373,12 @@ def _quality_section(quality: Mapping[str, JSONValue] | None) -> str:
     environment = python.get("execution_environment", {})
     scopes = python.get("model_findings_by_contract_scope", {})
     oracle_reference = python.get("model_oracle_reference") or {}
+    oracle_references = python.get("model_oracle_references") or [oracle_reference]
+    reference_details = "".join(
+        f'<details><summary>{_text(reference.get("oracle", "独立した期待値"))}</summary>'
+        f'<pre>{_text(dumps(reference))}</pre></details>'
+        for reference in oracle_references if isinstance(reference, dict) and reference
+    )
     family_labels = {
         "nan_indefinite_sign": "NaN の符号",
         "nan_payload_priority": "NaN payload の選択",
@@ -389,13 +395,24 @@ def _quality_section(quality: Mapping[str, JSONValue] | None) -> str:
     findings = []
     for row in rows:
         record = row["input"]
+        oracle_label = {
+            "literal_sse2_expected_bits": "固定 SSE2 ビット列",
+            "captured_sse2_expected_bits": "SSE2 命令の記録値",
+            "independent_integer_reference": "独立した整数演算",
+        }.get(row.get("oracle", "literal_sse2_expected_bits"), "独立した期待値")
         findings.append(f'''<details><summary>{_text(record["case_id"])} — {_text(record["input_id"])}</summary>
           <p>検証範囲：{_text(row.get("contract_scope", "未記録"))}。
           環境指定：{_text(dumps(record.get("environment", {})))}。</p>
-          <p>入力</p><pre>{_text(dumps(record["operands"]))}</pre>
-          <p>期待値（固定 SSE2 ビット列）</p><pre>{_text(dumps(row["expected"]))}</pre>
+          <p>入力</p><pre>{_text(dumps(record))}</pre>
+          <p>期待値（{_text(oracle_label)}）</p><pre>{_text(dumps(row["expected"]))}</pre>
           <p>実測値（Python モデル）</p><pre>{_text(dumps(row["actual"]))}</pre>
-          <small>{_text(row["test_id"])}</small></details>''')
+          <small>{_text(row["test_id"])} / {_text(row.get("oracle_reference", "未記録"))}</small></details>''')
+    other_findings = "".join(
+        f'<details><summary>{_text(row["test_id"])}</summary>'
+        f'<p>{_text(row["exception"])}</p><pre>{_text(row["message"])}</pre></details>'
+        for name in ("test_assertion_failures", "test_execution_errors")
+        for row in python.get(name, [])
+    )
     counts = "".join(
         _matrix_row(label, classification.get(key, "未集計"),
                     _finding_status(classification.get(key)))
@@ -407,7 +424,7 @@ def _quality_section(quality: Mapping[str, JSONValue] | None) -> str:
     )
     explanation = '''<p><strong>今回の不一致の対象は Python portable model の出力です。</strong>
       contract 検証とモデル実行が成功した後、比較エンジン <code>equilane.compare</code> を
-      通さず、出力のビット列を固定期待値と直接照合して検出しました。
+      通さず、出力を独立した期待値と直接照合して検出しました。
       比較・集計処理の誤判定として検出されたものではありません。</p>
       <p>OpenPOWER 実機の不具合を示す結果ではありません。モデルはこのリポジトリに含まれる
       開発用実装です。この結果だけでフレームワーク全体にバグがないとは判断しません。</p>''' if rows else '''<p>モデル出力の不一致はこの実行では記録されていません。
@@ -424,23 +441,23 @@ def _quality_section(quality: Mapping[str, JSONValue] | None) -> str:
       <details class="oracle-context"><summary>検証範囲・期待値の出典・品質ゲート</summary>
         <h3>検証範囲と不一致の内訳</h3>
         <p>公式 nearest-even 契約での不一致：{_text(scopes.get("official_nearest_even", "未集計"))}件。
-        丸めモードを追加した検証用契約での不一致：{_text(scopes.get("validated_rounding_extension", "未集計"))}件。</p>
-        <p>公式ケースの対応モードは変更していません。拡張契約にはSSE2の回帰期待値を登録し、
-        contract 検証を通してから実行しています。拡張した契約自体もJSONの各不一致記録に保存しています。
-        件数は不一致になった入力パターン数です。丸めの5経路は同じ原因の現れであり、別々の根本原因とは数えません。</p>
+        丸めモードを追加した検証用契約での不一致：{_text(scopes.get("validated_rounding_extension", "未集計"))}件。
+        即値の許可範囲を広げた検証用契約での不一致：{_text(scopes.get("validated_immediate_extension", "未集計"))}件。</p>
+        <p>公式ケースの対応モードと即値の許可範囲は変更していません。拡張した契約も検証を通してから実行し、
+        各不一致のJSONに保存しています。件数は失敗した入力パターン数で、根本原因の個数とは異なります。</p>
         <div class="matrix">{family_rows}</div>
         <p>モデル oracle テスト実施数：{_text(python.get("model_oracle_tests_run", "未集計"))} メソッド。
         独立した出力照合：{_text(python.get("model_oracle_checks_run", "未集計"))}件。
+        入力IDを記録した重複のない入力：{_text(python.get("model_oracle_tracked_unique_inputs", "未集計"))}件。
         実行環境：{_text(dumps(environment))}。</p>
-        <p>期待値の出典：テスト内の固定ビット列と <code>tests/data/rounding-oracles.json</code> の
-        SSE2実行結果{_text(oracle_reference.get("row_count", "未記録"))}組。
-        取得環境：{_text(oracle_reference.get("execution_context", "未記録"))}。
-        後者は4種類のMXCSR丸めモードで別プログラムから取得しています。
-        NaN の期待値の事前確認手順と Rosetta での確認記録は <code>tests/BUG_HUNT.md</code> に記載しています。
+        <h3>期待値の出典</h3>{reference_details}
+        <p>固定ビット列、独立した整数演算、保存したSSE2実行結果を使用します。
+        取得と再確認の手順は <code>tests/BUG_HUNT.md</code> に記載しています。
         この quality 実行では probe を再実行していません。実機間の native evidence ではありません。</p>
         <div class="matrix">{gate_rows}</div>
       </details>
       <details><summary>不一致の入力・期待値・実測値（{len(rows)}件）</summary>{"".join(findings)}</details>
+      <details><summary>その他のテスト失敗・実行エラー</summary>{other_findings}</details>
       <p>機械可読の根拠：<code>quality/summary.json</code> の
       <code>gates.python_coverage</code>。入力ID、テストID、期待値、実測値、実行環境、
       検証に使ったソースの SHA-256 を保存しています。</p>

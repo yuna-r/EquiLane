@@ -171,6 +171,37 @@ class ShowcaseReportTests(unittest.TestCase):
         self.assertIn("未集計", html)
         self.assertNotIn("今回の不一致の対象は", html)
 
+    def test_multiple_oracle_sources_and_protocol_failures_are_visible(self):
+        html = self._render(quality={
+            "status": "fail", "gates": {"python_coverage": {
+                "failure_classification": {
+                    "portable_model_output_mismatches": 0,
+                    "other_assertion_failures": 1, "test_execution_errors": 1,
+                },
+                "model_oracle_checks_run": 4000,
+                "model_oracle_tracked_unique_inputs": 3999,
+                "model_oracle_references": [
+                    {"oracle": "Independent integer reference", "row_count": 3000},
+                    {"oracle": "Captured SSE2 instructions", "row_count": 1000},
+                ],
+                "test_assertion_failures": [{
+                    "test_id": "closed_policy(value=[])", "exception": "AssertionError",
+                    "message": "Expected ValidationError, got <script>TypeError</script>",
+                }],
+                "test_execution_errors": [{
+                    "test_id": "unexpected_error", "exception": "RuntimeError",
+                    "message": "execution stopped",
+                }],
+            }},
+        })
+        self.assertIn("Independent integer reference", html)
+        self.assertIn("Captured SSE2 instructions", html)
+        self.assertIn("3999", html)
+        self.assertIn("closed_policy(value=[])", html)
+        self.assertIn("execution stopped", html)
+        self.assertIn("&lt;script&gt;TypeError&lt;/script&gt;", html)
+        self.assertNotIn("<script>TypeError", html)
+
     def test_load_spectrum_shows_derived_workload(self) -> None:
         html = self._render()
 

@@ -45,6 +45,8 @@ class _ProgressResult(unittest.TextTestResult):
         self.model_oracle_references: list[JSONValue] = []
         self.model_oracle_input_ids: set[str] = set()
         self.model_output_mismatches: list[JSONValue] = []
+        self.test_assertion_failures: list[JSONValue] = []
+        self.test_execution_errors: list[JSONValue] = []
 
     def startTest(self, test: unittest.TestCase) -> None:
         super().startTest(test)
@@ -57,20 +59,34 @@ class _ProgressResult(unittest.TextTestResult):
                 if reference not in self.model_oracle_references:
                     self.model_oracle_references.append(reference)
 
-    def _record_model_mismatch(self, test: unittest.TestCase, err: tuple) -> None:
+    def _record_failure(self, test: unittest.TestCase, err: tuple) -> None:
         if isinstance(err[1], ModelOutputMismatch):
             self.model_output_mismatches.append({
                 **err[1].evidence, "test_id": test.id(),
             })
+        else:
+            finding = {
+                "test_id": test.id(),
+                "exception": err[0].__name__,
+                "message": str(err[1]),
+            }
+            if issubclass(err[0], test.failureException):
+                self.test_assertion_failures.append(finding)
+            else:
+                self.test_execution_errors.append(finding)
 
     def addFailure(self, test: unittest.TestCase, err: tuple) -> None:
-        self._record_model_mismatch(test, err)
+        self._record_failure(test, err)
         super().addFailure(test, err)
+
+    def addError(self, test: unittest.TestCase, err: tuple) -> None:
+        self._record_failure(test, err)
+        super().addError(test, err)
 
     def addSubTest(self, test: unittest.TestCase, subtest: unittest.TestCase,
                    err: tuple | None) -> None:
         if err is not None:
-            self._record_model_mismatch(subtest, err)
+            self._record_failure(subtest, err)
         super().addSubTest(test, subtest, err)
 
     def stopTest(self, test: unittest.case.TestCase) -> None:
@@ -207,6 +223,8 @@ def run(project_root: Path, output: Path) -> tuple[int, dict[str, JSONValue]]:
             row["contract_scope"] for row in result.model_output_mismatches
         )),
         "model_output_mismatches": result.model_output_mismatches,
+        "test_assertion_failures": result.test_assertion_failures,
+        "test_execution_errors": result.test_execution_errors,
         "execution_environment": {
             "machine": platform.machine(),
             "system": platform.system(),
@@ -220,8 +238,8 @@ def run(project_root: Path, output: Path) -> tuple[int, dict[str, JSONValue]]:
                 *tests.glob("build_*oracles.py"),
                 *(tests / "data").glob("*oracles.json"),
                 *(tests / "native").glob("probe_*.c"),
-                source / "casepack_families.py",
-                source / "oracle.py",
+                *source.glob("*.py"),
+                *(project_root / "10_official_suite" / "cases").glob("*.py"),
             }) if path.is_file()
         },
     }

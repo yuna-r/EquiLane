@@ -72,6 +72,10 @@ class QualityTests(unittest.TestCase):
         self.assertEqual(len(result.model_output_mismatches), 2)
         self.assertEqual(len(result.failures), 3)
         self.assertEqual(len(result.errors), 1)
+        self.assertEqual(len(result.test_assertion_failures), 1)
+        self.assertEqual(len(result.test_execution_errors), 1)
+        self.assertEqual(result.test_execution_errors[0]["exception"], "RuntimeError")
+        self.assertIn("model execution failed", result.test_execution_errors[0]["message"])
         for finding in result.model_output_mismatches:
             self.assertEqual(finding["input"], evidence)
             self.assertEqual(finding["expected"], {"bits": "0xff"})
