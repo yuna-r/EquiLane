@@ -86,6 +86,9 @@ class AdversarialModelTests(unittest.TestCase):
         validate_input_record(record, case)
         actual = load_development_case(case).execute(record)
         self.oracle_checks = getattr(self, "oracle_checks", 0) + 1
+        if not hasattr(self, "oracle_input_ids"):
+            self.oracle_input_ids = set()
+        self.oracle_input_ids.add(record["input_id"])
         if actual != wanted:
             if family is None:
                 family = ("nan_payload_priority" if "payload_priority" in self._testMethodName

@@ -42,6 +42,8 @@ class _ProgressResult(unittest.TextTestResult):
         self.model_oracle_tests_run = 0
         self.model_oracle_checks_run = 0
         self.model_oracle_reference: JSONValue = None
+        self.model_oracle_references: list[JSONValue] = []
+        self.model_oracle_input_ids: set[str] = set()
         self.model_output_mismatches: list[JSONValue] = []
 
     def startTest(self, test: unittest.TestCase) -> None:
@@ -50,7 +52,10 @@ class _ProgressResult(unittest.TextTestResult):
             self.model_oracle_tests_run += 1
             reference = getattr(test, "oracle_reference_metadata", None)
             if reference is not None:
-                self.model_oracle_reference = reference
+                if self.model_oracle_reference is None:
+                    self.model_oracle_reference = reference
+                if reference not in self.model_oracle_references:
+                    self.model_oracle_references.append(reference)
 
     def _record_model_mismatch(self, test: unittest.TestCase, err: tuple) -> None:
         if isinstance(err[1], ModelOutputMismatch):
@@ -71,6 +76,7 @@ class _ProgressResult(unittest.TextTestResult):
     def stopTest(self, test: unittest.case.TestCase) -> None:
         super().stopTest(test)
         self.model_oracle_checks_run += getattr(test, "oracle_checks", 0)
+        self.model_oracle_input_ids.update(getattr(test, "oracle_input_ids", ()))
         self._completed += 1
         _emit_progress(self._completed, self._total)
 
@@ -192,6 +198,8 @@ def run(project_root: Path, output: Path) -> tuple[int, dict[str, JSONValue]]:
         "model_oracle_tests_run": result.model_oracle_tests_run,
         "model_oracle_checks_run": result.model_oracle_checks_run,
         "model_oracle_reference": result.model_oracle_reference,
+        "model_oracle_references": result.model_oracle_references,
+        "model_oracle_tracked_unique_inputs": len(result.model_oracle_input_ids),
         "model_findings_by_family": dict(Counter(
             row["finding_family"] for row in result.model_output_mismatches
         )),
@@ -206,14 +214,15 @@ def run(project_root: Path, output: Path) -> tuple[int, dict[str, JSONValue]]:
         },
         "evidence_sources": {
             str(path.relative_to(project_root)): sha256_file(path)
-            for path in (
-                tests / "test_adversarial_models.py",
-                tests / "data" / "rounding-oracles.json",
-                tests / "native" / "probe_sse2_nan.c",
-                tests / "build_rounding_oracles.py",
+            for path in sorted({
+                *tests.glob("test_*.py"),
+                *tests.glob("*_test_support.py"),
+                *tests.glob("build_*oracles.py"),
+                *(tests / "data").glob("*oracles.json"),
+                *(tests / "native").glob("probe_*.c"),
                 source / "casepack_families.py",
                 source / "oracle.py",
-            ) if path.is_file()
+            }) if path.is_file()
         },
     }
     atomic_write(output / "summary.json", dump_bytes(summary, newline=True))

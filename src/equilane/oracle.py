@@ -23,12 +23,13 @@ class ModelOutputMismatch(AssertionError):
         contract_scope: str = "official_nearest_even",
         case_contract: dict[str, JSONValue] | None = None,
         oracle_reference: str = "tests/BUG_HUNT.md",
+        oracle: str = "literal_sse2_expected_bits",
     ) -> None:
         self.evidence: dict[str, JSONValue] = {
             "category": "portable_model_output_mismatch",
             "subject": "Python portable case model",
             "comparison_path": "direct_python_equality_without_ioitf_compare",
-            "oracle": "literal_sse2_expected_bits",
+            "oracle": oracle,
             "oracle_reference": oracle_reference,
             "finding_family": finding_family,
             "contract_scope": contract_scope,

@@ -92,6 +92,47 @@ class QualityTests(unittest.TestCase):
             self.assertEqual(hit, 2)
             self.assertGreater(executable, hit)
 
+    def test_multiple_oracles_keep_provenance_and_count_unique_inputs(self):
+        first_reference = {"oracle": "first", "row_count": 2}
+        second_reference = {"oracle": "second", "row_count": 3}
+
+        class First(unittest.TestCase):
+            verification_subject = "portable_model_oracle"
+            oracle_reference_metadata = first_reference
+
+            def test_output(self):
+                self.oracle_checks = 2
+                self.oracle_input_ids = {"a", "b"}
+
+        class Second(unittest.TestCase):
+            verification_subject = "portable_model_oracle"
+            oracle_reference_metadata = second_reference
+
+            def test_output(self):
+                self.oracle_checks = 2
+                self.oracle_input_ids = {"b", "c"}
+
+        suite = unittest.TestSuite(
+            unittest.defaultTestLoader.loadTestsFromTestCase(cls)
+            for cls in (First, First, Second)
+        )
+        with redirect_stdout(io.StringIO()):
+            result = _ProgressRunner(stream=io.StringIO(), total=3).run(suite)
+        self.assertTrue(result.wasSuccessful())
+        self.assertEqual(result.model_oracle_reference, first_reference)
+        self.assertEqual(result.model_oracle_references, [first_reference, second_reference])
+        self.assertEqual(result.model_oracle_checks_run, 6)
+        self.assertEqual(result.model_oracle_input_ids, {"a", "b", "c"})
+
+    def test_independent_integer_oracle_is_not_labeled_sse2_capture(self):
+        mismatch = ModelOutputMismatch(
+            input_record={"input_id": "a" * 64}, expected={"return": "0x00"},
+            actual={"return": "0xff"}, oracle="independent_integer_reference",
+            oracle_reference="tests/test_integer_boundary_models.py",
+        )
+        self.assertEqual(mismatch.evidence["oracle"], "independent_integer_reference")
+        self.assertEqual(mismatch.evidence["oracle_reference"], "tests/test_integer_boundary_models.py")
+
     def test_coverage_annotations_ignore_deleted_temporary_sources(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
