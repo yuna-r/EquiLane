@@ -1,0 +1,12 @@
+EquiLane — Intrinsics Equivalence Testing
+Copyright (c) 2026 Yuna (yuna-r)
+
+EquiLane is licensed under the Apache License, Version 2.0.
+
+Original concept: Daisuke Oka (daisukeokaoss).
+
+The documentation in docs/ is a separate ToukaSpecification submodule,
+licensed under the MIT License. Its original copyright and license notice
+are preserved in docs/LICENSE.
+
+Documentation source: https://github.com/daisukeokaoss/ToukaSpecification

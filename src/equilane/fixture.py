@@ -1,0 +1,364 @@
+"""Explicitly non-conformant development runner used to test the coordinator.
+
+The fixture writes schema-shaped artifacts, but its build ID is permanently
+prefixed with ``development-fixture:``.  Comparison rejects those artifacts
+unless the caller explicitly opts in.  It must never be presented as native
+x86_64 or ppc64le execution evidence.
+"""
+
+from __future__ import annotations
+
+from concurrent.futures import ProcessPoolExecutor, as_completed
+from dataclasses import dataclass
+from pathlib import Path
+import platform
+from typing import TYPE_CHECKING, Callable, Protocol
+
+from .canonical import (
+    JSONValue,
+    atomic_write,
+    dump_bytes,
+    remove_completion_marker,
+    sha256_bytes,
+    utf16_sort_key,
+    write_jsonl,
+)
+from .cases import CaseDefinition, CaseRegistry
+from .development import load_development_case
+from .errors import ValidationError
+from .isa import ISARegistry, project_used_isa
+from .records import validate_result_record
+
+if TYPE_CHECKING:
+    from .artifacts import ResultArtifact
+
+
+class InputArtifactLike(Protocol):
+    manifest: dict[str, JSONValue]
+    records: tuple[dict[str, JSONValue], ...]
+
+
+@dataclass(frozen=True)
+class FixtureRunResult:
+    output_directory: Path
+    manifest_path: Path
+    results_path: Path
+    record_count: int
+    sha256: str
+    manifest: dict[str, JSONValue]
+    records: tuple[dict[str, JSONValue], ...]
+
+    def as_validated_artifact(self) -> ResultArtifact:
+        """Return the already validated in-process development result."""
+
+        from .artifacts import ResultArtifact
+
+        by_id = {str(record["input_id"]): record for record in self.records}
+        runner = self.manifest["runner"]
+        assert isinstance(runner, dict)
+        return ResultArtifact(
+            manifest_path=self.manifest_path,
+            results_path=self.results_path,
+            manifest=self.manifest,
+            records=by_id,
+            ordered_records=self.records,
+            role=str(runner["role"]),
+            development_fixture=True,
+            record_count=self.record_count,
+            sha256=self.sha256,
+            isa_registry_matches_local=True,
+        )
+
+
+def _result_record(
+    input_record: dict[str, JSONValue],
+    *,
+    case: CaseDefinition,
+    role: str,
+) -> dict[str, JSONValue]:
+    result: dict[str, JSONValue] = {
+        "case_id": case.id,
+        "duration_ns": 0,
+        "input_id": input_record["input_id"],
+        "observed": load_development_case(case).execute(input_record),
+        "runner": role,
+        "schema_version": 1,
+        "status": "ok",
+    }
+    validate_result_record(result, case, role=role, input_record=input_record)
+    return result
+
+
+def _result_batch(
+    work: tuple[CaseDefinition, str, tuple[dict[str, JSONValue], ...]],
+) -> list[dict[str, JSONValue]]:
+    case, role, records = work
+    return [
+        _result_record(input_record, case=case, role=role)
+        for input_record in records
+    ]
+
+
+def _fixture_work(
+    input_artifact: InputArtifactLike,
+    *,
+    cases: CaseRegistry,
+    role: str,
+) -> list[tuple[CaseDefinition, str, tuple[dict[str, JSONValue], ...]]]:
+    batches: list[
+        tuple[CaseDefinition, str, tuple[dict[str, JSONValue], ...]]
+    ] = []
+    current_id = ""
+    current: list[dict[str, JSONValue]] = []
+    for input_record in input_artifact.records:
+        case_id = str(input_record["case_id"])
+        if current and case_id != current_id:
+            batches.append((cases.get(current_id), role, tuple(current)))
+            current = []
+        current_id = case_id
+        current.append(input_record)
+    if current:
+        batches.append((cases.get(current_id), role, tuple(current)))
+    return batches
+
+
+def _result_records(
+    input_artifact: InputArtifactLike,
+    *,
+    cases: CaseRegistry,
+    role: str,
+    jobs: int = 1,
+    progress: Callable[[int], None] | None = None,
+) -> list[dict[str, JSONValue]]:
+    if jobs < 1:
+        raise ValidationError("fixture jobs must be at least 1")
+    work = _fixture_work(input_artifact, cases=cases, role=role)
+    if jobs > 1 and len(work) > 1:
+        ordered: list[list[dict[str, JSONValue]] | None] = [None] * len(work)
+        completed_records = 0
+        with ProcessPoolExecutor(max_workers=min(jobs, len(work))) as executor:
+            pending = {
+                executor.submit(_result_batch, batch): index
+                for index, batch in enumerate(work)
+            }
+            for future in as_completed(pending):
+                batch = future.result()
+                ordered[pending[future]] = batch
+                completed_records += len(batch)
+                if progress is not None:
+                    progress(completed_records)
+        return [
+            record
+            for batch in ordered
+            if batch is not None
+            for record in batch
+        ]
+
+    results: list[dict[str, JSONValue]] = []
+    for input_record in input_artifact.records:
+        case = cases.get(str(input_record["case_id"]))
+        result = _result_record(input_record, case=case, role=role)
+        results.append(result)
+        if progress is not None:
+            progress(len(results))
+    return results
+
+
+def _probe(architecture: str, roundings: list[str]) -> dict[str, JSONValue]:
+    controls: dict[str, JSONValue]
+    if architecture == "x86_64":
+        controls = {
+            "exception_traps_enabled": False,
+            "mxcsr_daz": False,
+            "mxcsr_ftz": False,
+        }
+    else:
+        controls = {
+            "exception_traps_enabled": False,
+            "fpscr_ni": False,
+            "vscr_nj": False,
+        }
+    suite: list[JSONValue] = [
+        {
+            "architecture": architecture,
+            "expected": {
+                "boolean_controls": controls,
+                "fp_exception_flags": [],
+                "rounding_modes": roundings,
+            },
+            "id": "fixture-controls.v1",
+            "implementation_id": "development.fixture.v1",
+            "version": 1,
+        }
+    ]
+    return {
+        "probe_suite": suite,
+        "probe_suite_sha256": sha256_bytes(dump_bytes(suite, newline=True)),
+        "probes": [{"id": "fixture-controls.v1", "status": "passed"}],
+        "status": "passed",
+    }
+
+
+def _environment(
+    *,
+    role: str,
+    cases: CaseRegistry,
+    isa_registry: ISARegistry,
+    records: tuple[dict[str, JSONValue], ...],
+) -> dict[str, JSONValue]:
+    architecture = "x86_64" if role == "intel" else "ppc64le"
+    required: set[str] = set()
+    case_ids = {str(record["case_id"]) for record in records}
+    for case_id in case_ids:
+        case = cases.get(case_id)
+        required.update(isa_registry.closure(case.required_isa(role), architecture=architecture))
+    available = sorted(required, key=utf16_sort_key)
+    roundings = sorted(
+        {
+            str(record["environment"]["rounding"])
+            for record in records
+            if isinstance(record["environment"], dict)
+        },
+        key=utf16_sort_key,
+    )
+    source_path = Path(__file__)
+    source_digest = sha256_bytes(source_path.read_bytes())
+    compiler: dict[str, JSONValue] = {
+        "name": "cpython",
+        "target_triple": "non-native-development-fixture",
+        "version": platform.python_version(),
+    }
+    unit: dict[str, JSONValue] = {
+        "assertions_enabled": False,
+        "compile_options": [],
+        "compiler": compiler,
+        "feature_macros": {},
+        "id": "development.fixture",
+        "kind": "support",
+        "object_sha256": source_digest,
+        "source_blob_sha256": source_digest,
+    }
+    controls: dict[str, JSONValue]
+    if role == "intel":
+        controls = {
+            "exception_traps_enabled": False,
+            "mxcsr_daz": False,
+            "mxcsr_ftz": False,
+        }
+    else:
+        controls = {
+            "exception_traps_enabled": False,
+            "fpscr_ni": False,
+            "vscr_nj": False,
+        }
+    environment: dict[str, JSONValue] = {
+        "architecture": architecture,
+        "assertions_enabled": False,
+        "available_isa": available,
+        "build_units": [unit],
+        "case_build_units": {
+            case_id: ["development.fixture"]
+            for case_id in sorted(case_ids, key=utf16_sort_key)
+        },
+        "cpu_model": "non-native-development-fixture",
+        "endianness": "little",
+        "fp_controls": controls,
+        "fp_rounding_modes": roundings,
+        "git_commit": "0" * 40,
+        "kernel": "non-native-development-fixture",
+        "link": {
+            "binary_sha256": source_digest,
+            "link_options": [],
+            "loaded_libraries": [],
+        },
+        "os": "linux",
+    }
+    if role == "openpower":
+        environment["vector_semantics"] = {
+            "altivec_src_compat": "unknown",
+            "element_reg_order": "unknown",
+        }
+    return environment
+
+
+def run_fixture(
+    *,
+    input_artifact: InputArtifactLike,
+    cases: CaseRegistry,
+    isa_registry: ISARegistry,
+    role: str,
+    output: str | Path,
+    jobs: int = 1,
+    progress: Callable[[int], None] | None = None,
+) -> FixtureRunResult:
+    """Execute the portable fixture and publish a complete result artifact."""
+
+    if role not in {"intel", "openpower"}:
+        raise ValidationError("fixture role must be intel or openpower")
+    if not input_artifact.records:
+        raise ValidationError("fixture input artifact is empty")
+    output_directory = Path(output)
+    output_directory.mkdir(parents=True, exist_ok=True)
+    stem = "intel" if role == "intel" else "power"
+    results_path = output_directory / f"{stem}-results.jsonl"
+    manifest_path = output_directory / f"{stem}-results.manifest.json"
+    remove_completion_marker(manifest_path)
+
+    results = _result_records(
+        input_artifact, cases=cases, role=role, jobs=jobs, progress=progress
+    )
+    count, byte_length, results_sha = write_jsonl(results_path, results)
+    if count != len(input_artifact.records):
+        raise ValidationError("fixture result count differs from input record count")
+    case_ids = {str(record["case_id"]) for record in input_artifact.records}
+    selected = [cases.get(case_id) for case_id in sorted(case_ids, key=utf16_sort_key)]
+    used = project_used_isa(isa_registry, selected)
+    input_manifest = input_artifact.manifest
+    input_vectors = input_manifest["test_vectors"]
+    assert isinstance(input_vectors, dict)
+    architecture = "x86_64" if role == "intel" else "ppc64le"
+    roundings = sorted(
+        {
+            str(record["environment"]["rounding"])
+            for record in input_artifact.records
+            if isinstance(record["environment"], dict)
+        },
+        key=utf16_sort_key,
+    )
+    manifest: dict[str, JSONValue] = {
+        "artifact_type": "ioitf.runner-results",
+        "case_definitions_sha256": cases.projected_sha256(case_ids),
+        "complete": True,
+        "environment": _environment(
+            role=role,
+            cases=cases,
+            isa_registry=isa_registry,
+            records=input_artifact.records,
+        ),
+        "input_sha256": input_vectors["sha256"],
+        "isa_registry_sha256": isa_registry.sha256,
+        "preflight": _probe(architecture, roundings),
+        "results": {
+            "byte_length": byte_length,
+            "file": results_path.name,
+            "record_count": count,
+            "sha256": results_sha,
+        },
+        "runner": {
+            "abi_version": 1,
+            "build_id": f"development-fixture:{role}:python-v1",
+            "role": role,
+        },
+        "schema_version": 1,
+        "used_isa_contract_sha256": used.sha256,
+    }
+    atomic_write(manifest_path, dump_bytes(manifest, newline=True))
+    return FixtureRunResult(
+        output_directory,
+        manifest_path,
+        results_path,
+        count,
+        results_sha,
+        manifest,
+        tuple(results),
+    )
