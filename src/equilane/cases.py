@@ -297,7 +297,7 @@ def _validate_nan_policy(value: JSONValue, location: str) -> None:
         "sign": {"ignore", "match"},
     }
     for key, choices in allowed.items():
-        if policy[key] not in choices:
+        if require_string(policy[key], f"{location}.{key}") not in choices:
             raise ValidationError(f"{location}.{key}: invalid value")
 
 
@@ -346,7 +346,7 @@ def _validate_comparison(
                 raise ValidationError(f"{location}.{key}: invalid non-negative decimal")
     else:
         raise ValidationError(f"{location}.mode: unknown comparison mode {mode!r}")
-    if comparison["signed_zero"] not in {"distinct", "equal"}:
+    if require_string(comparison["signed_zero"], f"{location}.signed_zero") not in {"distinct", "equal"}:
         raise ValidationError(f"{location}.signed_zero: invalid policy")
     _validate_nan_policy(comparison["nan"], f"{location}.nan")
 

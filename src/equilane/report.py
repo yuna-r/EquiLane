@@ -322,18 +322,38 @@ def write_failure_bundle(
         bundle_input = validate_input_artifact(
             temporary / "test-vectors.manifest.json", bundle_cases, isa_registry
         )
-        validate_result_artifact(
+        bundled_intel = validate_result_artifact(
             baseline_intel / "intel-results.manifest.json",
             bundle_cases,
             isa_registry,
             input_artifact=bundle_input,
         )
-        validate_result_artifact(
+        bundled_power = validate_result_artifact(
             baseline_power / target.manifest_file,
             bundle_cases,
             isa_registry,
             input_artifact=bundle_input,
         )
+        from .compare import compare_result_records
+
+        actual_comparison = compare_result_records(
+            bundle_cases.get(case_id),
+            bundle_input.records[0],
+            bundled_intel.records[input_id],
+            bundled_power.records[input_id],
+            validate=False,
+            target_role=target_role,
+        )
+        # Compare JSON values with their types intact: Python considers
+        # False equal to lane 0 and True equal to an atom count of 1.
+        if (
+            actual_comparison.outcome != "mismatch"
+            or dump_bytes(actual_comparison.mismatch_count)
+            != dump_bytes(comparison.mismatch_count)
+            or dump_bytes(actual_comparison.first_difference)
+            != dump_bytes(comparison.first_difference)
+        ):
+            raise ValidationError("failure comparison does not match its projected baselines")
         atomic_write(temporary / "failure.json", dump_bytes(failure, newline=True))
         os.replace(temporary, final_directory)
         return final_directory

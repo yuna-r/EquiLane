@@ -135,8 +135,8 @@ def _result_records(
     jobs: int = 1,
     progress: Callable[[int], None] | None = None,
 ) -> list[dict[str, JSONValue]]:
-    if jobs < 1:
-        raise ValidationError("fixture jobs must be at least 1")
+    if isinstance(jobs, bool) or not isinstance(jobs, int) or jobs < 1:
+        raise ValidationError("fixture jobs must be a positive integer")
     work = _fixture_work(input_artifact, cases=cases, role=role)
     if jobs > 1 and len(work) > 1:
         ordered: list[list[dict[str, JSONValue]] | None] = [None] * len(work)
@@ -275,8 +275,10 @@ def run_fixture(
 ) -> FixtureRunResult:
     """Execute the portable fixture and publish a complete result artifact."""
 
-    if role not in TARGETS:
+    if not isinstance(role, str) or role not in TARGETS:
         raise ValidationError(f"fixture role must be one of {', '.join(TARGETS)}")
+    if isinstance(jobs, bool) or not isinstance(jobs, int) or jobs < 1:
+        raise ValidationError("fixture jobs must be a positive integer")
     if not input_artifact.records:
         raise ValidationError("fixture input artifact is empty")
     output_directory = Path(output)

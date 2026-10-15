@@ -59,8 +59,8 @@ class _ProgressResult(unittest.TextTestResult):
                 if reference not in self.model_oracle_references:
                     self.model_oracle_references.append(reference)
 
-    def _record_failure(self, test: unittest.TestCase, err: tuple) -> None:
-        if isinstance(err[1], ModelOutputMismatch):
+    def _record_failure(self, test: unittest.TestCase, err: tuple, *, failure: bool) -> None:
+        if failure and isinstance(err[1], ModelOutputMismatch):
             self.model_output_mismatches.append({
                 **err[1].evidence, "test_id": test.id(),
             })
@@ -70,23 +70,23 @@ class _ProgressResult(unittest.TextTestResult):
                 "exception": err[0].__name__,
                 "message": str(err[1]),
             }
-            if issubclass(err[0], test.failureException):
+            if failure:
                 self.test_assertion_failures.append(finding)
             else:
                 self.test_execution_errors.append(finding)
 
     def addFailure(self, test: unittest.TestCase, err: tuple) -> None:
-        self._record_failure(test, err)
+        self._record_failure(test, err, failure=True)
         super().addFailure(test, err)
 
     def addError(self, test: unittest.TestCase, err: tuple) -> None:
-        self._record_failure(test, err)
+        self._record_failure(test, err, failure=False)
         super().addError(test, err)
 
     def addSubTest(self, test: unittest.TestCase, subtest: unittest.TestCase,
                    err: tuple | None) -> None:
         if err is not None:
-            self._record_failure(subtest, err)
+            self._record_failure(subtest, err, failure=issubclass(err[0], test.failureException))
         super().addSubTest(test, subtest, err)
 
     def stopTest(self, test: unittest.case.TestCase) -> None:
@@ -201,6 +201,7 @@ def run(project_root: Path, output: Path, *, coverage: bool = False) -> tuple[in
     )
 
     _emit_progress(progress_total, progress_total)
+    successful = result.wasSuccessful() and result.testsRun > 0
     summary: dict[str, JSONValue] = {
         "coverage_collected": coverage,
         "coverage_percent": coverage_percent,
@@ -210,7 +211,7 @@ def run(project_root: Path, output: Path, *, coverage: bool = False) -> tuple[in
         "failures": len(result.failures),
         "skipped": len(result.skipped),
         "source_files": source_files,
-        "status": "pass" if result.wasSuccessful() else "fail",
+        "status": "pass" if successful else "fail",
         "tests_run": result.testsRun,
         "failure_classification": {
             "portable_model_output_mismatches": len(result.model_output_mismatches),
@@ -250,8 +251,10 @@ def run(project_root: Path, output: Path, *, coverage: bool = False) -> tuple[in
             }) if path.is_file()
         },
     }
+    if result.testsRun == 0 and not result.errors and not result.skipped:
+        summary["discovery_error"] = "no tests were discovered"
     atomic_write(output / "summary.json", dump_bytes(summary, newline=True))
-    return (0 if result.wasSuccessful() else 1), summary
+    return (0 if successful else 1), summary
 
 
 def main() -> int:

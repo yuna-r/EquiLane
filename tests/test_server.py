@@ -77,7 +77,11 @@ class ReportStoreTests(unittest.TestCase):
             single = write_report(root, "arm")
             multi = write_report(root, "all-targets")
             for report, metadata in ((single, {"target_role": "arm"}),
-                                     (multi, {"targets": {"riscv": {}, "arm": {}, "openpower": {}}})):
+                                     (multi, {"targets": {role: {
+                                         "outcome": "pass", "record_count": 16,
+                                         "matched_inputs": 16, "mismatched_inputs": 0,
+                                         "not_comparable_inputs": 0,
+                                     } for role in ("riscv", "arm", "openpower")}})):
                 path = report.parent / "comparison/summary.json"
                 summary = json.loads(path.read_text())
                 summary.update(metadata)

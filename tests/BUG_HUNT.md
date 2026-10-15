@@ -12,7 +12,57 @@
 .venv/bin/python -m unittest discover -s tests -p test_adversarial_models.py -v
 ```
 
-## 今回追加した探索ケース
+## 2026-10-16: 全体の境界・異常系テストを追加
+
+Pythonのテストを **527 → 1,186メソッド（659件追加）** に増やしました。
+新規ファイルは通常の `unittest discover` と `check --quality` の両方で自動実行します。
+
+| 新規ファイル | メソッド数 | 主な検査 |
+|---|---:|---|
+| `test_validation_boundaries.py` | 307 | JSON/YAML、atomic書き込み失敗、Pythonケース抽出、メモリ・即値、ISA循環と長い参照、設定、生成の決定性 |
+| `test_comparison_replay_boundaries.py` | 120 | 再ハッシュした破損データ、比較の並列順序・終了コード、メモリ範囲、failure bundleとreplayの改ざん |
+| `test_model_boundary_matrix.py` | 98 | 全FP比較述語、min/maxのNaN・±0選択、各ビットの論理操作、exact-fitメモリアクセス・ガード |
+| `test_studio_boundaries.py` | 62 | 壊れた履歴、起動・停止・再実行、HTTP異常系、UTC変換、実際の画面JavaScriptの検索・状態更新・失敗復旧 |
+| `test_execution_boundaries.py` | 46 | モデルの不正exports・読み込み失敗・キャッシュ隔離、fixture引数、逆順のworker完了、入力の非破壊性 |
+| `test_quality_boundaries.py` | 26 | 準備・終了・importの失敗、0件の探索、quality gate失敗の伝播、進捗ログの異常値 |
+
+新しいモデル行列は **45,408回の直接出力照合**を行います。期待値はIEEEのビット表現の
+順序、論理演算、明示的なbyte操作から作り、Python floatや対象の比較・モデルhelperを
+使いません。公式caseの契約を変更せず、各入力を検証してから実行します。
+既存の独立oracleと合わせた出力照合は74,722回です。同じ入力を再検査する場合が
+あるため、照合回数を異なる入力の数や命令の種類数として扱いません。
+
+Cの `tests/native/test_native.c` には、このMacのARM/portable両adapterに対して
+**2,582入力パターン**を追加しました。3操作の全byte位置での切り詰め・NUL/不正byte混入、
+全ての不足出力容量、exact-fitと余剰容量、前後ガード、呼び出し前の丸め・例外状態の復元を
+検査します。切り詰め入力は実際に短い領域へ確保し、ASanが範囲外読み取りを検出できるように
+しています。命令全体のnative conformanceを示す検査ではありません。
+
+再現テストで見つけた問題も修正しました。
+
+- 不正な型・深いYAML・NaN比較方針などでの生例外、generator/fixture引数の型検証不足。
+- `True == 1` / `False == 0` によるISA契約やfailure bundle診断情報の誤認証、入力ID文脈の無視。
+- atomic書き込みのfsync失敗時のファイル未クローズ、長いISA参照の再帰制限。
+- 比較結果と一致しないfailure bundleの公開、壊れた対象別履歴の表示。
+- 不正URL、途中で切れたHTTP本文、停止中のプロセス消失、UTC以外の時刻表示。
+- qualityのクラス準備・終了失敗でレポート作成が中断する問題、探索0件でも成功扱いになる問題。
+
+全体テストには以前からのNaN/丸めのモデル不一致が残るため、全体の終了コードは非0に
+なります。これらをskip/expectedFailureで抑制せず、新規テストとフレームワークの回帰とは
+分けて記録します。カバレッジ率は今回計測していません。
+
+このMac（arm64 Darwin / Python 3.14.7）での全体実行では、モデル出力不一致2,159件、
+その他のassertion失敗0件、実行エラー0件、skip 0件です。追加テストは全件成功しています。
+CのDebugビルドとASan/UBSanビルドは、ARM NEON wrapper・native ABIの両CTestが成功しています。
+
+追加分だけを実行する場合（追加のPython依存関係は不要、画面JS検査にはNode.jsが必要）：
+
+```sh
+.venv/bin/python -m unittest discover -s tests -p 'test_*boundaries.py'
+.venv/bin/python -m unittest discover -s tests -p test_model_boundary_matrix.py
+```
+
+## 前回追加した探索ケース
 
 公式254 case packの命令契約は維持し、独立した期待値を持つ入力パターンと、
 フレームワークの拒否・比較テストを追加しました。命令の種類数と入力パターン数は別です。

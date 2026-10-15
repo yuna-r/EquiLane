@@ -110,18 +110,32 @@ class ReportStore:
         if not isinstance(summary, dict):
             return None
         counters = ("record_count", "matched_inputs", "mismatched_inputs", "not_comparable_inputs")
-        if any(type(summary.get(key)) is not int or summary[key] < 0 for key in counters):
-            return None
-        outcome = summary.get("outcome")
-        if not isinstance(outcome, str) or outcome not in {"pass", "mismatch", "not_comparable"}:
-            return None
-        if summary["record_count"] != sum(summary[key] for key in counters[1:]):
+
+        def valid_summary(value: Any) -> bool:
+            if not isinstance(value, dict):
+                return False
+            if any(type(value.get(key)) is not int or value[key] < 0 for key in counters):
+                return False
+            outcome = value.get("outcome")
+            return (
+                isinstance(outcome, str) and outcome in {"pass", "mismatch", "not_comparable"}
+                and value["record_count"] == sum(value[key] for key in counters[1:])
+            )
+
+        if not valid_summary(summary):
             return None
         target_summaries = summary.get("targets")
         if target_summaries is not None:
             if not isinstance(target_summaries, dict) or not target_summaries:
                 return None
             if any(role not in TARGET_TARGETS for role in target_summaries):
+                return None
+            if any(not valid_summary(value) for value in target_summaries.values()):
+                return None
+            if len({value["record_count"] for value in target_summaries.values()}) != 1:
+                return None
+            if any(summary[key] != sum(value[key] for value in target_summaries.values())
+                   for key in counters):
                 return None
             targets = [role for role in TARGET_TARGETS if role in target_summaries]
         else:
@@ -309,10 +323,13 @@ class CheckManager:
                     process.terminate()
                 process.wait(timeout=2)
             except subprocess.TimeoutExpired:
-                if os.name == "posix":
-                    os.killpg(process.pid, signal.SIGKILL)
-                else:
-                    process.kill()
+                try:
+                    if os.name == "posix":
+                        os.killpg(process.pid, signal.SIGKILL)
+                    else:
+                        process.kill()
+                except ProcessLookupError:
+                    pass
             except ProcessLookupError:
                 pass
         if thread is not None:
@@ -366,7 +383,11 @@ class DashboardHandler(BaseHTTPRequestHandler):
         if not self._valid_host():
             self._json(403, {"error": "localhost Host header required"})
             return
-        path = self._path()
+        try:
+            path = self._path()
+        except ValueError:
+            self._json(400, {"error": "invalid request path"})
+            return
         if path == "/":
             from .webui import render_dashboard
             self._send(200, render_dashboard().encode("utf-8"), "text/html; charset=utf-8")
@@ -398,7 +419,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
         if self.headers.get("Sec-Fetch-Site") in {"cross-site", "same-site"}:
             self._json(403, {"error": "same-origin request required"})
             return
-        if self._path() != "/api/check":
+        try:
+            path = self._path()
+        except ValueError:
+            self._json(400, {"error": "invalid request path"})
+            return
+        if path != "/api/check":
             self._json(404, {"error": "not found"})
             return
         if self.headers.get("Content-Type", "").split(";", 1)[0].strip() != "application/json":
@@ -415,8 +441,12 @@ class DashboardHandler(BaseHTTPRequestHandler):
         if not 0 < length <= 4096:
             self._json(413, {"error": "request body must be between 1 and 4096 bytes"})
             return
+        body = self.rfile.read(length)
+        if len(body) != length:
+            self._json(400, {"error": "incomplete request body"})
+            return
         try:
-            options = CheckOptions.from_json(json.loads(self.rfile.read(length)))
+            options = CheckOptions.from_json(json.loads(body))
         except (UnicodeError, ValueError) as exc:
             self._json(400, {"error": str(exc)})
             return

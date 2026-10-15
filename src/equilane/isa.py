@@ -120,21 +120,25 @@ def validate_isa_registry(value: JSONValue, *, source: str = "ISA registry") -> 
     visiting: set[str] = set()
     visited: set[str] = set()
 
-    def visit(name: str) -> None:
-        if name in visiting:
-            raise ValidationError(f"ISA implies cycle contains {name!r}")
-        if name in visited:
-            return
-        visiting.add(name)
-        implied = by_name[name]["implies"]
-        assert isinstance(implied, list)
-        for child in implied:
-            visit(str(child))
-        visiting.remove(name)
-        visited.add(name)
-
     for name in names:
-        visit(name)
+        # An explicit DFS stack accepts long valid implication chains without
+        # making the registry size depend on Python's recursion limit.
+        pending = [(name, False)]
+        while pending:
+            token, exiting = pending.pop()
+            if exiting:
+                visiting.remove(token)
+                visited.add(token)
+                continue
+            if token in visited:
+                continue
+            if token in visiting:
+                raise ValidationError(f"ISA implies cycle contains {token!r}")
+            visiting.add(token)
+            pending.append((token, True))
+            implied = by_name[token]["implies"]
+            assert isinstance(implied, list)
+            pending.extend((str(child), False) for child in reversed(implied))
     digest = sha256_bytes(dump_bytes(registry, newline=True))
     return ISARegistry(registry, MappingProxyType(by_name), digest)
 
@@ -177,6 +181,8 @@ def validate_used_isa_contract(
     supplied = require_object(value, source)
     require_exact_keys(supplied, {"cases", "schema_version", "tokens"}, location=source)
     expected = project_used_isa(registry, cases)
-    if supplied != expected.data:
+    # Python equality considers True == 1. Canonical bytes preserve JSON types,
+    # so an altered version/detector cannot authenticate as the integer contract.
+    if dump_bytes(supplied) != dump_bytes(expected.data):
         raise ValidationError(f"{source}: does not match the local used ISA projection")
     return UsedISAContract(supplied, sha256_bytes(dump_bytes(supplied, newline=True)))

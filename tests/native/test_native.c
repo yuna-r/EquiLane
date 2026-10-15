@@ -9,6 +9,7 @@
 #include <string.h>
 
 static int failures;
+static unsigned boundary_inputs;
 static int capacity_probe_shuffle_calls;
 
 typedef struct {
@@ -436,6 +437,108 @@ static void test_native_cases_when_available(void)
 #endif
 }
 
+/* Exercise byte lengths rather than NUL-terminated strings: native runners
+ * receive an explicit span. Tiny allocations let ASan detect over-reads too. */
+static void check_encoded_boundaries(ioitf_case_fn function,
+                                      const char* arguments,
+                                      const char* expected)
+{
+    const size_t length = strlen(arguments);
+    const size_t required = strlen(expected);
+    uint8_t buffer[256], untouched[256];
+    unsigned char mutated[1024];
+    unsigned char* exact_input;
+    fenv_t saved;
+    int environment_status;
+    size_t size, position;
+    unsigned mutation;
+    CHECK(length < sizeof(mutated));
+    CHECK(required + 6U < sizeof(buffer));
+    memset(untouched, 0xa5, sizeof(untouched));
+
+    for (size = 0; size < length; ++size) {
+        unsigned char* truncated = malloc(size ? size : 1U);
+        ioitf_input input = make_input(arguments, IOITF_ROUND_NEAREST_EVEN);
+        ioitf_output output = make_output(buffer + 2, sizeof(buffer) - 4U);
+        CHECK(truncated != NULL);
+        if (truncated == NULL) return;
+        memcpy(truncated, arguments, size);
+        input.encoded_arguments.data = truncated;
+        input.encoded_arguments.size = size;
+        memcpy(buffer, untouched, sizeof(buffer));
+        ++boundary_inputs;
+        CHECK(function(&input, &output) == IOITF_CALL_INVALID_ABI);
+        CHECK(memcmp(buffer, untouched, sizeof(buffer)) == 0);
+        free(truncated);
+    }
+    for (mutation = 0; mutation < 2; ++mutation) {
+        for (position = 0; position < length; ++position) {
+            ioitf_input input = make_input(arguments, IOITF_ROUND_NEAREST_EVEN);
+            ioitf_output output = make_output(buffer + 2, sizeof(buffer) - 4U);
+            memcpy(mutated, arguments, length);
+            mutated[position] = mutation ? 0 : 0xff;
+            input.encoded_arguments.data = mutated;
+            memcpy(buffer, untouched, sizeof(buffer));
+            ++boundary_inputs;
+            CHECK(function(&input, &output) == IOITF_CALL_INVALID_ABI);
+            CHECK(memcmp(buffer, untouched, sizeof(buffer)) == 0);
+        }
+    }
+    /* Successful spans also have no trailing NUL in accessible memory. */
+    exact_input = malloc(length);
+    CHECK(exact_input != NULL);
+    if (exact_input == NULL) return;
+    memcpy(exact_input, arguments, length);
+    environment_status = fegetenv(&saved);
+    CHECK(environment_status == 0);
+    if (environment_status != 0) {
+        free(exact_input);
+        return;
+    }
+    CHECK(fesetround(FE_DOWNWARD) == 0);
+    CHECK(feclearexcept(FE_ALL_EXCEPT) == 0);
+    CHECK(feraiseexcept(FE_DIVBYZERO) == 0);
+    for (size = 0; size <= required + 4U; ++size) {
+        ioitf_input input = make_input(arguments, IOITF_ROUND_NEAREST_EVEN);
+        ioitf_output output = make_output(buffer + 2, size);
+        input.encoded_arguments.data = exact_input;
+        memcpy(buffer, untouched, sizeof(buffer));
+        ++boundary_inputs;
+        CHECK(function(&input, &output) ==
+              (size < required ? IOITF_CALL_OUTPUT_TOO_SMALL : IOITF_CALL_OK));
+        CHECK(output.return_size == required);
+        CHECK(output.effects_size == 0);
+        CHECK(fegetround() == FE_DOWNWARD);
+        CHECK(fetestexcept(FE_ALL_EXCEPT) == FE_DIVBYZERO);
+        if (size < required) {
+            CHECK(memcmp(buffer, untouched, sizeof(buffer)) == 0);
+        } else {
+            CHECK(memcmp(buffer + 2, expected, required) == 0);
+            CHECK(buffer[0] == 0xa5 && buffer[1] == 0xa5);
+            CHECK(memcmp(buffer + required + 2, untouched + required + 2,
+                         sizeof(buffer) - required - 2U) == 0);
+        }
+    }
+    CHECK(fesetenv(&saved) == 0);
+    free(exact_input);
+}
+
+static void test_encoded_boundary_matrix(void)
+{
+    check_encoded_boundaries(portable_mm_add_pd, ADD_ARGUMENTS, ADD_EXPECTED);
+    check_encoded_boundaries(portable_mm_set1_pd, SET1_SIGNALING_NAN_ARGUMENTS,
+                             SET1_SIGNALING_NAN_EXPECTED);
+    check_encoded_boundaries(portable_mm_shuffle_epi32, SHUFFLE_27_ARGUMENTS,
+                             SHUFFLE_27_EXPECTED);
+#if defined(NATIVE_ADD)
+    check_encoded_boundaries(NATIVE_ADD, ADD_ARGUMENTS, ADD_EXPECTED);
+    check_encoded_boundaries(NATIVE_SET1, SET1_SIGNALING_NAN_ARGUMENTS,
+                             SET1_SIGNALING_NAN_EXPECTED);
+    check_encoded_boundaries(NATIVE_SHUFFLE, SHUFFLE_27_ARGUMENTS,
+                             SHUFFLE_27_EXPECTED);
+#endif
+}
+
 int main(void)
 {
     test_invalid_abi();
@@ -444,11 +547,13 @@ int main(void)
     test_internal_fp_observation_boundary();
     test_portable_cases();
     test_native_cases_when_available();
+    test_encoded_boundary_matrix();
 
     if (failures != 0) {
         fprintf(stderr, "%d native self-test check(s) failed\n", failures);
         return EXIT_FAILURE;
     }
-    puts("native ABI and example adapter self-tests passed");
+    printf("native ABI and example adapter self-tests passed (%u boundary inputs)\n",
+           boundary_inputs);
     return EXIT_SUCCESS;
 }

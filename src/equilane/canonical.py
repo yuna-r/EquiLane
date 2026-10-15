@@ -162,6 +162,10 @@ def sha256_file(path: str | Path) -> str:
 def require_object(value: Any, location: str) -> dict[str, JSONValue]:
     if not isinstance(value, dict):
         raise ValidationError(f"{location}: expected an object")
+    for key in value:
+        if not isinstance(key, str):
+            raise ValidationError(f"{location}: JSON object keys must be strings")
+        _validate_string(key, f"{location} key")
     return value
 
 
@@ -173,6 +177,8 @@ def require_exact_keys(
     location: str,
 ) -> None:
     optional = optional or set()
+    if any(not isinstance(key, str) for key in value):
+        raise ValidationError(f"{location}: JSON object keys must be strings")
     keys = set(value)
     missing = required - keys
     extra = keys - required - optional
@@ -263,10 +269,12 @@ class AtomicFile:
     def __exit__(self, exc_type: Any, exc: Any, traceback: Any) -> bool:
         assert self.stream is not None and self.temp_path is not None
         try:
-            if exc_type is None:
-                self.stream.flush()
-                os.fsync(self.stream.fileno())
-            self.stream.close()
+            try:
+                if exc_type is None:
+                    self.stream.flush()
+                    os.fsync(self.stream.fileno())
+            finally:
+                self.stream.close()
             if exc_type is None:
                 os.replace(self.temp_path, self.final_path)
                 _fsync_directory(self.final_path.parent)

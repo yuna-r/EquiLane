@@ -174,6 +174,7 @@ def validate_input_record(
     *,
     expected_sequence: int | None = None,
 ) -> None:
+    record = require_object(record, "input")
     arguments = _arguments(case)
     immediate_arguments = [argument for argument in arguments if argument["type"] == "immediate"]
     pointer_arguments = [argument for argument in arguments if argument["type"] == "pointer"]
@@ -299,6 +300,8 @@ def _validate_observed(
             expected_ids = set(lengths)
             require_exact_keys(buffers, expected_ids, location="result.observed.buffers")
         for buffer_id, raw in buffers.items():
+            if not IDENTIFIER_PATTERN.fullmatch(buffer_id):
+                raise ValidationError(f"result.observed.buffers: invalid buffer ID {buffer_id!r}")
             item = require_object(raw, f"result.observed.buffers.{buffer_id}")
             require_exact_keys(item, {"byte_offset", "bytes"}, location=f"result.observed.buffers.{buffer_id}")
             if require_int(item["byte_offset"], f"result.observed.buffers.{buffer_id}.byte_offset") != 0:
@@ -328,6 +331,7 @@ def validate_result_record(
     role: str,
     input_record: dict[str, JSONValue] | None = None,
 ) -> None:
+    record = require_object(record, "result")
     status = require_string(record.get("status"), "result.status")
     required = {
         "case_id",
@@ -344,6 +348,12 @@ def validate_result_record(
     if record["case_id"] != case.id:
         raise ValidationError(f"result.case_id: expected {case.id!r}")
     require_sha256(record["input_id"], "result.input_id")
+    if input_record is not None:
+        context = require_object(input_record, "result input context")
+        if record["input_id"] != context.get("input_id"):
+            raise ValidationError("result.input_id: does not match the input context")
+        if record["case_id"] != context.get("case_id"):
+            raise ValidationError("result.case_id: does not match the input context")
     if record["runner"] != role or role not in TARGETS:
         raise ValidationError(f"result.runner: expected {role!r}")
     if status not in RESULT_STATUSES:

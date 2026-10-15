@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
 from typing import Iterable, Mapping
@@ -534,7 +534,8 @@ def render_showcase_html(
     load_percent = max(0.0, min(100.0, vectors_each / 1000 * 100))
     load_text = f"{load_percent:.2f}".rstrip("0").rstrip(".")
     meter_value = min(vectors_each, 1000)
-    generated_text = generated_at.strftime("%Y-%m-%d // %H:%M:%S UTC")
+    generated_utc = generated_at.astimezone(timezone.utc) if generated_at.tzinfo else generated_at
+    generated_text = generated_utc.strftime("%Y-%m-%d // %H:%M:%S UTC")
     report_id = case_definitions_sha256[:12].upper()
     status_class = {
         "pass": "pass",

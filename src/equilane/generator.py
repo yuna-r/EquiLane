@@ -14,6 +14,8 @@ from .canonical import (
     atomic_write,
     dump_bytes,
     remove_completion_marker,
+    require_int,
+    require_string,
     utf16_sort_key,
     write_jsonl,
 )
@@ -255,15 +257,16 @@ def generate_artifact(
     retain_records: bool = False,
 ) -> GenerateResult:
     registry = resolve_case_registry(cases, isa_registry=isa_registry)
+    require_string(profile, "generator profile")
     if profile not in PROFILE_COUNTS:
         raise ValidationError(f"unsupported profile: {profile}")
+    require_string(seed, "generator seed")
     if not re.fullmatch(r"0x[0-9a-f]{16}", seed):
         raise ValidationError("seed must be 0x followed by 16 lowercase hex digits")
     count = PROFILE_COUNTS[profile] if count_per_case is None else count_per_case
     if isinstance(count, bool) or not isinstance(count, int) or not 1 <= count <= 1_000_000:
         raise ValidationError("count_per_case must be from 1 through 1000000")
-    if jobs < 1:
-        raise ValidationError("generator jobs must be at least 1")
+    require_int(jobs, "generator jobs", minimum=1)
     for case in registry:
         minimum = load_development_case(case).minimum_counts.get(profile, 1)
         if count < minimum:

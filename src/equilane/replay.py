@@ -445,7 +445,8 @@ def _validate_bundle_snapshot(
         raise ValidationError("failure baselines do not contain an ordinary mismatch")
     if comparison.mismatch_count != failure["mismatch_count"]:
         raise ValidationError("failure mismatch_count does not match its baselines")
-    if comparison.first_difference != failure["first_difference"]:
+    # JSON booleans must not authenticate as numerically equal lane indices.
+    if dump_bytes(comparison.first_difference) != dump_bytes(failure["first_difference"]):
         raise ValidationError("failure first_difference does not match its baselines")
 
     # The validators consumed immutable snapshot files.  Restore public paths
@@ -695,7 +696,7 @@ def verify_replay_artifacts(
     comparison_matches = (
         comparison.outcome == "mismatch"
         and comparison.mismatch_count == expected_count
-        and comparison.first_difference == expected_first
+        and dump_bytes(comparison.first_difference) == dump_bytes(expected_first)
     )
     verification = ReplayVerification(
         reproduced=not result_differences and comparison_matches,

@@ -102,7 +102,7 @@ def load_yaml_text(text: str, *, source: str) -> JSONValue:
         validate_json_value(value)
     except ValidationError:
         raise
-    except yaml.YAMLError as exc:
+    except (yaml.YAMLError, ValueError, UnicodeError, RecursionError) as exc:
         raise ValidationError(f"{source}: invalid YAML: {exc}") from exc
     return value
 
