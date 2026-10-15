@@ -141,6 +141,31 @@ deterministic streamをどれだけ通したかは、レポートの矩形ロー
 
 表示デザインを変えても、判定元はcanonical JSON成果物です。
 
+### 不一致の詳細を調べる
+
+`--quality --showcase-report` のHTMLには、不一致の原因別・ケース別・丸めモード別の内訳、
+代表例、レーンごとの期待ビット・実測ビット・XOR差を表示します。検索して入力IDや操作を
+絞り込めます。記録行数と、重複を除いた入力数は区別して表示します。
+
+保存済みのquality JSONから、検証を再実行せず詳細HTMLだけを作る場合：
+
+```sh
+equilane mismatch-report \
+  --quality .equilane/checks/RUN/quality/summary.json \
+  --observations tests/data/mismatch-report-2026-10-16.json \
+  --output .equilane/mismatch-details.html
+```
+
+`RUN`は保存済みの実行ディレクトリ名に置き換えます。
+`--quality`には、単独の`equilane.quality_runner`が書いた`summary.json`も指定できます。
+`--observations`は任意です。指定した場合は、今回のPython検証と別に採取したARM/RISC-Vの
+観測スナップショットを、記録日・実行種別・比較基準・入力・出力とともに表示します。
+省略した対象のnative結果を、Pythonモデルから推測することはありません。
+生成成功時の終了コード0は、HTMLが書けたことを示します。不一致の解消や検証の成功を
+示すものではありません。
+
+現在の原因分析と実行範囲は [不一致の詳細レポート](MISMATCH_REPORT.md) を参照してください。
+
 ## Intelと各アーキテクチャを見比べる
 
 Repositoryの一番上に来る[`10_official_suite/`](10_official_suite/)へ、

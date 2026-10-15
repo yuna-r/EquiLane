@@ -11,6 +11,8 @@ from .canonical import JSONValue, atomic_write, dumps
 from .cases import CaseDefinition
 from .mascot import mascot_markup
 from .metrics import collect_verification_metrics
+from .intrinsic_guide import intrinsic_for_case
+from .mismatch_details import _intrinsic_markup, render_mismatch_details
 from .targets import TARGETS
 
 
@@ -157,6 +159,8 @@ _STYLES = """
     .case-index { display: inline-block; padding: 4px 9px; border-radius: 20px; background: #eae0f4; color: var(--violet); font: 650 9px/1.5 var(--mono); }
     .case-card h3 { margin: 14px 0 8px; font: 750 20px/1.25 var(--display); letter-spacing: -.02em; overflow-wrap: anywhere; }
     .case-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+    .case-card .case-guide { margin-top:12px; font-size:11px; }
+    .case-guide a { color:var(--violet); }
     .signature { margin-top: 16px; padding: 10px 12px; border: 1px solid #d1e2d5; border-radius: 10px; background: #edf4ee; color: #355b49; font: 10px/1.7 var(--mono); overflow-wrap: anywhere; }
     .case-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
     .case-meta span { padding: 4px 7px; border: 1px solid #e1d9e8; border-radius: 7px; background: #fffdf9; color: #625570; font: 8px/1.5 var(--mono); }
@@ -330,6 +334,11 @@ def _case_cards(
                 tokens.extend(binding["required_isa"])
         isa = " / ".join(str(item).upper() for item in dict.fromkeys(tokens))
         searchable = f"{case.id} {description} {_signature(case)} {comparison} {isa}"
+        intrinsic = intrinsic_for_case(case.id)
+        guide = ""
+        if intrinsic is not None:
+            searchable += f" {intrinsic['name']} {intrinsic['isa']}"
+            guide = f'<p class="case-guide">Intel Intrinsics Guide: {_intrinsic_markup(intrinsic, compact=True)}</p>'
         cards.append(
             f"""
             <article class="case-card" data-search="{_text(searchable)}" data-mode="{_text(comparison)}" data-element="{_text(_case_element(case))}">
@@ -342,6 +351,7 @@ def _case_cards(
                 <span>{vectors_each} VECTORS</span>
                 <span>{_text(isa)}</span>
               </div>
+              {guide}
             </article>"""
         )
     return "".join(cards)
@@ -375,11 +385,19 @@ def _quality_section(quality: Mapping[str, JSONValue] | None) -> str:
     if not isinstance(python, dict):
         python = {}
     classification = python.get("failure_classification", {})
+    if not isinstance(classification, dict):
+        classification = {}
     rows = python.get("model_output_mismatches", [])
+    if not isinstance(rows, list):
+        rows = []
     environment = python.get("execution_environment", {})
     scopes = python.get("model_findings_by_contract_scope", {})
+    if not isinstance(scopes, dict):
+        scopes = {}
     oracle_reference = python.get("model_oracle_reference") or {}
     oracle_references = python.get("model_oracle_references") or [oracle_reference]
+    if not isinstance(oracle_references, list):
+        oracle_references = [oracle_reference]
     coverage_label = (
         f'{python.get("coverage_percent", "未記録")}%'
         if python.get("coverage_collected") is True else
@@ -407,30 +425,20 @@ def _quality_section(quality: Mapping[str, JSONValue] | None) -> str:
         "fp_boundary_sqrt": "平方根の丸め境界",
         "fp_boundary_subnormal_arithmetic": "非正規数と通常数の境界",
     }
+    family_counts = python.get("model_findings_by_family", {})
+    if not isinstance(family_counts, dict):
+        family_counts = {}
     family_rows = "".join(
         _matrix_row(family_labels.get(name, name), count, _finding_status(count))
-        for name, count in sorted(python.get("model_findings_by_family", {}).items())
+        for name, count in sorted(family_counts.items())
     )
-    findings = []
-    for row in rows:
-        record = row["input"]
-        oracle_label = {
-            "literal_sse2_expected_bits": "固定 SSE2 ビット列",
-            "captured_sse2_expected_bits": "SSE2 命令の記録値",
-            "independent_integer_reference": "独立した整数演算",
-        }.get(row.get("oracle", "literal_sse2_expected_bits"), "独立した期待値")
-        findings.append(f'''<details><summary>{_text(record["case_id"])} — {_text(record["input_id"])}</summary>
-          <p>検証範囲：{_text(row.get("contract_scope", "未記録"))}。
-          環境指定：{_text(dumps(record.get("environment", {})))}。</p>
-          <p>入力</p><pre>{_text(dumps(record))}</pre>
-          <p>期待値（{_text(oracle_label)}）</p><pre>{_text(dumps(row["expected"]))}</pre>
-          <p>実測値（Python モデル）</p><pre>{_text(dumps(row["actual"]))}</pre>
-          <small>{_text(row["test_id"])} / {_text(row.get("oracle_reference", "未記録"))}</small></details>''')
+    findings = render_mismatch_details(python)
     other_findings = "".join(
-        f'<details><summary>{_text(row["test_id"])}</summary>'
-        f'<p>{_text(row["exception"])}</p><pre>{_text(row["message"])}</pre></details>'
+        f'<details><summary>{_text(row.get("test_id", "未記録"))}</summary>'
+        f'<p>{_text(row.get("exception", "未記録"))}</p><pre>{_text(row.get("message", "未記録"))}</pre></details>'
         for name in ("test_assertion_failures", "test_execution_errors")
-        for row in python.get(name, [])
+        for row in (python.get(name) if isinstance(python.get(name), list) else [])
+        if isinstance(row, dict)
     )
     counts = "".join(
         _matrix_row(label, classification.get(key, "未集計"),
@@ -476,7 +484,7 @@ def _quality_section(quality: Mapping[str, JSONValue] | None) -> str:
         この quality 実行では probe を再実行していません。実機間の native evidence ではありません。</p>
         <div class="matrix">{gate_rows}</div>
       </details>
-      <details><summary>不一致の入力・期待値・実測値（{len(rows)}件）</summary>{"".join(findings)}</details>
+      {findings}
       <details><summary>その他のテスト失敗・実行エラー</summary>{other_findings}</details>
       <p>機械可読の根拠：<code>quality/summary.json</code> の
       <code>gates.python_coverage</code>。入力ID、テストID、期待値、実測値、実行環境、

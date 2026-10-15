@@ -4,6 +4,10 @@ EquiLane keeps the Intel/OpenPOWER ABI v1 boundary and adds ARM64 NEON and
 RISC-V64 RVV 1.0 targets. The normal `check` command uses development fixtures;
 its comparisons share a Python model and do not measure CPU differences.
 
+For exact observed inputs, output bits, model failure attribution, and reproduction
+commands, see the [detailed mismatch report](MISMATCH_REPORT.md). Native observations
+are listed separately from shared Python-model findings.
+
 | Target | Official C wrappers | Example ABI callbacks | Execution checked here |
 |---|---:|---:|---|
 | Intel / SSE2 | 254 | 3 | x86_64 probes under Rosetta |

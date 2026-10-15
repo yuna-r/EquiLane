@@ -23,7 +23,7 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-equilane = ["assets/*.png"]
+equilane = ["assets/*.png", "data/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

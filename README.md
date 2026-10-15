@@ -42,7 +42,8 @@ equilane check --project equilane.toml --quality --showcase-report
 
 現在のportable modelには、NaNと丸め処理の既知の不一致があります。
 `--quality` はこれらをレポートに記録し、検証失敗として終了します。
-詳細は [検出済みの不一致](tests/BUG_HUNT.md) にあります。
+原因別の件数・ビット差・CPU向け実装の観測は [不一致の詳細レポート](MISMATCH_REPORT.md)、
+テストの構成は [バグ探索用テスト](tests/BUG_HUNT.md) にあります。
 カバレッジは既定では計測しません。必要な場合だけ上のコマンドに `--coverage` を追加します。
 
 入力を増やして比較する場合：

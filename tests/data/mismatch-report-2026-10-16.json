@@ -1,0 +1,3928 @@
+{
+  "artifact_type": "equilane.mismatch-report-snapshot",
+  "schema_version": 1,
+  "capture_date": "2026-10-16",
+  "model_evidence_revision": "b61b60aced1e808259eb960a291950fea6751abc",
+  "scope": "Archived pure-Python portable-model findings, with separately identified native/emulated/cross-build observations. Not physical Intel cross-host conformance.",
+  "summary": {
+    "execution_environment": {
+      "machine": "arm64",
+      "python_version": "3.14.7",
+      "system": "Darwin"
+    },
+    "status": "fail",
+    "tests_run": 1186,
+    "failures": 2159,
+    "errors": 0,
+    "skipped": 0,
+    "failure_classification": {
+      "other_assertion_failures": 0,
+      "portable_model_output_mismatches": 2159,
+      "test_execution_errors": 0
+    },
+    "model_oracle_checks_run": 74722,
+    "model_oracle_tests_run": 153,
+    "model_oracle_tracked_unique_inputs": 74700,
+    "coverage_collected": false,
+    "coverage_percent": null
+  },
+  "mismatch_counts": {
+    "finding_count": 2159,
+    "unique_input_count": 2157,
+    "case_count": 30,
+    "by_contract_scope": {
+      "official_nearest_even": 106,
+      "validated_rounding_extension": 2053
+    },
+    "by_rounding": {
+      "nearest_even": 106,
+      "toward_negative": 778,
+      "toward_positive": 698,
+      "toward_zero": 577
+    },
+    "by_test_module": {
+      "test_adversarial_models": 171,
+      "test_fp_boundary_models": 1988
+    },
+    "by_oracle_reference": {
+      "tests/BUG_HUNT.md": 36,
+      "tests/data/fp-boundary-oracles.json": 1988,
+      "tests/data/rounding-oracles.json": 135
+    }
+  },
+  "cause_groups": [
+    {
+      "id": "nan_sign",
+      "label_ja": "無効演算で生成するNaNの符号",
+      "finding_count": 28,
+      "unique_input_count": 27,
+      "case_count": 12,
+      "by_scope": {
+        "official_nearest_even": 28
+      },
+      "by_family": {
+        "fp_boundary_signed_zero_infinity": 16,
+        "nan_indefinite_sign": 12
+      },
+      "by_rounding": {
+        "nearest_even": 28
+      },
+      "implementation_source": "src/equilane/casepack_families.py",
+      "implementation_functions": [
+        "float_binary_case"
+      ]
+    },
+    {
+      "id": "nan_payload",
+      "label_ja": "NaN payloadの選択",
+      "finding_count": 78,
+      "unique_input_count": 78,
+      "case_count": 12,
+      "by_scope": {
+        "official_nearest_even": 78
+      },
+      "by_family": {
+        "fp_boundary_nan_priority": 54,
+        "nan_payload_priority": 24
+      },
+      "by_rounding": {
+        "nearest_even": 78
+      },
+      "implementation_source": "src/equilane/casepack_families.py",
+      "implementation_functions": [
+        "float_binary_case"
+      ]
+    },
+    {
+      "id": "rounding_arithmetic",
+      "label_ja": "算術の指定丸め未反映",
+      "finding_count": 744,
+      "unique_input_count": 743,
+      "case_count": 16,
+      "by_scope": {
+        "validated_rounding_extension": 744
+      },
+      "by_family": {
+        "fp_boundary_halfway_arithmetic": 513,
+        "fp_boundary_signed_zero_infinity": 68,
+        "fp_boundary_subnormal_arithmetic": 107,
+        "rounding_arithmetic": 56
+      },
+      "by_rounding": {
+        "toward_negative": 288,
+        "toward_positive": 256,
+        "toward_zero": 200
+      },
+      "implementation_source": "src/equilane/casepack_families.py",
+      "implementation_functions": [
+        "float_binary_case",
+        "_divide_float_bits",
+        "_round_ratio_even"
+      ]
+    },
+    {
+      "id": "rounding_sqrt",
+      "label_ja": "平方根の指定丸め未反映",
+      "finding_count": 214,
+      "unique_input_count": 214,
+      "case_count": 4,
+      "by_scope": {
+        "validated_rounding_extension": 214
+      },
+      "by_family": {
+        "fp_boundary_sqrt": 206,
+        "rounding_sqrt": 8
+      },
+      "by_rounding": {
+        "toward_negative": 78,
+        "toward_positive": 58,
+        "toward_zero": 78
+      },
+      "implementation_source": "src/equilane/casepack_families.py",
+      "implementation_functions": [
+        "sqrt_case"
+      ]
+    },
+    {
+      "id": "rounding_float_to_integer",
+      "label_ja": "浮動小数点から整数への指定丸め未反映",
+      "finding_count": 372,
+      "unique_input_count": 372,
+      "case_count": 5,
+      "by_scope": {
+        "validated_rounding_extension": 372
+      },
+      "by_family": {
+        "fp_boundary_float_to_integer": 335,
+        "rounding_float_to_integer": 37
+      },
+      "by_rounding": {
+        "toward_negative": 143,
+        "toward_positive": 136,
+        "toward_zero": 93
+      },
+      "implementation_source": "src/equilane/casepack_families.py",
+      "implementation_functions": [
+        "conversion_case",
+        "float_to_scalar_case",
+        "_float_to_integer"
+      ]
+    },
+    {
+      "id": "rounding_narrowing",
+      "label_ja": "f64からf32への指定丸め未反映",
+      "finding_count": 610,
+      "unique_input_count": 610,
+      "case_count": 2,
+      "by_scope": {
+        "validated_rounding_extension": 610
+      },
+      "by_family": {
+        "fp_boundary_narrowing": 594,
+        "rounding_narrowing": 16
+      },
+      "by_rounding": {
+        "toward_negative": 225,
+        "toward_positive": 225,
+        "toward_zero": 160
+      },
+      "implementation_source": "src/equilane/casepack_families.py",
+      "implementation_functions": [
+        "conversion_case",
+        "scalar_conversion_case",
+        "_f64_to_f32"
+      ]
+    },
+    {
+      "id": "rounding_integer_to_float",
+      "label_ja": "整数から浮動小数点への指定丸め未反映",
+      "finding_count": 113,
+      "unique_input_count": 113,
+      "case_count": 3,
+      "by_scope": {
+        "validated_rounding_extension": 113
+      },
+      "by_family": {
+        "fp_boundary_integer_to_float": 95,
+        "rounding_integer_to_float": 18
+      },
+      "by_rounding": {
+        "toward_negative": 44,
+        "toward_positive": 23,
+        "toward_zero": 46
+      },
+      "implementation_source": "src/equilane/casepack_families.py",
+      "implementation_functions": [
+        "conversion_case",
+        "scalar_conversion_case",
+        "_i32_to_f32"
+      ]
+    }
+  ],
+  "case_counts": [
+    {
+      "case_id": "sse2.add.f32x4.default",
+      "finding_count": 50,
+      "unique_input_count": 50,
+      "by_scope": {
+        "official_nearest_even": 10,
+        "validated_rounding_extension": 40
+      },
+      "by_rounding": {
+        "nearest_even": 10,
+        "toward_negative": 19,
+        "toward_positive": 14,
+        "toward_zero": 7
+      }
+    },
+    {
+      "case_id": "sse2.add.f32x4.scalar",
+      "finding_count": 35,
+      "unique_input_count": 35,
+      "by_scope": {
+        "official_nearest_even": 7,
+        "validated_rounding_extension": 28
+      },
+      "by_rounding": {
+        "nearest_even": 7,
+        "toward_negative": 13,
+        "toward_positive": 8,
+        "toward_zero": 7
+      }
+    },
+    {
+      "case_id": "sse2.add.f64x2.default",
+      "finding_count": 38,
+      "unique_input_count": 38,
+      "by_scope": {
+        "official_nearest_even": 10,
+        "validated_rounding_extension": 28
+      },
+      "by_rounding": {
+        "nearest_even": 10,
+        "toward_negative": 13,
+        "toward_positive": 8,
+        "toward_zero": 7
+      }
+    },
+    {
+      "case_id": "sse2.add.f64x2.scalar",
+      "finding_count": 35,
+      "unique_input_count": 35,
+      "by_scope": {
+        "official_nearest_even": 7,
+        "validated_rounding_extension": 28
+      },
+      "by_rounding": {
+        "nearest_even": 7,
+        "toward_negative": 13,
+        "toward_positive": 8,
+        "toward_zero": 7
+      }
+    },
+    {
+      "case_id": "sse2.cvt.f32x4.i32.scalar",
+      "finding_count": 52,
+      "unique_input_count": 52,
+      "by_scope": {
+        "validated_rounding_extension": 52
+      },
+      "by_rounding": {
+        "toward_negative": 19,
+        "toward_positive": 18,
+        "toward_zero": 15
+      }
+    },
+    {
+      "case_id": "sse2.cvt.f32x4.i32x4",
+      "finding_count": 86,
+      "unique_input_count": 86,
+      "by_scope": {
+        "validated_rounding_extension": 86
+      },
+      "by_rounding": {
+        "toward_negative": 35,
+        "toward_positive": 36,
+        "toward_zero": 15
+      }
+    },
+    {
+      "case_id": "sse2.cvt.f64x2.f32x4",
+      "finding_count": 378,
+      "unique_input_count": 378,
+      "by_scope": {
+        "validated_rounding_extension": 378
+      },
+      "by_rounding": {
+        "toward_negative": 149,
+        "toward_positive": 149,
+        "toward_zero": 80
+      }
+    },
+    {
+      "case_id": "sse2.cvt.f64x2.f32x4.scalar",
+      "finding_count": 232,
+      "unique_input_count": 232,
+      "by_scope": {
+        "validated_rounding_extension": 232
+      },
+      "by_rounding": {
+        "toward_negative": 76,
+        "toward_positive": 76,
+        "toward_zero": 80
+      }
+    },
+    {
+      "case_id": "sse2.cvt.f64x2.i32.scalar",
+      "finding_count": 64,
+      "unique_input_count": 64,
+      "by_scope": {
+        "validated_rounding_extension": 64
+      },
+      "by_rounding": {
+        "toward_negative": 23,
+        "toward_positive": 20,
+        "toward_zero": 21
+      }
+    },
+    {
+      "case_id": "sse2.cvt.f64x2.i32x4",
+      "finding_count": 102,
+      "unique_input_count": 102,
+      "by_scope": {
+        "validated_rounding_extension": 102
+      },
+      "by_rounding": {
+        "toward_negative": 41,
+        "toward_positive": 40,
+        "toward_zero": 21
+      }
+    },
+    {
+      "case_id": "sse2.cvt.f64x2.i64.scalar",
+      "finding_count": 68,
+      "unique_input_count": 68,
+      "by_scope": {
+        "validated_rounding_extension": 68
+      },
+      "by_rounding": {
+        "toward_negative": 25,
+        "toward_positive": 22,
+        "toward_zero": 21
+      }
+    },
+    {
+      "case_id": "sse2.cvt.i32.f32x4.scalar",
+      "finding_count": 22,
+      "unique_input_count": 22,
+      "by_scope": {
+        "validated_rounding_extension": 22
+      },
+      "by_rounding": {
+        "toward_negative": 7,
+        "toward_positive": 7,
+        "toward_zero": 8
+      }
+    },
+    {
+      "case_id": "sse2.cvt.i32x4.f32x4",
+      "finding_count": 69,
+      "unique_input_count": 69,
+      "by_scope": {
+        "validated_rounding_extension": 69
+      },
+      "by_rounding": {
+        "toward_negative": 30,
+        "toward_positive": 9,
+        "toward_zero": 30
+      }
+    },
+    {
+      "case_id": "sse2.cvt.i64.f64x2.scalar",
+      "finding_count": 22,
+      "unique_input_count": 22,
+      "by_scope": {
+        "validated_rounding_extension": 22
+      },
+      "by_rounding": {
+        "toward_negative": 7,
+        "toward_positive": 7,
+        "toward_zero": 8
+      }
+    },
+    {
+      "case_id": "sse2.div.f32x4.default",
+      "finding_count": 73,
+      "unique_input_count": 73,
+      "by_scope": {
+        "validated_rounding_extension": 73
+      },
+      "by_rounding": {
+        "toward_negative": 23,
+        "toward_positive": 24,
+        "toward_zero": 26
+      }
+    },
+    {
+      "case_id": "sse2.div.f32x4.scalar",
+      "finding_count": 53,
+      "unique_input_count": 53,
+      "by_scope": {
+        "validated_rounding_extension": 53
+      },
+      "by_rounding": {
+        "toward_negative": 16,
+        "toward_positive": 17,
+        "toward_zero": 20
+      }
+    },
+    {
+      "case_id": "sse2.div.f64x2.default",
+      "finding_count": 67,
+      "unique_input_count": 67,
+      "by_scope": {
+        "validated_rounding_extension": 67
+      },
+      "by_rounding": {
+        "toward_negative": 23,
+        "toward_positive": 24,
+        "toward_zero": 20
+      }
+    },
+    {
+      "case_id": "sse2.div.f64x2.scalar",
+      "finding_count": 47,
+      "unique_input_count": 47,
+      "by_scope": {
+        "validated_rounding_extension": 47
+      },
+      "by_rounding": {
+        "toward_negative": 16,
+        "toward_positive": 17,
+        "toward_zero": 14
+      }
+    },
+    {
+      "case_id": "sse2.mul.f32x4.default",
+      "finding_count": 74,
+      "unique_input_count": 74,
+      "by_scope": {
+        "official_nearest_even": 11,
+        "validated_rounding_extension": 63
+      },
+      "by_rounding": {
+        "nearest_even": 11,
+        "toward_negative": 23,
+        "toward_positive": 24,
+        "toward_zero": 16
+      }
+    },
+    {
+      "case_id": "sse2.mul.f32x4.scalar",
+      "finding_count": 71,
+      "unique_input_count": 71,
+      "by_scope": {
+        "official_nearest_even": 8,
+        "validated_rounding_extension": 63
+      },
+      "by_rounding": {
+        "nearest_even": 8,
+        "toward_negative": 23,
+        "toward_positive": 24,
+        "toward_zero": 16
+      }
+    },
+    {
+      "case_id": "sse2.mul.f64x2.default",
+      "finding_count": 74,
+      "unique_input_count": 73,
+      "by_scope": {
+        "official_nearest_even": 11,
+        "validated_rounding_extension": 63
+      },
+      "by_rounding": {
+        "nearest_even": 11,
+        "toward_negative": 23,
+        "toward_positive": 24,
+        "toward_zero": 16
+      }
+    },
+    {
+      "case_id": "sse2.mul.f64x2.scalar",
+      "finding_count": 71,
+      "unique_input_count": 71,
+      "by_scope": {
+        "official_nearest_even": 8,
+        "validated_rounding_extension": 63
+      },
+      "by_rounding": {
+        "nearest_even": 8,
+        "toward_negative": 23,
+        "toward_positive": 24,
+        "toward_zero": 16
+      }
+    },
+    {
+      "case_id": "sse2.sqrt.f32x4.default",
+      "finding_count": 118,
+      "unique_input_count": 118,
+      "by_scope": {
+        "validated_rounding_extension": 118
+      },
+      "by_rounding": {
+        "toward_negative": 50,
+        "toward_positive": 18,
+        "toward_zero": 50
+      }
+    },
+    {
+      "case_id": "sse2.sqrt.f32x4.scalar",
+      "finding_count": 26,
+      "unique_input_count": 26,
+      "by_scope": {
+        "validated_rounding_extension": 26
+      },
+      "by_rounding": {
+        "toward_negative": 8,
+        "toward_positive": 10,
+        "toward_zero": 8
+      }
+    },
+    {
+      "case_id": "sse2.sqrt.f64x2.default",
+      "finding_count": 46,
+      "unique_input_count": 46,
+      "by_scope": {
+        "validated_rounding_extension": 46
+      },
+      "by_rounding": {
+        "toward_negative": 13,
+        "toward_positive": 20,
+        "toward_zero": 13
+      }
+    },
+    {
+      "case_id": "sse2.sqrt.f64x2.scalar",
+      "finding_count": 24,
+      "unique_input_count": 24,
+      "by_scope": {
+        "validated_rounding_extension": 24
+      },
+      "by_rounding": {
+        "toward_negative": 7,
+        "toward_positive": 10,
+        "toward_zero": 7
+      }
+    },
+    {
+      "case_id": "sse2.sub.f32x4.default",
+      "finding_count": 48,
+      "unique_input_count": 48,
+      "by_scope": {
+        "official_nearest_even": 10,
+        "validated_rounding_extension": 38
+      },
+      "by_rounding": {
+        "nearest_even": 10,
+        "toward_negative": 18,
+        "toward_positive": 13,
+        "toward_zero": 7
+      }
+    },
+    {
+      "case_id": "sse2.sub.f32x4.scalar",
+      "finding_count": 33,
+      "unique_input_count": 33,
+      "by_scope": {
+        "official_nearest_even": 7,
+        "validated_rounding_extension": 26
+      },
+      "by_rounding": {
+        "nearest_even": 7,
+        "toward_negative": 12,
+        "toward_positive": 7,
+        "toward_zero": 7
+      }
+    },
+    {
+      "case_id": "sse2.sub.f64x2.default",
+      "finding_count": 48,
+      "unique_input_count": 47,
+      "by_scope": {
+        "official_nearest_even": 10,
+        "validated_rounding_extension": 38
+      },
+      "by_rounding": {
+        "nearest_even": 10,
+        "toward_negative": 18,
+        "toward_positive": 13,
+        "toward_zero": 7
+      }
+    },
+    {
+      "case_id": "sse2.sub.f64x2.scalar",
+      "finding_count": 33,
+      "unique_input_count": 33,
+      "by_scope": {
+        "official_nearest_even": 7,
+        "validated_rounding_extension": 26
+      },
+      "by_rounding": {
+        "nearest_even": 7,
+        "toward_negative": 12,
+        "toward_positive": 7,
+        "toward_zero": 7
+      }
+    }
+  ],
+  "family_counts": [
+    {
+      "family": "fp_boundary_float_to_integer",
+      "finding_count": 335,
+      "unique_input_count": 335,
+      "by_scope": {
+        "validated_rounding_extension": 335
+      },
+      "by_rounding": {
+        "toward_negative": 132,
+        "toward_positive": 126,
+        "toward_zero": 77
+      }
+    },
+    {
+      "family": "fp_boundary_halfway_arithmetic",
+      "finding_count": 513,
+      "unique_input_count": 513,
+      "by_scope": {
+        "validated_rounding_extension": 513
+      },
+      "by_rounding": {
+        "toward_negative": 173,
+        "toward_positive": 172,
+        "toward_zero": 168
+      }
+    },
+    {
+      "family": "fp_boundary_integer_to_float",
+      "finding_count": 95,
+      "unique_input_count": 95,
+      "by_scope": {
+        "validated_rounding_extension": 95
+      },
+      "by_rounding": {
+        "toward_negative": 38,
+        "toward_positive": 17,
+        "toward_zero": 40
+      }
+    },
+    {
+      "family": "fp_boundary_nan_priority",
+      "finding_count": 54,
+      "unique_input_count": 54,
+      "by_scope": {
+        "official_nearest_even": 54
+      },
+      "by_rounding": {
+        "nearest_even": 54
+      }
+    },
+    {
+      "family": "fp_boundary_narrowing",
+      "finding_count": 594,
+      "unique_input_count": 594,
+      "by_scope": {
+        "validated_rounding_extension": 594
+      },
+      "by_rounding": {
+        "toward_negative": 219,
+        "toward_positive": 219,
+        "toward_zero": 156
+      }
+    },
+    {
+      "family": "fp_boundary_signed_zero_infinity",
+      "finding_count": 84,
+      "unique_input_count": 84,
+      "by_scope": {
+        "official_nearest_even": 16,
+        "validated_rounding_extension": 68
+      },
+      "by_rounding": {
+        "nearest_even": 16,
+        "toward_negative": 36,
+        "toward_positive": 16,
+        "toward_zero": 16
+      }
+    },
+    {
+      "family": "fp_boundary_sqrt",
+      "finding_count": 206,
+      "unique_input_count": 206,
+      "by_scope": {
+        "validated_rounding_extension": 206
+      },
+      "by_rounding": {
+        "toward_negative": 76,
+        "toward_positive": 54,
+        "toward_zero": 76
+      }
+    },
+    {
+      "family": "fp_boundary_subnormal_arithmetic",
+      "finding_count": 107,
+      "unique_input_count": 107,
+      "by_scope": {
+        "validated_rounding_extension": 107
+      },
+      "by_rounding": {
+        "toward_negative": 55,
+        "toward_positive": 48,
+        "toward_zero": 4
+      }
+    },
+    {
+      "family": "nan_indefinite_sign",
+      "finding_count": 12,
+      "unique_input_count": 12,
+      "by_scope": {
+        "official_nearest_even": 12
+      },
+      "by_rounding": {
+        "nearest_even": 12
+      }
+    },
+    {
+      "family": "nan_payload_priority",
+      "finding_count": 24,
+      "unique_input_count": 24,
+      "by_scope": {
+        "official_nearest_even": 24
+      },
+      "by_rounding": {
+        "nearest_even": 24
+      }
+    },
+    {
+      "family": "rounding_arithmetic",
+      "finding_count": 56,
+      "unique_input_count": 56,
+      "by_scope": {
+        "validated_rounding_extension": 56
+      },
+      "by_rounding": {
+        "toward_negative": 24,
+        "toward_positive": 20,
+        "toward_zero": 12
+      }
+    },
+    {
+      "family": "rounding_float_to_integer",
+      "finding_count": 37,
+      "unique_input_count": 37,
+      "by_scope": {
+        "validated_rounding_extension": 37
+      },
+      "by_rounding": {
+        "toward_negative": 11,
+        "toward_positive": 10,
+        "toward_zero": 16
+      }
+    },
+    {
+      "family": "rounding_integer_to_float",
+      "finding_count": 18,
+      "unique_input_count": 18,
+      "by_scope": {
+        "validated_rounding_extension": 18
+      },
+      "by_rounding": {
+        "toward_negative": 6,
+        "toward_positive": 6,
+        "toward_zero": 6
+      }
+    },
+    {
+      "family": "rounding_narrowing",
+      "finding_count": 16,
+      "unique_input_count": 16,
+      "by_scope": {
+        "validated_rounding_extension": 16
+      },
+      "by_rounding": {
+        "toward_negative": 6,
+        "toward_positive": 6,
+        "toward_zero": 4
+      }
+    },
+    {
+      "family": "rounding_sqrt",
+      "finding_count": 8,
+      "unique_input_count": 8,
+      "by_scope": {
+        "validated_rounding_extension": 8
+      },
+      "by_rounding": {
+        "toward_negative": 2,
+        "toward_positive": 4,
+        "toward_zero": 2
+      }
+    }
+  ],
+  "representative_findings": [
+    {
+      "actual": {
+        "return": {
+          "element": "i32",
+          "lanes": [
+            "0x00000000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000001"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "validated_rounding_extension",
+      "expected": {
+        "return": {
+          "element": "i32",
+          "lanes": [
+            "0x00000000",
+            "0xffffffff",
+            "0x00000000",
+            "0x00000001"
+          ]
+        }
+      },
+      "finding_family": "fp_boundary_float_to_integer",
+      "input": {
+        "case_id": "sse2.cvt.f32x4.i32x4",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "toward_negative"
+        },
+        "generation": {
+          "class": "regression",
+          "regression_id": "boundary-oracle.v1"
+        },
+        "input_id": "5f62b72b44ec67b2a627df9a2ddf1ea9a39b00fd7de9466866875ee7c79c547f",
+        "operands": {
+          "a": {
+            "element": "f32",
+            "lanes": [
+              "0x00000002",
+              "0x80000002",
+              "0x00000000",
+              "0x3f800000"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "captured_sse2_expected_bits",
+      "oracle_reference": "tests/data/fp-boundary-oracles.json",
+      "subject": "Python portable case model",
+      "test_id": "test_fp_boundary_models.FPBoundaryModelTests.test_float_to_integer_limits_ties_rounding_and_truncation (case_id='sse2.cvt.f32x4.i32x4', rounding='toward_negative', input='cvt:2:packed', row_id='75417fa33a8982df')",
+      "report_example_id": "fp_boundary_float_to_integer",
+      "cause_group": "rounding_float_to_integer"
+    },
+    {
+      "actual": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x3f800000",
+            "0x3f800000",
+            "0xbf800000",
+            "0xbf800000"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "validated_rounding_extension",
+      "expected": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x3f800000",
+            "0x3f800000",
+            "0xbf800001",
+            "0xbf800001"
+          ]
+        }
+      },
+      "finding_family": "fp_boundary_halfway_arithmetic",
+      "input": {
+        "case_id": "sse2.add.f32x4.default",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "toward_negative"
+        },
+        "generation": {
+          "class": "regression",
+          "regression_id": "boundary-oracle.v1"
+        },
+        "input_id": "d72b2f546736fdd33bfd5a4c4b87593139997402943bc98fe6185cf33fc74663",
+        "operands": {
+          "a": {
+            "element": "f32",
+            "lanes": [
+              "0x3f800000",
+              "0x337fffff",
+              "0xbf800000",
+              "0xb37fffff"
+            ]
+          },
+          "b": {
+            "element": "f32",
+            "lanes": [
+              "0x337fffff",
+              "0x3f800000",
+              "0xb37fffff",
+              "0xbf800000"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "captured_sse2_expected_bits",
+      "oracle_reference": "tests/data/fp-boundary-oracles.json",
+      "subject": "Python portable case model",
+      "test_id": "test_fp_boundary_models.FPBoundaryModelTests.test_halfway_and_nextafter_neighbors_in_arithmetic (case_id='sse2.add.f32x4.default', rounding='toward_negative', input='add:3f800000/337fffff:packed', row_id='749772bfe5811f53')",
+      "report_example_id": "fp_boundary_halfway_arithmetic",
+      "cause_group": "rounding_arithmetic"
+    },
+    {
+      "actual": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x00000000",
+            "0xbf800000",
+            "0xcf000000",
+            "0x4f000000"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "validated_rounding_extension",
+      "expected": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x00000000",
+            "0xbf800000",
+            "0xcf000000",
+            "0x4effffff"
+          ]
+        }
+      },
+      "finding_family": "fp_boundary_integer_to_float",
+      "input": {
+        "case_id": "sse2.cvt.i32x4.f32x4",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "toward_negative"
+        },
+        "generation": {
+          "class": "regression",
+          "regression_id": "boundary-oracle.v1"
+        },
+        "input_id": "7e58d9be63737594c59e4634d4f4688d42262a25676c568861914d6968aa2a31",
+        "operands": {
+          "a": {
+            "element": "i32",
+            "lanes": [
+              "0x00000000",
+              "0xffffffff",
+              "0x80000000",
+              "0x7fffffff"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "captured_sse2_expected_bits",
+      "oracle_reference": "tests/data/fp-boundary-oracles.json",
+      "subject": "Python portable case model",
+      "test_id": "test_fp_boundary_models.FPBoundaryModelTests.test_integer_to_float_precision_boundaries_and_scalar_lane_preservation (case_id='sse2.cvt.i32x4.f32x4', rounding='toward_negative', input='from_i32:0:f32:packed', row_id='9190bfd052e7ba99')",
+      "report_example_id": "fp_boundary_integer_to_float",
+      "cause_group": "rounding_integer_to_float"
+    },
+    {
+      "actual": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x7fc00003",
+            "0x7fc00003",
+            "0xffc00003",
+            "0xffc00003"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "official_nearest_even",
+      "expected": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x7fc00041",
+            "0x7fc00003",
+            "0xffc00041",
+            "0xffc00003"
+          ]
+        }
+      },
+      "finding_family": "fp_boundary_nan_priority",
+      "input": {
+        "case_id": "sse2.add.f32x4.default",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "nearest_even"
+        },
+        "generation": {
+          "class": "structured"
+        },
+        "input_id": "49344984317872d706b6ded5549417ad4483cd31ab4525c1fa9f2cdb9f85b73c",
+        "operands": {
+          "a": {
+            "element": "f32",
+            "lanes": [
+              "0x7fc00041",
+              "0x7f800003",
+              "0xffc00041",
+              "0xff800003"
+            ]
+          },
+          "b": {
+            "element": "f32",
+            "lanes": [
+              "0x7f800003",
+              "0x7fc00041",
+              "0xff800003",
+              "0xffc00041"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "captured_sse2_expected_bits",
+      "oracle_reference": "tests/data/fp-boundary-oracles.json",
+      "subject": "Python portable case model",
+      "test_id": "test_fp_boundary_models.FPBoundaryModelTests.test_nan_payload_order_priority_and_inactive_scalar_poison (case_id='sse2.add.f32x4.default', rounding='nearest_even', input='add:7fc00041/7f800003:packed', row_id='8cfec25a67bed6c4')",
+      "report_example_id": "fp_boundary_nan_priority",
+      "cause_group": "nan_payload"
+    },
+    {
+      "actual": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x00000000",
+            "0x80000000",
+            "0x00000000",
+            "0x00000000"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "validated_rounding_extension",
+      "expected": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x00000000",
+            "0x80000001",
+            "0x00000000",
+            "0x00000000"
+          ]
+        }
+      },
+      "finding_family": "fp_boundary_narrowing",
+      "input": {
+        "case_id": "sse2.cvt.f64x2.f32x4",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "toward_negative"
+        },
+        "generation": {
+          "class": "regression",
+          "regression_id": "boundary-oracle.v1"
+        },
+        "input_id": "570a30eb9e5a19fe0a3614880804bd245de3eccb5d660408eee14d455a7716fb",
+        "operands": {
+          "a": {
+            "element": "f64",
+            "lanes": [
+              "0x0000000000000003",
+              "0x8000000000000003"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "captured_sse2_expected_bits",
+      "oracle_reference": "tests/data/fp-boundary-oracles.json",
+      "subject": "Python portable case model",
+      "test_id": "test_fp_boundary_models.FPBoundaryModelTests.test_narrowing_nextafter_neighbors_underflow_overflow_and_nan_payloads (case_id='sse2.cvt.f64x2.f32x4', rounding='toward_negative', input='narrow:3:packed', row_id='7a0b9ba3d099506f')",
+      "report_example_id": "fp_boundary_narrowing",
+      "cause_group": "rounding_narrowing"
+    },
+    {
+      "actual": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x00000000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "validated_rounding_extension",
+      "expected": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x80000000",
+            "0x80000000",
+            "0x80000000",
+            "0x80000000"
+          ]
+        }
+      },
+      "finding_family": "fp_boundary_signed_zero_infinity",
+      "input": {
+        "case_id": "sse2.add.f32x4.default",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "toward_negative"
+        },
+        "generation": {
+          "class": "regression",
+          "regression_id": "boundary-oracle.v1"
+        },
+        "input_id": "ea7c7edc5df0eec67ba72085478abf7090c6235900b7a2278881ae0e5cc98d81",
+        "operands": {
+          "a": {
+            "element": "f32",
+            "lanes": [
+              "0x80000000",
+              "0x00000000",
+              "0x00000000",
+              "0x80000000"
+            ]
+          },
+          "b": {
+            "element": "f32",
+            "lanes": [
+              "0x00000000",
+              "0x80000000",
+              "0x80000000",
+              "0x00000000"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "captured_sse2_expected_bits",
+      "oracle_reference": "tests/data/fp-boundary-oracles.json",
+      "subject": "Python portable case model",
+      "test_id": "test_fp_boundary_models.FPBoundaryModelTests.test_signed_zero_infinities_and_exact_cancellation (case_id='sse2.add.f32x4.default', rounding='toward_negative', input='add:80000000/0:packed', row_id='c3178d150d1270e7')",
+      "report_example_id": "fp_boundary_signed_zero_infinity",
+      "cause_group": "rounding_arithmetic"
+    },
+    {
+      "actual": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x00000000",
+            "0x80000000",
+            "0x1a9cc471",
+            "0x1fffffff"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "validated_rounding_extension",
+      "expected": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x00000000",
+            "0x80000000",
+            "0x1a9cc470",
+            "0x1ffffffe"
+          ]
+        }
+      },
+      "finding_family": "fp_boundary_sqrt",
+      "input": {
+        "case_id": "sse2.sqrt.f32x4.default",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "toward_negative"
+        },
+        "generation": {
+          "class": "regression",
+          "regression_id": "boundary-oracle.v1"
+        },
+        "input_id": "d29ccd69b6cd85d56087f3bee002fe6cb1ef1632f4fde4fb1abb25aa9374aaca",
+        "operands": {
+          "a": {
+            "element": "f32",
+            "lanes": [
+              "0x00000000",
+              "0x80000000",
+              "0x00000003",
+              "0x007fffff"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "captured_sse2_expected_bits",
+      "oracle_reference": "tests/data/fp-boundary-oracles.json",
+      "subject": "Python portable case model",
+      "test_id": "test_fp_boundary_models.FPBoundaryModelTests.test_sqrt_subnormal_neighbor_nan_and_poison_lanes (case_id='sse2.sqrt.f32x4.default', rounding='toward_negative', input='sqrt:0:packed', row_id='0b9b91ac3cecb3ce')",
+      "report_example_id": "fp_boundary_sqrt",
+      "cause_group": "rounding_sqrt"
+    },
+    {
+      "actual": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x01000000",
+            "0x01000000",
+            "0x81000000",
+            "0x81000000"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "validated_rounding_extension",
+      "expected": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x01000000",
+            "0x01000000",
+            "0x81000001",
+            "0x81000001"
+          ]
+        }
+      },
+      "finding_family": "fp_boundary_subnormal_arithmetic",
+      "input": {
+        "case_id": "sse2.add.f32x4.default",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "toward_negative"
+        },
+        "generation": {
+          "class": "regression",
+          "regression_id": "boundary-oracle.v1"
+        },
+        "input_id": "081555bc4ca60969c6b505f9739e1675ab86dbb7eb6cc3ec7742aeec7426dc60",
+        "operands": {
+          "a": {
+            "element": "f32",
+            "lanes": [
+              "0x00800001",
+              "0x00800000",
+              "0x80800001",
+              "0x80800000"
+            ]
+          },
+          "b": {
+            "element": "f32",
+            "lanes": [
+              "0x00800000",
+              "0x00800001",
+              "0x80800000",
+              "0x80800001"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "captured_sse2_expected_bits",
+      "oracle_reference": "tests/data/fp-boundary-oracles.json",
+      "subject": "Python portable case model",
+      "test_id": "test_fp_boundary_models.FPBoundaryModelTests.test_subnormal_normal_transition_arithmetic (case_id='sse2.add.f32x4.default', rounding='toward_negative', input='add:800001/800000:packed', row_id='c9d2d40faeece0b4')",
+      "report_example_id": "fp_boundary_subnormal_arithmetic",
+      "cause_group": "rounding_arithmetic"
+    },
+    {
+      "actual": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x7fc00000",
+            "0x7fc00000",
+            "0x7fc00000",
+            "0x7fc00000"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "official_nearest_even",
+      "expected": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0xffc00000",
+            "0xffc00000",
+            "0xffc00000",
+            "0xffc00000"
+          ]
+        }
+      },
+      "finding_family": "nan_indefinite_sign",
+      "input": {
+        "case_id": "sse2.add.f32x4.default",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "nearest_even"
+        },
+        "generation": {
+          "class": "structured"
+        },
+        "input_id": "43bdafe15c8b944c540a16d4663a39b47ddd830804b3edfb9d155d2cd4c286c9",
+        "operands": {
+          "a": {
+            "element": "f32",
+            "lanes": [
+              "0x7f800000",
+              "0x7f800000",
+              "0x7f800000",
+              "0x7f800000"
+            ]
+          },
+          "b": {
+            "element": "f32",
+            "lanes": [
+              "0xff800000",
+              "0xff800000",
+              "0xff800000",
+              "0xff800000"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "literal_sse2_expected_bits",
+      "oracle_reference": "tests/BUG_HUNT.md",
+      "subject": "Python portable case model",
+      "test_id": "test_adversarial_models.AdversarialModelTests.test_add_opposite_infinities_returns_negative_indefinite_nan (element='f32', variant='default')",
+      "report_example_id": "nan_indefinite_sign",
+      "cause_group": "nan_sign"
+    },
+    {
+      "actual": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x7fc00001",
+            "0x7fc00001",
+            "0x7fc00001",
+            "0x7fc00001"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "official_nearest_even",
+      "expected": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x7fc00042",
+            "0x7fc00042",
+            "0x7fc00042",
+            "0x7fc00042"
+          ]
+        }
+      },
+      "finding_family": "nan_payload_priority",
+      "input": {
+        "case_id": "sse2.add.f32x4.default",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "nearest_even"
+        },
+        "generation": {
+          "class": "structured"
+        },
+        "input_id": "41ae6510b74433d4f8c985e3af06ece5e7008bd9e980a6d11455b0bbc09b6c09",
+        "operands": {
+          "a": {
+            "element": "f32",
+            "lanes": [
+              "0x7fc00042",
+              "0x7fc00042",
+              "0x7fc00042",
+              "0x7fc00042"
+            ]
+          },
+          "b": {
+            "element": "f32",
+            "lanes": [
+              "0x7f800001",
+              "0x7f800001",
+              "0x7f800001",
+              "0x7f800001"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "literal_sse2_expected_bits",
+      "oracle_reference": "tests/BUG_HUNT.md",
+      "subject": "Python portable case model",
+      "test_id": "test_adversarial_models.AdversarialModelTests.test_nan_payload_priority_is_first_operand_even_when_second_signals (element='f32', operation='add', variant='default', a='0x7fc00042', b='0x7f800001')",
+      "report_example_id": "nan_payload_priority",
+      "cause_group": "nan_payload"
+    },
+    {
+      "actual": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x3f800000",
+            "0x3f800000",
+            "0x3f800000",
+            "0x3f800000"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "validated_rounding_extension",
+      "expected": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x3f800001",
+            "0x3f800001",
+            "0x3f800001",
+            "0x3f800001"
+          ]
+        }
+      },
+      "finding_family": "rounding_arithmetic",
+      "input": {
+        "case_id": "sse2.add.f32x4.default",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "toward_positive"
+        },
+        "generation": {
+          "class": "regression",
+          "regression_id": "captured-rounding.v1"
+        },
+        "input_id": "1a22879f2d8bb73fc00b1bed19f18059f06fa4f1862394fac7e69b4feec28796",
+        "operands": {
+          "a": {
+            "element": "f32",
+            "lanes": [
+              "0x3f800000",
+              "0x3f800000",
+              "0x3f800000",
+              "0x3f800000"
+            ]
+          },
+          "b": {
+            "element": "f32",
+            "lanes": [
+              "0x33000000",
+              "0x33000000",
+              "0x33000000",
+              "0x33000000"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "literal_sse2_expected_bits",
+      "oracle_reference": "tests/data/rounding-oracles.json",
+      "subject": "Python portable case model",
+      "test_id": "test_adversarial_models.AdversarialModelTests.test_requested_rounding_in_arithmetic (case_id='sse2.add.f32x4.default', rounding='toward_positive', input='3f800000/33000000')",
+      "report_example_id": "rounding_arithmetic",
+      "cause_group": "rounding_arithmetic"
+    },
+    {
+      "actual": {
+        "return": {
+          "bits": "0x00000002",
+          "element": "i32"
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "validated_rounding_extension",
+      "expected": {
+        "return": {
+          "bits": "0x00000001",
+          "element": "i32"
+        }
+      },
+      "finding_family": "rounding_float_to_integer",
+      "input": {
+        "case_id": "sse2.cvt.f32x4.i32.scalar",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "toward_negative"
+        },
+        "generation": {
+          "class": "regression",
+          "regression_id": "captured-rounding.v1"
+        },
+        "input_id": "6203c6488bcc75206787224a80b8ede247e7c239e83c3779da1c74f48023553a",
+        "operands": {
+          "a": {
+            "element": "f32",
+            "lanes": [
+              "0x3fc00000",
+              "0x3fc00000",
+              "0x3fc00000",
+              "0x3fc00000"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "literal_sse2_expected_bits",
+      "oracle_reference": "tests/data/rounding-oracles.json",
+      "subject": "Python portable case model",
+      "test_id": "test_adversarial_models.AdversarialModelTests.test_requested_rounding_in_float_to_integer_and_truncation_control (case_id='sse2.cvt.f32x4.i32.scalar', rounding='toward_negative', input='3fc00000')",
+      "report_example_id": "rounding_float_to_integer",
+      "cause_group": "rounding_float_to_integer"
+    },
+    {
+      "actual": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x4b800000",
+            "0x4b800000",
+            "0x4b800000",
+            "0x4b800000"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "validated_rounding_extension",
+      "expected": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x4b800001",
+            "0x4b800001",
+            "0x4b800001",
+            "0x4b800001"
+          ]
+        }
+      },
+      "finding_family": "rounding_integer_to_float",
+      "input": {
+        "case_id": "sse2.cvt.i32x4.f32x4",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "toward_positive"
+        },
+        "generation": {
+          "class": "regression",
+          "regression_id": "captured-rounding.v1"
+        },
+        "input_id": "9750adeb9cb95ea2ef33b4604a6bd471df8a29aff9c1c7503183e7a99810eef9",
+        "operands": {
+          "a": {
+            "element": "i32",
+            "lanes": [
+              "0x01000001",
+              "0x01000001",
+              "0x01000001",
+              "0x01000001"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "literal_sse2_expected_bits",
+      "oracle_reference": "tests/data/rounding-oracles.json",
+      "subject": "Python portable case model",
+      "test_id": "test_adversarial_models.AdversarialModelTests.test_requested_rounding_in_integer_to_float (case_id='sse2.cvt.i32x4.f32x4', rounding='toward_positive', input='1000001')",
+      "report_example_id": "rounding_integer_to_float",
+      "cause_group": "rounding_integer_to_float"
+    },
+    {
+      "actual": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x3f800000",
+            "0x3f800000",
+            "0x00000000",
+            "0x00000000"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "validated_rounding_extension",
+      "expected": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x3f800001",
+            "0x3f800001",
+            "0x00000000",
+            "0x00000000"
+          ]
+        }
+      },
+      "finding_family": "rounding_narrowing",
+      "input": {
+        "case_id": "sse2.cvt.f64x2.f32x4",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "toward_positive"
+        },
+        "generation": {
+          "class": "regression",
+          "regression_id": "captured-rounding.v1"
+        },
+        "input_id": "61dc3560517614860494c830e08748fa6ab52a2f20e77c3d7b621dca6151c179",
+        "operands": {
+          "a": {
+            "element": "f64",
+            "lanes": [
+              "0x3ff0000010000000",
+              "0x3ff0000010000000"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "literal_sse2_expected_bits",
+      "oracle_reference": "tests/data/rounding-oracles.json",
+      "subject": "Python portable case model",
+      "test_id": "test_adversarial_models.AdversarialModelTests.test_requested_rounding_in_narrowing (case_id='sse2.cvt.f64x2.f32x4', rounding='toward_positive', input='3ff0000010000000')",
+      "report_example_id": "rounding_narrowing",
+      "cause_group": "rounding_narrowing"
+    },
+    {
+      "actual": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x3fb504f3",
+            "0x3fb504f3",
+            "0x3fb504f3",
+            "0x3fb504f3"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "validated_rounding_extension",
+      "expected": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x3fb504f4",
+            "0x3fb504f4",
+            "0x3fb504f4",
+            "0x3fb504f4"
+          ]
+        }
+      },
+      "finding_family": "rounding_sqrt",
+      "input": {
+        "case_id": "sse2.sqrt.f32x4.default",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "toward_positive"
+        },
+        "generation": {
+          "class": "regression",
+          "regression_id": "captured-rounding.v1"
+        },
+        "input_id": "f59f834d64a9c894ac5a3a6ffc11a29d79a74f732accafc0e38499e9e5542268",
+        "operands": {
+          "a": {
+            "element": "f32",
+            "lanes": [
+              "0x40000000",
+              "0x40000000",
+              "0x40000000",
+              "0x40000000"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "literal_sse2_expected_bits",
+      "oracle_reference": "tests/data/rounding-oracles.json",
+      "subject": "Python portable case model",
+      "test_id": "test_adversarial_models.AdversarialModelTests.test_requested_rounding_in_sqrt (case_id='sse2.sqrt.f32x4.default', rounding='toward_positive', input='40000000/0')",
+      "report_example_id": "rounding_sqrt",
+      "cause_group": "rounding_sqrt"
+    },
+    {
+      "actual": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0x7fc00000",
+            "0x7fc00000",
+            "0x7fc00000",
+            "0x7fc00000"
+          ]
+        }
+      },
+      "category": "portable_model_output_mismatch",
+      "comparison_path": "direct_python_equality_without_ioitf_compare",
+      "contract_scope": "official_nearest_even",
+      "expected": {
+        "return": {
+          "element": "f32",
+          "lanes": [
+            "0xffc00000",
+            "0xffc00000",
+            "0xffc00000",
+            "0xffc00000"
+          ]
+        }
+      },
+      "finding_family": "fp_boundary_signed_zero_infinity",
+      "input": {
+        "case_id": "sse2.add.f32x4.default",
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "nearest_even"
+        },
+        "generation": {
+          "class": "structured"
+        },
+        "input_id": "f30cc40826564105dd855484f9f909594c3cd2ac8f7572da40b775ba39472a71",
+        "operands": {
+          "a": {
+            "element": "f32",
+            "lanes": [
+              "0x7f800000",
+              "0xff800000",
+              "0xff800000",
+              "0x7f800000"
+            ]
+          },
+          "b": {
+            "element": "f32",
+            "lanes": [
+              "0xff800000",
+              "0x7f800000",
+              "0x7f800000",
+              "0xff800000"
+            ]
+          }
+        },
+        "schema_version": 1,
+        "sequence": 1
+      },
+      "oracle": "captured_sse2_expected_bits",
+      "oracle_reference": "tests/data/fp-boundary-oracles.json",
+      "subject": "Python portable case model",
+      "test_id": "test_fp_boundary_models.FPBoundaryModelTests.test_signed_zero_infinities_and_exact_cancellation (case_id='sse2.add.f32x4.default', rounding='nearest_even', input='add:7f800000/ff800000:packed', row_id='a935122aade42f2f')",
+      "report_example_id": "fp_boundary_signed_zero_infinity_official",
+      "cause_group": "nan_sign"
+    }
+  ],
+  "representative_findings_note": "One full input/expected/actual finding per family, plus the official scope of signed_zero_infinity. Per-finding extended case_contract copies omitted; originals remain in the archived summary. Counts include repeated checks of two shared input IDs.",
+  "model_oracle_references": [
+    {
+      "execution_context": "x86_64 executable under Rosetta on arm64 Darwin; Apple Clang -O0 -msse2 -ffp-model=strict",
+      "native_cross_host_evidence": false,
+      "oracle": "SSE2 intrinsics with MXCSR rounding; exceptions masked; FTZ/DAZ off",
+      "probe_sha256": "7f501b8fbbce4a2308d94c2230b07ad557e1e790b3dfc53abc116f0e0ac187fa",
+      "row_count": 504,
+      "schema_version": 1,
+      "source_sha256": {
+        "tests/build_rounding_oracles.py": "7a9a9a86ba2ab5324b1ad0d08fddd4a390586c9f358232579104c930142a5953",
+        "tests/native/probe_sse2_nan.c": "df9cf6e72d819dc0ed3b456e6a6faf1ef0b8636f1091a0e91af70241eb97ce07"
+      }
+    },
+    {
+      "compiler_version": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+      "documentation": [
+        "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html",
+        "https://www.intel.com/content/www/us/en/developer/articles/technical/floating-point-reference-sheet-for-intel-architecture.html"
+      ],
+      "execution_context": "x86_64 SSE2 executable under Rosetta on arm64 Darwin; Apple Clang21; strict FP; FTZ/DAZ off",
+      "families": {
+        "fp_boundary_comi": 312,
+        "fp_boundary_compare": 1248,
+        "fp_boundary_float_to_integer": 2600,
+        "fp_boundary_halfway_arithmetic": 1280,
+        "fp_boundary_integer_to_float": 384,
+        "fp_boundary_minmax": 576,
+        "fp_boundary_nan_priority": 512,
+        "fp_boundary_narrowing": 1296,
+        "fp_boundary_signed_zero_infinity": 704,
+        "fp_boundary_sqrt": 800,
+        "fp_boundary_subnormal_arithmetic": 896,
+        "fp_boundary_widening": 100
+      },
+      "native_cross_host_evidence": false,
+      "oracle": "Runtime SSE2 intrinsics; all MXCSR exceptions masked; FTZ and DAZ off",
+      "oracle_method": "captured_sse2_expected_bits",
+      "probe_sha256": "216275a9b92af9fffe5a5655b8e919ec67d966774c25363bf77da376d33cdb61",
+      "rounding_modes": [
+        "nearest_even",
+        "toward_negative",
+        "toward_positive",
+        "toward_zero"
+      ],
+      "row_count": 10708,
+      "rows_sha256": "031d87f6fe217423ae36680c66a166e48b24fd5c6f90020a6e2e7fee066af419",
+      "schema_version": 1,
+      "source_sha256": {
+        "tests/build_fp_boundary_oracles.py": "0fd79d305c2b2599415f8b700cd7c3d51366e3140e7a5ec2451dc4cd1ce89e1a",
+        "tests/native/probe_fp_boundary.c": "9b9e01d1d01bec3a2ce96b27a9aaf0675a4147e32cd2b08ea8c8fdb7e38b1436"
+      }
+    },
+    {
+      "case_definitions_sha256": "b82fb850d0e25efcca53bceae357ca601812ddf6c15485c3a0c0f00a74cb7e5f",
+      "contract_extensions": [
+        "full imm8 range 0..255"
+      ],
+      "instruction_reference": "Intel SDM Volume 2B",
+      "native_cross_host_evidence": false,
+      "oracle": "Independent integer equations and byte-level reference operations",
+      "source": "tests/test_integer_boundary_models.py"
+    },
+    {
+      "case_definitions_sha256": "b82fb850d0e25efcca53bceae357ca601812ddf6c15485c3a0c0f00a74cb7e5f",
+      "native_cross_host_evidence": false,
+      "oracle": "IEEE encoding order and explicit memory byte slices",
+      "source": "tests/test_model_boundary_matrix.py"
+    }
+  ],
+  "native_observations": {
+    "arm": {
+      "execution_kind": "native",
+      "capture_date": "2026-10-16",
+      "reference": "arm64 Darwin上のRosettaで取得したstrict FPのx86_64 SSE2基準値。物理Intel CPUでの取得ではない。",
+      "environment": {
+        "architecture": "aarch64",
+        "system": "Darwin",
+        "fpcr": "0x0000000000000000"
+      },
+      "representation": "IEEEレーンまたはi32の固定幅hexビット表現。浮動小数点の診断はlane 0の値。",
+      "coverage": "raw ARM wrapperの制御検査4,596件とFP診断6例。診断差分はCTestの失敗条件ではなく、254ケース全体の網羅比較でもない。",
+      "differences": [
+        {
+          "label": "無効演算のadd",
+          "case_id": "sse2.add.f64x2.default",
+          "input": {
+            "operands": {
+              "a": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff0000000000000",
+                  "0x0000000000000000"
+                ]
+              },
+              "b": {
+                "element": "f64",
+                "lanes": [
+                  "0xfff0000000000000",
+                  "0x0000000000000000"
+                ]
+              }
+            },
+            "fpcr": "0x0000000000000000"
+          },
+          "expected": {
+            "element": "f64",
+            "bits": "0xfff8000000000000",
+            "lane": 0
+          },
+          "actual": {
+            "element": "f64",
+            "bits": "0x7ff8000000000000",
+            "lane": 0
+          },
+          "intrinsic_name": "_mm_add_pd",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_add_pd"
+        },
+        {
+          "label": "qNaN + sNaNの選択",
+          "case_id": "sse2.add.f64x2.default",
+          "input": {
+            "operands": {
+              "a": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff8000000000041",
+                  "0x0000000000000000"
+                ]
+              },
+              "b": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff0000000000003",
+                  "0x0000000000000000"
+                ]
+              }
+            },
+            "fpcr": "0x0000000000000000"
+          },
+          "expected": {
+            "element": "f64",
+            "bits": "0x7ff8000000000041",
+            "lane": 0
+          },
+          "actual": {
+            "element": "f64",
+            "bits": "0x7ff8000000000003",
+            "lane": 0
+          },
+          "intrinsic_name": "_mm_add_pd",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_add_pd"
+        },
+        {
+          "label": "min(qNaN, 1)",
+          "case_id": "sse2.min.f64x2.default",
+          "input": {
+            "operands": {
+              "a": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff8000000000041",
+                  "0x0000000000000000"
+                ]
+              },
+              "b": {
+                "element": "f64",
+                "lanes": [
+                  "0x3ff0000000000000",
+                  "0x3ff0000000000000"
+                ]
+              }
+            },
+            "fpcr": "0x0000000000000000"
+          },
+          "expected": {
+            "element": "f64",
+            "bits": "0x3ff0000000000000",
+            "lane": 0
+          },
+          "actual": {
+            "element": "f64",
+            "bits": "0x7ff8000000000041",
+            "lane": 0
+          },
+          "intrinsic_name": "_mm_min_pd",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_min_pd"
+        },
+        {
+          "label": "max(+0, -0)",
+          "case_id": "sse2.max.f64x2.default",
+          "input": {
+            "operands": {
+              "a": {
+                "element": "f64",
+                "lanes": [
+                  "0x0000000000000000",
+                  "0x0000000000000000"
+                ]
+              },
+              "b": {
+                "element": "f64",
+                "lanes": [
+                  "0x8000000000000000",
+                  "0x0000000000000000"
+                ]
+              }
+            },
+            "fpcr": "0x0000000000000000"
+          },
+          "expected": {
+            "element": "f64",
+            "bits": "0x8000000000000000",
+            "lane": 0
+          },
+          "actual": {
+            "element": "f64",
+            "bits": "0x0000000000000000",
+            "lane": 0
+          },
+          "intrinsic_name": "_mm_max_pd",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_max_pd"
+        },
+        {
+          "label": "NaNからi32への変換",
+          "case_id": "sse2.cvt.f64x2.i32.scalar",
+          "input": {
+            "operands": {
+              "a": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff8000000000041",
+                  "0x0000000000000000"
+                ]
+              }
+            },
+            "fpcr": "0x0000000000000000"
+          },
+          "expected": {
+            "element": "i32",
+            "bits": "0x80000000"
+          },
+          "actual": {
+            "element": "i32",
+            "bits": "0x00000000"
+          },
+          "intrinsic_name": "_mm_cvtsd_si32",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_cvtsd_si32"
+        },
+        {
+          "label": "+infからi32への変換",
+          "case_id": "sse2.cvt.f64x2.i32.scalar",
+          "input": {
+            "operands": {
+              "a": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff0000000000000",
+                  "0x0000000000000000"
+                ]
+              }
+            },
+            "fpcr": "0x0000000000000000"
+          },
+          "expected": {
+            "element": "i32",
+            "bits": "0x80000000"
+          },
+          "actual": {
+            "element": "i32",
+            "bits": "0x7fffffff"
+          },
+          "intrinsic_name": "_mm_cvtsd_si32",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_cvtsd_si32"
+        }
+      ],
+      "sample_counts": {
+        "controls_assertions": 4596,
+        "diagnostic_examples": 6
+      },
+      "sources": [
+        "tests/native/test_arm_wrappers.c",
+        "10_official_suite/arm/README.md"
+      ],
+      "reproduce": "./build/final-debug/ioitf_arm_wrappers_selftest"
+    },
+    "riscv": {
+      "execution_kind": "emulated",
+      "capture_date": "2026-10-16",
+      "reference": "arm64 Darwin上のRosettaで実行したx86_64 SSE2 Cプログラム。物理Intel CPUでの取得ではない。",
+      "environment": {
+        "architecture": "riscv64",
+        "runtime": "RV64/RVV 1.0 / QEMU virt / bare-metal C実行",
+        "qemu": "QEMU emulator version 11.1.0",
+        "compiler": "Homebrew clang version 22.1.8",
+        "reference_compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)",
+        "vlens": [
+          128,
+          256
+        ],
+        "rvv_compile_flags": [
+          "--target=riscv64-unknown-linux-gnu",
+          "-ffreestanding",
+          "-march=rv64gcv",
+          "-mabi=lp64d",
+          "-mrvv-vector-bits=scalable",
+          "-mcmodel=medany",
+          "-O2",
+          "-ffp-model=strict"
+        ]
+      },
+      "representation": "little endianのメモリ順byte列を小文字hexで表示。f32は連続4byte、f64は8byteずつレーンとして読む。列全体を単一の数値hexやULP距離として扱わない。",
+      "coverage": "raw wrapper 254操作×各3入力をVLEN 128 / 256で比較。両VLENの不一致12 sampleは同一で、24種類の差ではない。",
+      "differences": [
+        {
+          "label": "add_f32x4#2",
+          "case_id": "sse2.add.f32x4.default",
+          "input": {
+            "sample_variant": 2,
+            "operands": {
+              "a": {
+                "element": "f32",
+                "lanes": [
+                  "0x7fc00042",
+                  "0x7f800035",
+                  "0x7f800000",
+                  "0xff800000"
+                ]
+              },
+              "b": {
+                "element": "f32",
+                "lanes": [
+                  "0x7f800035",
+                  "0x7f800000",
+                  "0xff800000",
+                  "0x7fc00042"
+                ]
+              }
+            },
+            "reference_mxcsr": "0x00001f80"
+          },
+          "expected": "4200c07f3500c07f0000c0ff4200c07f",
+          "actual": "0000c07f0000c07f0000c07f0000c07f",
+          "vlens": [
+            128,
+            256
+          ],
+          "intrinsic_name": "_mm_add_ps",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_add_ps"
+        },
+        {
+          "label": "add_f64x2#2",
+          "case_id": "sse2.add.f64x2.default",
+          "input": {
+            "sample_variant": 2,
+            "operands": {
+              "a": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff8000000000042",
+                  "0x7ff0000000000035"
+                ]
+              },
+              "b": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff0000000000035",
+                  "0x7ff8000000000042"
+                ]
+              }
+            },
+            "reference_mxcsr": "0x00001f80"
+          },
+          "expected": "420000000000f87f350000000000f87f",
+          "actual": "000000000000f87f000000000000f87f",
+          "vlens": [
+            128,
+            256
+          ],
+          "intrinsic_name": "_mm_add_pd",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_add_pd"
+        },
+        {
+          "label": "add_scalar_f32x4#2",
+          "case_id": "sse2.add.f32x4.scalar",
+          "input": {
+            "sample_variant": 2,
+            "operands": {
+              "a": {
+                "element": "f32",
+                "lanes": [
+                  "0x7fc00042",
+                  "0x7f800035",
+                  "0x7f800000",
+                  "0xff800000"
+                ]
+              },
+              "b": {
+                "element": "f32",
+                "lanes": [
+                  "0x7f800035",
+                  "0x7f800000",
+                  "0xff800000",
+                  "0x7fc00042"
+                ]
+              }
+            },
+            "reference_mxcsr": "0x00001f80"
+          },
+          "expected": "4200c07f3500807f0000807f000080ff",
+          "actual": "0000c07f3500807f0000807f000080ff",
+          "vlens": [
+            128,
+            256
+          ],
+          "intrinsic_name": "_mm_add_ss",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_add_ss"
+        },
+        {
+          "label": "add_scalar_f64x2#2",
+          "case_id": "sse2.add.f64x2.scalar",
+          "input": {
+            "sample_variant": 2,
+            "operands": {
+              "a": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff8000000000042",
+                  "0x7ff0000000000035"
+                ]
+              },
+              "b": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff0000000000035",
+                  "0x7ff8000000000042"
+                ]
+              }
+            },
+            "reference_mxcsr": "0x00001f80"
+          },
+          "expected": "420000000000f87f350000000000f07f",
+          "actual": "000000000000f87f350000000000f07f",
+          "vlens": [
+            128,
+            256
+          ],
+          "intrinsic_name": "_mm_add_sd",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_add_sd"
+        },
+        {
+          "label": "mul_f32x4#2",
+          "case_id": "sse2.mul.f32x4.default",
+          "input": {
+            "sample_variant": 2,
+            "operands": {
+              "a": {
+                "element": "f32",
+                "lanes": [
+                  "0x7fc00042",
+                  "0x7f800035",
+                  "0x7f800000",
+                  "0xff800000"
+                ]
+              },
+              "b": {
+                "element": "f32",
+                "lanes": [
+                  "0x7f800035",
+                  "0x7f800000",
+                  "0xff800000",
+                  "0x7fc00042"
+                ]
+              }
+            },
+            "reference_mxcsr": "0x00001f80"
+          },
+          "expected": "4200c07f3500c07f000080ff4200c07f",
+          "actual": "0000c07f0000c07f000080ff0000c07f",
+          "vlens": [
+            128,
+            256
+          ],
+          "intrinsic_name": "_mm_mul_ps",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_mul_ps"
+        },
+        {
+          "label": "mul_f64x2#2",
+          "case_id": "sse2.mul.f64x2.default",
+          "input": {
+            "sample_variant": 2,
+            "operands": {
+              "a": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff8000000000042",
+                  "0x7ff0000000000035"
+                ]
+              },
+              "b": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff0000000000035",
+                  "0x7ff8000000000042"
+                ]
+              }
+            },
+            "reference_mxcsr": "0x00001f80"
+          },
+          "expected": "420000000000f87f350000000000f87f",
+          "actual": "000000000000f87f000000000000f87f",
+          "vlens": [
+            128,
+            256
+          ],
+          "intrinsic_name": "_mm_mul_pd",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_mul_pd"
+        },
+        {
+          "label": "mul_scalar_f32x4#2",
+          "case_id": "sse2.mul.f32x4.scalar",
+          "input": {
+            "sample_variant": 2,
+            "operands": {
+              "a": {
+                "element": "f32",
+                "lanes": [
+                  "0x7fc00042",
+                  "0x7f800035",
+                  "0x7f800000",
+                  "0xff800000"
+                ]
+              },
+              "b": {
+                "element": "f32",
+                "lanes": [
+                  "0x7f800035",
+                  "0x7f800000",
+                  "0xff800000",
+                  "0x7fc00042"
+                ]
+              }
+            },
+            "reference_mxcsr": "0x00001f80"
+          },
+          "expected": "4200c07f3500807f0000807f000080ff",
+          "actual": "0000c07f3500807f0000807f000080ff",
+          "vlens": [
+            128,
+            256
+          ],
+          "intrinsic_name": "_mm_mul_ss",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_mul_ss"
+        },
+        {
+          "label": "mul_scalar_f64x2#2",
+          "case_id": "sse2.mul.f64x2.scalar",
+          "input": {
+            "sample_variant": 2,
+            "operands": {
+              "a": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff8000000000042",
+                  "0x7ff0000000000035"
+                ]
+              },
+              "b": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff0000000000035",
+                  "0x7ff8000000000042"
+                ]
+              }
+            },
+            "reference_mxcsr": "0x00001f80"
+          },
+          "expected": "420000000000f87f350000000000f07f",
+          "actual": "000000000000f87f350000000000f07f",
+          "vlens": [
+            128,
+            256
+          ],
+          "intrinsic_name": "_mm_mul_sd",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_mul_sd"
+        },
+        {
+          "label": "sub_f32x4#2",
+          "case_id": "sse2.sub.f32x4.default",
+          "input": {
+            "sample_variant": 2,
+            "operands": {
+              "a": {
+                "element": "f32",
+                "lanes": [
+                  "0x7fc00042",
+                  "0x7f800035",
+                  "0x7f800000",
+                  "0xff800000"
+                ]
+              },
+              "b": {
+                "element": "f32",
+                "lanes": [
+                  "0x7f800035",
+                  "0x7f800000",
+                  "0xff800000",
+                  "0x7fc00042"
+                ]
+              }
+            },
+            "reference_mxcsr": "0x00001f80"
+          },
+          "expected": "4200c07f3500c07f0000807f4200c07f",
+          "actual": "0000c07f0000c07f0000807f0000c07f",
+          "vlens": [
+            128,
+            256
+          ],
+          "intrinsic_name": "_mm_sub_ps",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_sub_ps"
+        },
+        {
+          "label": "sub_f64x2#2",
+          "case_id": "sse2.sub.f64x2.default",
+          "input": {
+            "sample_variant": 2,
+            "operands": {
+              "a": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff8000000000042",
+                  "0x7ff0000000000035"
+                ]
+              },
+              "b": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff0000000000035",
+                  "0x7ff8000000000042"
+                ]
+              }
+            },
+            "reference_mxcsr": "0x00001f80"
+          },
+          "expected": "420000000000f87f350000000000f87f",
+          "actual": "000000000000f87f000000000000f87f",
+          "vlens": [
+            128,
+            256
+          ],
+          "intrinsic_name": "_mm_sub_pd",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_sub_pd"
+        },
+        {
+          "label": "sub_scalar_f32x4#2",
+          "case_id": "sse2.sub.f32x4.scalar",
+          "input": {
+            "sample_variant": 2,
+            "operands": {
+              "a": {
+                "element": "f32",
+                "lanes": [
+                  "0x7fc00042",
+                  "0x7f800035",
+                  "0x7f800000",
+                  "0xff800000"
+                ]
+              },
+              "b": {
+                "element": "f32",
+                "lanes": [
+                  "0x7f800035",
+                  "0x7f800000",
+                  "0xff800000",
+                  "0x7fc00042"
+                ]
+              }
+            },
+            "reference_mxcsr": "0x00001f80"
+          },
+          "expected": "4200c07f3500807f0000807f000080ff",
+          "actual": "0000c07f3500807f0000807f000080ff",
+          "vlens": [
+            128,
+            256
+          ],
+          "intrinsic_name": "_mm_sub_ss",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_sub_ss"
+        },
+        {
+          "label": "sub_scalar_f64x2#2",
+          "case_id": "sse2.sub.f64x2.scalar",
+          "input": {
+            "sample_variant": 2,
+            "operands": {
+              "a": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff8000000000042",
+                  "0x7ff0000000000035"
+                ]
+              },
+              "b": {
+                "element": "f64",
+                "lanes": [
+                  "0x7ff0000000000035",
+                  "0x7ff8000000000042"
+                ]
+              }
+            },
+            "reference_mxcsr": "0x00001f80"
+          },
+          "expected": "420000000000f87f350000000000f07f",
+          "actual": "000000000000f87f350000000000f07f",
+          "vlens": [
+            128,
+            256
+          ],
+          "intrinsic_name": "_mm_sub_sd",
+          "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_sub_sd"
+        }
+      ],
+      "sample_counts": {
+        "operations": 254,
+        "inputs_per_operation": 3,
+        "per_vlen": {
+          "128": {
+            "samples": 762,
+            "matched": 750,
+            "mismatches": 12
+          },
+          "256": {
+            "samples": 762,
+            "matched": 750,
+            "mismatches": 12
+          }
+        },
+        "unique_differing_samples": 12
+      },
+      "sources": [
+        "build/riscv-native-suite/summary.json",
+        "tests/native/test_riscv_suite.py",
+        "10_official_suite/riscv/README.md"
+      ],
+      "reproduce": ".venv/bin/python tests/native/test_riscv_suite.py"
+    },
+    "openpower": {
+      "execution_kind": "cross_build_only",
+      "capture_date": "2026-10-16",
+      "reference": "この固定記録にはOpenPOWERの実行結果がない。",
+      "environment": {
+        "architecture": "ppc64le",
+        "target_triple": "powerpc64le-unknown-linux-gnu",
+        "cpu": "POWER8",
+        "vector_features": [
+          "altivec",
+          "vsx"
+        ]
+      },
+      "coverage": "6個のwrapper objectをcross build。link済みnative runnerや出力比較は未測定。differencesの空配列は不一致0件を意味しない。",
+      "differences": [],
+      "sample_counts": {},
+      "sources": [
+        "10_official_suite/cross-compile.sh",
+        "NATIVE_STATUS.md"
+      ],
+      "reproduce": "./10_official_suite/cross-compile.sh"
+    }
+  },
+  "evidence": {
+    "original_summaries": {
+      ".equilane/test-expansion-20261016-final/summary.json": "da72bfb0ec9ab62eff65c9b4f5ad24ff22b60d28f5fcf44b90872ff1ba3cce34",
+      "build/riscv-native-suite/summary.json": "2fbb6f6d854628047c3df69b054c97a753effd1f64d6cec0e45b937cc3fb8926"
+    },
+    "model_sources_from_original_summary": {
+      "src/equilane/casepack_families.py": "091a303d171d74cb66e847a8af0d42ddb3505f8402a8fbf849e003098b7ee9b0",
+      "src/equilane/development.py": "90e9ea84d8d4d8cc55c20fe25a4d1f46f33fab5f00e025f0594a02ced72d9e40",
+      "src/equilane/fixture.py": "0d9584276b39e3ddaf065a7199a4693e4a26888373b30c9cebda3d2a06d26173",
+      "tests/test_adversarial_models.py": "beece158a10cbf09ea733bccb81c77f9134577d4db94a66effd558e9dbd94044",
+      "tests/test_fp_boundary_models.py": "bc31fa21fbd75bacee356de62e1a18d4e4680107fd246d6472e456b54e1a3d30",
+      "tests/test_model_boundary_matrix.py": "002b7b61999845de256a8ef395310a97404f0a6cb967928f2af480cdd5e6b373",
+      "tests/model_test_support.py": "b6ed42adbb603a3767997e6246b131918b5b0096542cee0c8bc51cc976db544b",
+      "tests/native/probe_sse2_nan.c": "df9cf6e72d819dc0ed3b456e6a6faf1ef0b8636f1091a0e91af70241eb97ce07",
+      "tests/native/probe_fp_boundary.c": "9b9e01d1d01bec3a2ce96b27a9aaf0675a4147e32cd2b08ea8c8fdb7e38b1436",
+      "tests/build_rounding_oracles.py": "7a9a9a86ba2ab5324b1ad0d08fddd4a390586c9f358232579104c930142a5953",
+      "tests/build_fp_boundary_oracles.py": "0fd79d305c2b2599415f8b700cd7c3d51366e3140e7a5ec2451dc4cd1ce89e1a",
+      "tests/data/rounding-oracles.json": "ca3df45f38d95111b19b896f2a16668b386337bb9d1fd2aecc2d124ed1748149",
+      "tests/data/fp-boundary-oracles.json": "c2faa7222ea045cbabe9a0ad0ea06177b5d2f28bf691910cfbabebe5040b8246",
+      "tests/BUG_HUNT.md": "6db3fb6a29659bd17f0945be1e07e948442e34f962161eabcb7b01cbe69a033a"
+    },
+    "report_source_sha256": {
+      "src/equilane/casepack_families.py": "091a303d171d74cb66e847a8af0d42ddb3505f8402a8fbf849e003098b7ee9b0",
+      "src/equilane/development.py": "90e9ea84d8d4d8cc55c20fe25a4d1f46f33fab5f00e025f0594a02ced72d9e40",
+      "src/equilane/fixture.py": "0d9584276b39e3ddaf065a7199a4693e4a26888373b30c9cebda3d2a06d26173",
+      "tests/test_adversarial_models.py": "beece158a10cbf09ea733bccb81c77f9134577d4db94a66effd558e9dbd94044",
+      "tests/test_fp_boundary_models.py": "bc31fa21fbd75bacee356de62e1a18d4e4680107fd246d6472e456b54e1a3d30",
+      "tests/test_model_boundary_matrix.py": "002b7b61999845de256a8ef395310a97404f0a6cb967928f2af480cdd5e6b373",
+      "tests/model_test_support.py": "b6ed42adbb603a3767997e6246b131918b5b0096542cee0c8bc51cc976db544b",
+      "tests/native/probe_sse2_nan.c": "df9cf6e72d819dc0ed3b456e6a6faf1ef0b8636f1091a0e91af70241eb97ce07",
+      "tests/native/probe_fp_boundary.c": "9b9e01d1d01bec3a2ce96b27a9aaf0675a4147e32cd2b08ea8c8fdb7e38b1436",
+      "tests/build_rounding_oracles.py": "7a9a9a86ba2ab5324b1ad0d08fddd4a390586c9f358232579104c930142a5953",
+      "tests/build_fp_boundary_oracles.py": "0fd79d305c2b2599415f8b700cd7c3d51366e3140e7a5ec2451dc4cd1ce89e1a",
+      "tests/data/rounding-oracles.json": "ca3df45f38d95111b19b896f2a16668b386337bb9d1fd2aecc2d124ed1748149",
+      "tests/data/fp-boundary-oracles.json": "c2faa7222ea045cbabe9a0ad0ea06177b5d2f28bf691910cfbabebe5040b8246",
+      "tests/BUG_HUNT.md": "6db3fb6a29659bd17f0945be1e07e948442e34f962161eabcb7b01cbe69a033a",
+      "tests/native/test_arm_wrappers.c": "64d4cc3a680a90b59c455d3554a43264b4d7ed9868b39664de7ed2bafcd7d684",
+      "tests/native/test_riscv_suite.py": "74be770c159b9c4a8150b5da1d8cadf0600814cd811a150af5beaa4c70e47fd9",
+      "tests/native/test_riscv_start.S": "1b8fd6534552513e134737c6fda0b09deac29f8019a9a1d797f103d4154c99ab",
+      "tests/native/test_riscv_smoke.sh": "42c3c8c559dc2f853bd3a583e26d96dc09847f6b2e85075c20135b09a0d7a821",
+      "10_official_suite/arm/README.md": "5befb1c0f5d4acb1a512c7c8e3907199b6db449edfe9db4f6f1406782cb9d5cc",
+      "10_official_suite/arm/f64x2.c": "f59c17d79e168600e631054a388ea6b5e9674f635eef0ef141b9ff15fd749ce7",
+      "10_official_suite/arm/neon_helpers.h": "c310ae39cf888aa37e90ac5e579a917e0a3826beb7917ba5d609adf8c4f1e640",
+      "10_official_suite/riscv/README.md": "961a22ac6f84a7384d1d2effec1c552c1c9638a1cec6c5361352955c597a124d",
+      "10_official_suite/cross-compile.sh": "8cd422286ebeb2ee8053494a160533885a242b3eca85faab539d8a1c10907212",
+      "NATIVE_STATUS.md": "0f8aa06f14a87e2745cce2d53f1ebef3b85ee552cdd36da71177d3d706a4c224",
+      "10_official_suite/intel/f32x4.c": "92d26fe672a5f038e04edaa113c1e458ff1f1deeb048152bb2ea6ef58e57941e",
+      "10_official_suite/intel/f64x2.c": "473a8f84c494a0922f21640febb75aa414850a07e20393a443fd3a11bcb9d578",
+      "src/equilane/intrinsic_guide.py": "0c34dc7382bd7a8e9b44e08c09e781808bb3223f2239c9d68df1ae06e4a3c5e7",
+      "src/equilane/data/intel-intrinsics.json": "afc1fbb65ac5111266ae16c577a92f66f23b32632cabf6d963cce61e82ce3b8a",
+      "tests/test_integer_boundary_models.py": "d65f7e60a7ccdcd8d218882ee30c4cfbfdb2d4779026945880e350fd512e6b7d"
+    },
+    "riscv_sources_from_original_summary": {
+      "build/riscv-native-suite/calls.c": "465d915829413b3d99029ce9c596734440a79e14deacc26aa604b217bcf2bda6",
+      "10_official_suite/riscv/rvv128.h": "8d9f4d623d2d1d6648141a48d2a971829be5ac6b4a4187ccc5f20fd728f3f03c",
+      "10_official_suite/intel/f32x4.c": "92d26fe672a5f038e04edaa113c1e458ff1f1deeb048152bb2ea6ef58e57941e",
+      "10_official_suite/intel/f64x2.c": "473a8f84c494a0922f21640febb75aa414850a07e20393a443fd3a11bcb9d578",
+      "10_official_suite/intel/i8x16.c": "5243e783405b0d78994cf6c2ed085830f3c1d223fc1e69758302ec4f3eab7dba",
+      "10_official_suite/intel/i16x8.c": "8754abdacc66090d137dacdce732e982270efa467f1876c9ff40ef9f8b046d43",
+      "10_official_suite/intel/i32x4.c": "8123d129299fe4708286ca30248403c65020dce901c7ace1619bddbaae45706c",
+      "10_official_suite/intel/i64x2.c": "29d56fbf1059fb9ed3ddffd3a0ef4e3951b70abb63e3436741275f1fd5b148aa",
+      "10_official_suite/riscv/f32x4.c": "e8792cda610868d119ec4b421e848d0e3aaea5bf9627719eef8dddf7600fa587",
+      "10_official_suite/riscv/f64x2.c": "fd182fdaa0a799bf425dc5246d2e244defb11d509557c5d8c3b74efd4045ba96",
+      "10_official_suite/riscv/i8x16.c": "8bd477a896f069e75f5099ac3d86b6d3f0c108813b5203e7f3be821b3042d0ad",
+      "10_official_suite/riscv/i16x8.c": "5e10619f81075fd17be27d3cc8be3519ce38f270229d8ebebba97072914d74d7",
+      "10_official_suite/riscv/i32x4.c": "820fd33c1b6d6838645bdfa304674266daea3442ca496720cfb78edb9d572523",
+      "10_official_suite/riscv/i64x2.c": "5f005f3d0f41f06ee711f37e9195db50df91085d8f70f2e355995ea3fb36f8cf"
+    },
+    "integrity_note": "All paths are repository-relative. Hashes identify captured inputs/sources; a hash alone does not attest execution. Build outputs and ignored original summaries may be absent in another checkout."
+  },
+  "model_evidence_revision_note": "Base revision for the model implementation. The summary was captured from a working tree including added tests; original-summary source SHA-256 values identify the actual evidence inputs.",
+  "intrinsic_mappings": [
+    {
+      "case_id": "sse2.add.f32x4.default",
+      "name": "_mm_add_ps",
+      "intel_symbol": "intel_mm_add_ps",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_add_ps",
+      "header": "xmmintrin.h",
+      "prototype": "__m128 _mm_add_ps(__m128 a, __m128 b);",
+      "instructions": [
+        "ADDPS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する要素を加算する。",
+      "case_call": "_mm_add_ps(a, b)",
+      "operation_detail_ja": "4個のf32の加算をレーンごとに行う。"
+    },
+    {
+      "case_id": "sse2.add.f32x4.scalar",
+      "name": "_mm_add_ss",
+      "intel_symbol": "intel_mm_add_ss",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_add_ss",
+      "header": "xmmintrin.h",
+      "prototype": "__m128 _mm_add_ss(__m128 a, __m128 b);",
+      "instructions": [
+        "ADDSS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する要素を加算する。 計算するのは最下位要素だけで、上位要素は第一入力のまま残す。",
+      "case_call": "_mm_add_ss(a, b)",
+      "operation_detail_ja": "下位f32の加算を行い、aの上位3レーンを保持する。"
+    },
+    {
+      "case_id": "sse2.add.f64x2.default",
+      "name": "_mm_add_pd",
+      "intel_symbol": "intel_mm_add_pd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_add_pd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_add_pd(__m128d a, __m128d b);",
+      "instructions": [
+        "ADDPD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する要素を加算する。",
+      "case_call": "_mm_add_pd(a, b)",
+      "operation_detail_ja": "2個のf64の加算をレーンごとに行う。"
+    },
+    {
+      "case_id": "sse2.add.f64x2.scalar",
+      "name": "_mm_add_sd",
+      "intel_symbol": "intel_mm_add_sd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_add_sd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_add_sd(__m128d a, __m128d b);",
+      "instructions": [
+        "ADDSD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する要素を加算する。 計算するのは最下位要素だけで、上位要素は第一入力のまま残す。",
+      "case_call": "_mm_add_sd(a, b)",
+      "operation_detail_ja": "下位f64の加算を行い、aの上位1レーンを保持する。"
+    },
+    {
+      "case_id": "sse2.cvt.f32x4.i32.scalar",
+      "name": "_mm_cvtss_si32",
+      "intel_symbol": "intel_mm_cvtss_si32",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_cvtss_si32",
+      "header": "xmmintrin.h",
+      "prototype": "int _mm_cvtss_si32(__m128 a);",
+      "instructions": [
+        "CVTSS2SI"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "f32x4からi32へ数値変換する。丸めが必要な変換ではintrinsicの丸め規則に従う。",
+      "case_call": "_mm_cvtss_si32(a)",
+      "operation_detail_ja": "下位f32を符号付きi32へ変換する。"
+    },
+    {
+      "case_id": "sse2.cvt.f32x4.i32x4",
+      "name": "_mm_cvtps_epi32",
+      "intel_symbol": "intel_mm_cvtps_epi32",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_cvtps_epi32",
+      "header": "emmintrin.h",
+      "prototype": "__m128i _mm_cvtps_epi32(__m128 a);",
+      "instructions": [
+        "CVTPS2DQ"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "f32x4からi32x4へ数値変換する。丸めが必要な変換ではintrinsicの丸め規則に従う。",
+      "case_call": "_mm_cvtps_epi32(a)",
+      "operation_detail_ja": "4個のf32をレーンごとに符号付きi32へ変換する。"
+    },
+    {
+      "case_id": "sse2.cvt.f64x2.f32x4",
+      "name": "_mm_cvtpd_ps",
+      "intel_symbol": "intel_mm_cvtpd_ps",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_cvtpd_ps",
+      "header": "emmintrin.h",
+      "prototype": "__m128 _mm_cvtpd_ps(__m128d a);",
+      "instructions": [
+        "CVTPD2PS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "f64x2からf32x4へ数値変換する。丸めが必要な変換ではintrinsicの丸め規則に従う。",
+      "case_call": "_mm_cvtpd_ps(a)",
+      "operation_detail_ja": "2個のf64を下位2個のf32へ変換し、上位2レーンを0にする。"
+    },
+    {
+      "case_id": "sse2.cvt.f64x2.f32x4.scalar",
+      "name": "_mm_cvtsd_ss",
+      "intel_symbol": "intel_mm_cvtsd_ss",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_cvtsd_ss",
+      "header": "emmintrin.h",
+      "prototype": "__m128 _mm_cvtsd_ss(__m128 a, __m128d b);",
+      "instructions": [
+        "CVTSD2SS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "f64x2からf32x4へ数値変換する。丸めが必要な変換ではintrinsicの丸め規則に従う。",
+      "case_call": "_mm_cvtsd_ss(a, b)",
+      "operation_detail_ja": "bの下位f64をaの下位f32へ変換し、aの上位3レーンを保持する。"
+    },
+    {
+      "case_id": "sse2.cvt.f64x2.i32.scalar",
+      "name": "_mm_cvtsd_si32",
+      "intel_symbol": "intel_mm_cvtsd_si32",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_cvtsd_si32",
+      "header": "emmintrin.h",
+      "prototype": "int _mm_cvtsd_si32(__m128d a);",
+      "instructions": [
+        "CVTSD2SI"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "f64x2からi32へ数値変換する。丸めが必要な変換ではintrinsicの丸め規則に従う。",
+      "case_call": "_mm_cvtsd_si32(a)",
+      "operation_detail_ja": "下位f64を符号付きi32へ変換する。"
+    },
+    {
+      "case_id": "sse2.cvt.f64x2.i32x4",
+      "name": "_mm_cvtpd_epi32",
+      "intel_symbol": "intel_mm_cvtpd_epi32",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_cvtpd_epi32",
+      "header": "emmintrin.h",
+      "prototype": "__m128i _mm_cvtpd_epi32(__m128d a);",
+      "instructions": [
+        "CVTPD2DQ"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "f64x2からi32x4へ数値変換する。丸めが必要な変換ではintrinsicの丸め規則に従う。",
+      "case_call": "_mm_cvtpd_epi32(a)",
+      "operation_detail_ja": "2個のf64を下位2個のi32へ変換し、上位2レーンを0にする。"
+    },
+    {
+      "case_id": "sse2.cvt.f64x2.i64.scalar",
+      "name": "_mm_cvtsd_si64",
+      "intel_symbol": "intel_mm_cvtsd_si64",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_cvtsd_si64",
+      "header": "emmintrin.h",
+      "prototype": "__int64 _mm_cvtsd_si64(__m128d a);",
+      "instructions": [
+        "CVTSD2SI"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "f64x2からi64へ数値変換する。丸めが必要な変換ではintrinsicの丸め規則に従う。",
+      "case_call": "_mm_cvtsd_si64(a)",
+      "operation_detail_ja": "下位f64を符号付きi64へ変換する。"
+    },
+    {
+      "case_id": "sse2.cvt.i32.f32x4.scalar",
+      "name": "_mm_cvtsi32_ss",
+      "intel_symbol": "intel_mm_cvtsi32_ss",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_cvtsi32_ss",
+      "header": "xmmintrin.h",
+      "prototype": "__m128 _mm_cvtsi32_ss(__m128 a, int b);",
+      "instructions": [
+        "CVTSI2SS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "i32からf32x4へ数値変換する。丸めが必要な変換ではintrinsicの丸め規則に従う。",
+      "case_call": "_mm_cvtsi32_ss(a, value)",
+      "operation_detail_ja": "符号付きi32をaの下位f32へ変換し、aの上位3レーンを保持する。"
+    },
+    {
+      "case_id": "sse2.cvt.i32x4.f32x4",
+      "name": "_mm_cvtepi32_ps",
+      "intel_symbol": "intel_mm_cvtepi32_ps",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_cvtepi32_ps",
+      "header": "emmintrin.h",
+      "prototype": "__m128 _mm_cvtepi32_ps(__m128i a);",
+      "instructions": [
+        "CVTDQ2PS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "i32x4からf32x4へ数値変換する。丸めが必要な変換ではintrinsicの丸め規則に従う。",
+      "case_call": "_mm_cvtepi32_ps(a)",
+      "operation_detail_ja": "4個の符号付きi32をレーンごとにf32へ変換する。"
+    },
+    {
+      "case_id": "sse2.cvt.i64.f64x2.scalar",
+      "name": "_mm_cvtsi64_sd",
+      "intel_symbol": "intel_mm_cvtsi64_sd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_cvtsi64_sd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_cvtsi64_sd(__m128d a, __int64 b);",
+      "instructions": [
+        "CVTSI2SD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "i64からf64x2へ数値変換する。丸めが必要な変換ではintrinsicの丸め規則に従う。",
+      "case_call": "_mm_cvtsi64_sd(a, value)",
+      "operation_detail_ja": "符号付きi64をaの下位f64へ変換し、aの上位レーンを保持する。"
+    },
+    {
+      "case_id": "sse2.div.f32x4.default",
+      "name": "_mm_div_ps",
+      "intel_symbol": "intel_mm_div_ps",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_div_ps",
+      "header": "xmmintrin.h",
+      "prototype": "__m128 _mm_div_ps(__m128 a, __m128 b);",
+      "instructions": [
+        "DIVPS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する浮動小数点要素について第一入力を第二入力で割る。",
+      "case_call": "_mm_div_ps(a, b)",
+      "operation_detail_ja": "4個のf32の除算をレーンごとに行う。"
+    },
+    {
+      "case_id": "sse2.div.f32x4.scalar",
+      "name": "_mm_div_ss",
+      "intel_symbol": "intel_mm_div_ss",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_div_ss",
+      "header": "xmmintrin.h",
+      "prototype": "__m128 _mm_div_ss(__m128 a, __m128 b);",
+      "instructions": [
+        "DIVSS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する浮動小数点要素について第一入力を第二入力で割る。 計算するのは最下位要素だけで、上位要素は第一入力のまま残す。",
+      "case_call": "_mm_div_ss(a, b)",
+      "operation_detail_ja": "下位f32の除算を行い、aの上位3レーンを保持する。"
+    },
+    {
+      "case_id": "sse2.div.f64x2.default",
+      "name": "_mm_div_pd",
+      "intel_symbol": "intel_mm_div_pd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_div_pd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_div_pd(__m128d a, __m128d b);",
+      "instructions": [
+        "DIVPD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する浮動小数点要素について第一入力を第二入力で割る。",
+      "case_call": "_mm_div_pd(a, b)",
+      "operation_detail_ja": "2個のf64の除算をレーンごとに行う。"
+    },
+    {
+      "case_id": "sse2.div.f64x2.scalar",
+      "name": "_mm_div_sd",
+      "intel_symbol": "intel_mm_div_sd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_div_sd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_div_sd(__m128d a, __m128d b);",
+      "instructions": [
+        "DIVSD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する浮動小数点要素について第一入力を第二入力で割る。 計算するのは最下位要素だけで、上位要素は第一入力のまま残す。",
+      "case_call": "_mm_div_sd(a, b)",
+      "operation_detail_ja": "下位f64の除算を行い、aの上位1レーンを保持する。"
+    },
+    {
+      "case_id": "sse2.mul.f32x4.default",
+      "name": "_mm_mul_ps",
+      "intel_symbol": "intel_mm_mul_ps",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_mul_ps",
+      "header": "xmmintrin.h",
+      "prototype": "__m128 _mm_mul_ps(__m128 a, __m128 b);",
+      "instructions": [
+        "MULPS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する浮動小数点要素を乗算する。",
+      "case_call": "_mm_mul_ps(a, b)",
+      "operation_detail_ja": "4個のf32の乗算をレーンごとに行う。"
+    },
+    {
+      "case_id": "sse2.mul.f32x4.scalar",
+      "name": "_mm_mul_ss",
+      "intel_symbol": "intel_mm_mul_ss",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_mul_ss",
+      "header": "xmmintrin.h",
+      "prototype": "__m128 _mm_mul_ss(__m128 a, __m128 b);",
+      "instructions": [
+        "MULSS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する浮動小数点要素を乗算する。 計算するのは最下位要素だけで、上位要素は第一入力のまま残す。",
+      "case_call": "_mm_mul_ss(a, b)",
+      "operation_detail_ja": "下位f32の乗算を行い、aの上位3レーンを保持する。"
+    },
+    {
+      "case_id": "sse2.mul.f64x2.default",
+      "name": "_mm_mul_pd",
+      "intel_symbol": "intel_mm_mul_pd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_mul_pd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_mul_pd(__m128d a, __m128d b);",
+      "instructions": [
+        "MULPD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する浮動小数点要素を乗算する。",
+      "case_call": "_mm_mul_pd(a, b)",
+      "operation_detail_ja": "2個のf64の乗算をレーンごとに行う。"
+    },
+    {
+      "case_id": "sse2.mul.f64x2.scalar",
+      "name": "_mm_mul_sd",
+      "intel_symbol": "intel_mm_mul_sd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_mul_sd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_mul_sd(__m128d a, __m128d b);",
+      "instructions": [
+        "MULSD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する浮動小数点要素を乗算する。 計算するのは最下位要素だけで、上位要素は第一入力のまま残す。",
+      "case_call": "_mm_mul_sd(a, b)",
+      "operation_detail_ja": "下位f64の乗算を行い、aの上位1レーンを保持する。"
+    },
+    {
+      "case_id": "sse2.sqrt.f32x4.default",
+      "name": "_mm_sqrt_ps",
+      "intel_symbol": "intel_mm_sqrt_ps",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_sqrt_ps",
+      "header": "xmmintrin.h",
+      "prototype": "__m128 _mm_sqrt_ps(__m128 a);",
+      "instructions": [
+        "SQRTPS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "浮動小数点要素の平方根を求める。",
+      "case_call": "_mm_sqrt_ps(a)",
+      "operation_detail_ja": "4個のf32の平方根をレーンごとに求める。"
+    },
+    {
+      "case_id": "sse2.sqrt.f32x4.scalar",
+      "name": "_mm_sqrt_ss",
+      "intel_symbol": "intel_mm_sqrt_ss",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_sqrt_ss",
+      "header": "xmmintrin.h",
+      "prototype": "__m128 _mm_sqrt_ss(__m128 a);",
+      "instructions": [
+        "SQRTSS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "浮動小数点要素の平方根を求める。 計算するのは最下位要素だけで、上位要素は第一入力のまま残す。",
+      "case_call": "_mm_sqrt_ss(a)",
+      "operation_detail_ja": "下位f32の平方根を求め、aの上位3レーンを保持する。"
+    },
+    {
+      "case_id": "sse2.sqrt.f64x2.default",
+      "name": "_mm_sqrt_pd",
+      "intel_symbol": "intel_mm_sqrt_pd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_sqrt_pd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_sqrt_pd(__m128d a);",
+      "instructions": [
+        "SQRTPD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "浮動小数点要素の平方根を求める。",
+      "case_call": "_mm_sqrt_pd(a)",
+      "operation_detail_ja": "2個のf64の平方根をレーンごとに求める。"
+    },
+    {
+      "case_id": "sse2.sqrt.f64x2.scalar",
+      "name": "_mm_sqrt_sd",
+      "intel_symbol": "intel_mm_sqrt_sd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_sqrt_sd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_sqrt_sd(__m128d a, __m128d b);",
+      "instructions": [
+        "SQRTSD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "浮動小数点要素の平方根を求める。 計算するのは最下位要素だけで、上位要素は第一入力のまま残す。",
+      "case_call": "_mm_sqrt_sd(a, a)",
+      "binding_note": "GuideのAPIは2引数だが、この公式caseは入力aを両引数へ渡す単項の部分集合（_mm_sqrt_sd(a, a)）を検証する。",
+      "operation_detail_ja": "下位f64の平方根を求め、aの上位1レーンを保持する。"
+    },
+    {
+      "case_id": "sse2.sub.f32x4.default",
+      "name": "_mm_sub_ps",
+      "intel_symbol": "intel_mm_sub_ps",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_sub_ps",
+      "header": "xmmintrin.h",
+      "prototype": "__m128 _mm_sub_ps(__m128 a, __m128 b);",
+      "instructions": [
+        "SUBPS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する要素を減算する。",
+      "case_call": "_mm_sub_ps(a, b)",
+      "operation_detail_ja": "4個のf32の減算をレーンごとに行う。"
+    },
+    {
+      "case_id": "sse2.sub.f32x4.scalar",
+      "name": "_mm_sub_ss",
+      "intel_symbol": "intel_mm_sub_ss",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_sub_ss",
+      "header": "xmmintrin.h",
+      "prototype": "__m128 _mm_sub_ss(__m128 a, __m128 b);",
+      "instructions": [
+        "SUBSS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する要素を減算する。 計算するのは最下位要素だけで、上位要素は第一入力のまま残す。",
+      "case_call": "_mm_sub_ss(a, b)",
+      "operation_detail_ja": "下位f32の減算を行い、aの上位3レーンを保持する。"
+    },
+    {
+      "case_id": "sse2.sub.f64x2.default",
+      "name": "_mm_sub_pd",
+      "intel_symbol": "intel_mm_sub_pd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_sub_pd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_sub_pd(__m128d a, __m128d b);",
+      "instructions": [
+        "SUBPD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する要素を減算する。",
+      "case_call": "_mm_sub_pd(a, b)",
+      "operation_detail_ja": "2個のf64の減算をレーンごとに行う。"
+    },
+    {
+      "case_id": "sse2.sub.f64x2.scalar",
+      "name": "_mm_sub_sd",
+      "intel_symbol": "intel_mm_sub_sd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_sub_sd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_sub_sd(__m128d a, __m128d b);",
+      "instructions": [
+        "SUBSD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する要素を減算する。 計算するのは最下位要素だけで、上位要素は第一入力のまま残す。",
+      "case_call": "_mm_sub_sd(a, b)",
+      "operation_detail_ja": "下位f64の減算を行い、aの上位1レーンを保持する。"
+    }
+  ],
+  "native_additional_intrinsic_mappings": [
+    {
+      "case_id": "sse2.min.f64x2.default",
+      "name": "_mm_min_pd",
+      "intel_symbol": "intel_mm_min_pd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_min_pd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_min_pd(__m128d a, __m128d b);",
+      "instructions": [
+        "MINPD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する要素から小さい方を選ぶ。 同値やNaNを含む場合は第二入力のビットを選ぶ。",
+      "case_call": "_mm_min_pd(a, b)",
+      "operation_detail_ja": "2個のf64の最小値をレーンごとに選ぶ。",
+      "report_scope": "ARM native診断の追加対応。Python不一致30caseの内数ではない。"
+    },
+    {
+      "case_id": "sse2.max.f64x2.default",
+      "name": "_mm_max_pd",
+      "intel_symbol": "intel_mm_max_pd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_max_pd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_max_pd(__m128d a, __m128d b);",
+      "instructions": [
+        "MAXPD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "対応する要素から大きい方を選ぶ。 同値やNaNを含む場合は第二入力のビットを選ぶ。",
+      "case_call": "_mm_max_pd(a, b)",
+      "operation_detail_ja": "2個のf64の最大値をレーンごとに選ぶ。",
+      "report_scope": "ARM native診断の追加対応。Python不一致30caseの内数ではない。"
+    }
+  ],
+  "intel_intrinsics_guide": {
+    "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html",
+    "offline_download_url": "https://cdrdv2.intel.com/v1/dl/getContent/671338",
+    "retrieved_on": "2026-10-16",
+    "version": "3.6.9",
+    "data_date": "07/12/2024",
+    "date_format_note": "公式データのdate属性をそのまま保存。",
+    "source_sha256": {
+      "offline_zip": "4de3a0c59a944f153f6dc47cfb2d0e455ef16e54a8878f8882db82237947f5e7",
+      "data_js": "67307df98241728ff14ea2ad4102a3316b4674d7e4629a7293e39952eec59d69",
+      "decoded_xml": "6762a50652a35ef663fd532ed83b789d19bbc2ac7e94b1771f19d666d96c2c30"
+    },
+    "mapping_method": "公式caseのIntel binding名と公式offline Guideのintrinsic要素を照合。ISAはCPUID、header・prototype・instructionsはGuideデータの値。",
+    "framework_namespace_note": "case IDのsse2接頭辞とrequired_isa=sse2はフレームワークの最低実行profile。Guideの個別intrinsic ISAと同一ではない。例:_mm_add_psはSSE。",
+    "nan_evidence_note": "Guideは操作とAPIの対応元。NaN符号・payloadの全期待bitをGuideだけから導出したものではなく、保存したstrict SSE2/Rosetta実行値を別証拠として用いる。",
+    "prototype_scope_note": "prototypeはGuideのAPI宣言であり、framework caseの直接の関数signatureではない。特にunary sqrt.f64x2.scalarは_mm_sqrt_sd(a,a)に制限する。",
+    "catalog_provenance": {
+      "title": "Intel Intrinsics Guide",
+      "version": "3.6.9",
+      "date": "07/12/2024",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html",
+      "capture_date": "2026-10-16",
+      "source_member": "Intel Intrinsics Guide/files/data.js",
+      "offline_archive_sha256": "4de3a0c59a944f153f6dc47cfb2d0e455ef16e54a8878f8882db82237947f5e7",
+      "data_js_sha256": "67307df98241728ff14ea2ad4102a3316b4674d7e4629a7293e39952eec59d69",
+      "decoded_xml_sha256": "6762a50652a35ef663fd532ed83b789d19bbc2ac7e94b1771f19d666d96c2c30",
+      "framework_case_count": 254,
+      "framework_case_bindings_sha256": "3d2b75ca090a4b03314d590ff042cb15d6c54df9e82167aa28463364b0e6988f",
+      "summary_note": "summary_jaは短い独自の説明。Guideのdescriptionとoperationの本文は収録していない。",
+      "binding_note": "GuideのCPUIDとframework_required_isaは別の項目。公式caseのIntel symbolに対応するAPIを索引し、各CPUの実行や等価性を証明しない。"
+    }
+  },
+  "matching_operation_examples": [
+    {
+      "id": "signed_wraparound",
+      "case_id": "sse2.add.i8x16.default",
+      "input": {
+        "schema_version": 1,
+        "case_id": "sse2.add.i8x16.default",
+        "sequence": 1,
+        "generation": {
+          "class": "structured"
+        },
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "nearest_even"
+        },
+        "operands": {
+          "a": {
+            "element": "i8",
+            "lanes": [
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f"
+            ]
+          },
+          "b": {
+            "element": "i8",
+            "lanes": [
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01"
+            ]
+          }
+        },
+        "input_id": "398e4d8ef9b156d61d56e491530bcfbfd310c6145de7d5032d462a7271402fa6"
+      },
+      "expected": {
+        "return": {
+          "element": "i8",
+          "lanes": [
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80"
+          ]
+        }
+      },
+      "actual": {
+        "return": {
+          "element": "i8",
+          "lanes": [
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80",
+            "0x80"
+          ]
+        }
+      },
+      "test_reference": "tests/test_integer_boundary_models.py#test_wrapping_add_sub_cross_every_signed_and_unsigned_boundary",
+      "intrinsic": {
+        "name": "_mm_add_epi8",
+        "intel_symbol": "intel_mm_add_epi8",
+        "isa": "SSE2",
+        "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_add_epi8",
+        "header": "emmintrin.h",
+        "prototype": "__m128i _mm_add_epi8(__m128i a, __m128i b);",
+        "instructions": [
+          "PADDB"
+        ],
+        "framework_required_isa": [
+          "sse2"
+        ],
+        "summary_ja": "対応する要素を加算する。",
+        "case_call": "_mm_add_epi8(a, b)"
+      },
+      "scope": "一致側の操作を説明する代表入力。2159件の不一致集計には含めない。"
+    },
+    {
+      "id": "signed_saturation",
+      "case_id": "sse2.adds.i8x16.default",
+      "input": {
+        "schema_version": 1,
+        "case_id": "sse2.adds.i8x16.default",
+        "sequence": 1,
+        "generation": {
+          "class": "structured"
+        },
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "nearest_even"
+        },
+        "operands": {
+          "a": {
+            "element": "i8",
+            "lanes": [
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f",
+              "0x7f"
+            ]
+          },
+          "b": {
+            "element": "i8",
+            "lanes": [
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01",
+              "0x01"
+            ]
+          }
+        },
+        "input_id": "04dbeb154c2e3b3a88906d519fa765537da101ea9ff13d2af3509a570a7150bb"
+      },
+      "expected": {
+        "return": {
+          "element": "i8",
+          "lanes": [
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f"
+          ]
+        }
+      },
+      "actual": {
+        "return": {
+          "element": "i8",
+          "lanes": [
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f",
+            "0x7f"
+          ]
+        }
+      },
+      "test_reference": "tests/test_integer_boundary_models.py#test_signed_and_unsigned_saturation_cross_both_clipping_limits",
+      "intrinsic": {
+        "name": "_mm_adds_epi8",
+        "intel_symbol": "intel_mm_adds_epi8",
+        "isa": "SSE2",
+        "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_adds_epi8",
+        "header": "emmintrin.h",
+        "prototype": "__m128i _mm_adds_epi8(__m128i a, __m128i b);",
+        "instructions": [
+          "PADDSB"
+        ],
+        "framework_required_isa": [
+          "sse2"
+        ],
+        "summary_ja": "対応する整数要素を加算し、結果を型の範囲に飽和させる。",
+        "case_call": "_mm_adds_epi8(a, b)"
+      },
+      "scope": "一致側の操作を説明する代表入力。2159件の不一致集計には含めない。"
+    },
+    {
+      "id": "lane_shuffle",
+      "case_id": "sse2.shuffle.i32x4.imm8",
+      "input": {
+        "schema_version": 1,
+        "case_id": "sse2.shuffle.i32x4.imm8",
+        "sequence": 1,
+        "generation": {
+          "class": "structured"
+        },
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "nearest_even"
+        },
+        "operands": {
+          "a": {
+            "element": "i32",
+            "lanes": [
+              "0x01234567",
+              "0x89abcdef",
+              "0xffeeddcc",
+              "0x76543210"
+            ]
+          }
+        },
+        "immediates": {
+          "imm8": 27
+        },
+        "input_id": "3e7c6539362623abb7a3168c6fd77ba95afc142e533b7a0ff2c98c131befa775"
+      },
+      "expected": {
+        "return": {
+          "element": "i32",
+          "lanes": [
+            "0x76543210",
+            "0xffeeddcc",
+            "0x89abcdef",
+            "0x01234567"
+          ]
+        }
+      },
+      "actual": {
+        "return": {
+          "element": "i32",
+          "lanes": [
+            "0x76543210",
+            "0xffeeddcc",
+            "0x89abcdef",
+            "0x01234567"
+          ]
+        }
+      },
+      "test_reference": "tests/test_integer_boundary_models.py#test_shuffles_cover_every_control_and_preserve_the_untouched_half",
+      "intrinsic": {
+        "name": "_mm_shuffle_epi32",
+        "intel_symbol": "intel_mm_shuffle_epi32",
+        "isa": "SSE2",
+        "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_shuffle_epi32",
+        "header": "emmintrin.h",
+        "prototype": "__m128i _mm_shuffle_epi32(__m128i a, int imm8);",
+        "instructions": [
+          "PSHUFD"
+        ],
+        "framework_required_isa": [
+          "sse2"
+        ],
+        "summary_ja": "即値の選択ビットに従って要素を並べ替える。",
+        "case_call": "_mm_shuffle_epi32(a, imm8)"
+      },
+      "scope": "一致側の操作を説明する代表入力。2159件の不一致集計には含めない。"
+    },
+    {
+      "id": "wide_shift_count",
+      "case_id": "sse2.sll.i32x4.vector-count",
+      "input": {
+        "schema_version": 1,
+        "case_id": "sse2.sll.i32x4.vector-count",
+        "sequence": 1,
+        "generation": {
+          "class": "structured"
+        },
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "nearest_even"
+        },
+        "operands": {
+          "a": {
+            "element": "i32",
+            "lanes": [
+              "0x00000001",
+              "0x00000002",
+              "0xffffffff",
+              "0x80000000"
+            ]
+          },
+          "count": {
+            "element": "u64",
+            "lanes": [
+              "0x0000000100000001",
+              "0x0000000000000000"
+            ]
+          }
+        },
+        "input_id": "c38d1cc3b211de63d8db8153dfa97ab20b1715731a0edcbe5372dcad8d099a90"
+      },
+      "expected": {
+        "return": {
+          "element": "i32",
+          "lanes": [
+            "0x00000000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ]
+        }
+      },
+      "actual": {
+        "return": {
+          "element": "i32",
+          "lanes": [
+            "0x00000000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ]
+        }
+      },
+      "test_reference": "tests/test_integer_boundary_models.py#test_variable_lane_shifts_use_all_low_64_count_bits",
+      "intrinsic": {
+        "name": "_mm_sll_epi32",
+        "intel_symbol": "intel_mm_sll_epi32",
+        "isa": "SSE2",
+        "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_sll_epi32",
+        "header": "emmintrin.h",
+        "prototype": "__m128i _mm_sll_epi32(__m128i a, __m128i count);",
+        "instructions": [
+          "PSLLD"
+        ],
+        "framework_required_isa": [
+          "sse2"
+        ],
+        "summary_ja": "各整数要素を、カウント入力の下位64ビットで指定した数だけ左シフトする。",
+        "case_call": "_mm_sll_epi32(a, count)"
+      },
+      "scope": "一致側の操作を説明する代表入力。2159件の不一致集計には含めない。"
+    },
+    {
+      "id": "unaligned_load",
+      "case_id": "sse2.loadu.i32x4.default",
+      "input": {
+        "schema_version": 1,
+        "case_id": "sse2.loadu.i32x4.default",
+        "sequence": 1,
+        "generation": {
+          "class": "structured"
+        },
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "nearest_even"
+        },
+        "operands": {
+          "source": {
+            "buffer": "source",
+            "offset": 3
+          }
+        },
+        "buffers": {
+          "source": {
+            "alignment": 1,
+            "bytes": "0xa3c0dd000102030405060708090a0b0c0d0e0fcae704213e5b7895b2cfec092643607d9ab7d4f10e2b4865829fbcd9f613304d6a87a4c1defb1835526f8ca9c6"
+          },
+          "unrelated": {
+            "alignment": 1,
+            "bytes": "0xdeadbeef0123456789"
+          }
+        },
+        "input_id": "7d669278f96422ea0faca22f5a663a72e7ca4278b206607d08b90d955d808517"
+      },
+      "expected": {
+        "return": {
+          "element": "i32",
+          "lanes": [
+            "0x03020100",
+            "0x07060504",
+            "0x0b0a0908",
+            "0x0f0e0d0c"
+          ]
+        },
+        "buffers": {
+          "source": {
+            "byte_offset": 0,
+            "bytes": "0xa3c0dd000102030405060708090a0b0c0d0e0fcae704213e5b7895b2cfec092643607d9ab7d4f10e2b4865829fbcd9f613304d6a87a4c1defb1835526f8ca9c6"
+          },
+          "unrelated": {
+            "byte_offset": 0,
+            "bytes": "0xdeadbeef0123456789"
+          }
+        }
+      },
+      "actual": {
+        "buffers": {
+          "source": {
+            "byte_offset": 0,
+            "bytes": "0xa3c0dd000102030405060708090a0b0c0d0e0fcae704213e5b7895b2cfec092643607d9ab7d4f10e2b4865829fbcd9f613304d6a87a4c1defb1835526f8ca9c6"
+          },
+          "unrelated": {
+            "byte_offset": 0,
+            "bytes": "0xdeadbeef0123456789"
+          }
+        },
+        "return": {
+          "element": "i32",
+          "lanes": [
+            "0x03020100",
+            "0x07060504",
+            "0x0b0a0908",
+            "0x0f0e0d0c"
+          ]
+        }
+      },
+      "test_reference": "tests/test_integer_boundary_models.py#test_unaligned_integer_load_store_offsets_guards_and_unrelated_allocations",
+      "intrinsic": {
+        "name": "_mm_loadu_si128",
+        "intel_symbol": "intel_mm_loadu_si128",
+        "isa": "SSE2",
+        "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_loadu_si128",
+        "header": "emmintrin.h",
+        "prototype": "__m128i _mm_loadu_si128(__m128i const* mem_addr);",
+        "instructions": [
+          "MOVDQU"
+        ],
+        "framework_required_isa": [
+          "sse2"
+        ],
+        "summary_ja": "16バイト境界にそろっていないメモリから128ビットを読み込める。",
+        "case_call": "_mm_loadu_si128(source)"
+      },
+      "scope": "一致側の操作を説明する代表入力。2159件の不一致集計には含めない。"
+    },
+    {
+      "id": "unaligned_store",
+      "case_id": "sse2.storeu.i32x4.default",
+      "input": {
+        "schema_version": 1,
+        "case_id": "sse2.storeu.i32x4.default",
+        "sequence": 1,
+        "generation": {
+          "class": "structured"
+        },
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "nearest_even"
+        },
+        "operands": {
+          "destination": {
+            "buffer": "destination",
+            "offset": 3
+          },
+          "a": {
+            "element": "i32",
+            "lanes": [
+              "0x83828180",
+              "0x87868584",
+              "0x8b8a8988",
+              "0x8f8e8d8c"
+            ]
+          }
+        },
+        "buffers": {
+          "destination": {
+            "alignment": 1,
+            "bytes": "0xa3c0ddfa1734516e8ba8c5e2ff1c39567390adcae704213e5b7895b2cfec092643607d9ab7d4f10e2b4865829fbcd9f613304d6a87a4c1defb1835526f8ca9c6"
+          },
+          "unrelated": {
+            "alignment": 1,
+            "bytes": "0xdeadbeef0123456789"
+          }
+        },
+        "input_id": "6f4455dfc623007be4d5f331a42aee8c93c04ed8179cc07c2802180f94e5f75b"
+      },
+      "expected": {
+        "buffers": {
+          "destination": {
+            "byte_offset": 0,
+            "bytes": "0xa3c0dd808182838485868788898a8b8c8d8e8fcae704213e5b7895b2cfec092643607d9ab7d4f10e2b4865829fbcd9f613304d6a87a4c1defb1835526f8ca9c6"
+          },
+          "unrelated": {
+            "byte_offset": 0,
+            "bytes": "0xdeadbeef0123456789"
+          }
+        }
+      },
+      "actual": {
+        "buffers": {
+          "destination": {
+            "byte_offset": 0,
+            "bytes": "0xa3c0dd808182838485868788898a8b8c8d8e8fcae704213e5b7895b2cfec092643607d9ab7d4f10e2b4865829fbcd9f613304d6a87a4c1defb1835526f8ca9c6"
+          },
+          "unrelated": {
+            "byte_offset": 0,
+            "bytes": "0xdeadbeef0123456789"
+          }
+        }
+      },
+      "test_reference": "tests/test_integer_boundary_models.py#test_unaligned_integer_load_store_offsets_guards_and_unrelated_allocations",
+      "intrinsic": {
+        "name": "_mm_storeu_si128",
+        "intel_symbol": "intel_mm_storeu_si128",
+        "isa": "SSE2",
+        "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_storeu_si128",
+        "header": "emmintrin.h",
+        "prototype": "void _mm_storeu_si128(__m128i* mem_addr, __m128i a);",
+        "instructions": [
+          "MOVDQU"
+        ],
+        "framework_required_isa": [
+          "sse2"
+        ],
+        "summary_ja": "128ビットを、16バイト境界にそろっていないメモリへ書き込める。",
+        "case_call": "_mm_storeu_si128(destination, a)"
+      },
+      "scope": "一致側の操作を説明する代表入力。2159件の不一致集計には含めない。"
+    },
+    {
+      "id": "bitcast_preserves_bits",
+      "case_id": "sse2.cast.f32x4.i32x4",
+      "input": {
+        "schema_version": 1,
+        "case_id": "sse2.cast.f32x4.i32x4",
+        "sequence": 1,
+        "generation": {
+          "class": "structured"
+        },
+        "environment": {
+          "fp_mode": "ieee",
+          "rounding": "nearest_even"
+        },
+        "operands": {
+          "a": {
+            "element": "f32",
+            "lanes": [
+              "0x80000000",
+              "0x00000000",
+              "0x00000000",
+              "0x00000000"
+            ]
+          }
+        },
+        "input_id": "80fc42101feeb66b58c69ac01f1af27841febb3601c5d9641b91037fc2ed1452"
+      },
+      "expected": {
+        "return": {
+          "element": "i32",
+          "lanes": [
+            "0x80000000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ]
+        }
+      },
+      "actual": {
+        "return": {
+          "element": "i32",
+          "lanes": [
+            "0x80000000",
+            "0x00000000",
+            "0x00000000",
+            "0x00000000"
+          ]
+        }
+      },
+      "test_reference": "tests/test_adversarial_models.py#test_bitcasts_preserve_every_bit_across_lane_boundaries",
+      "intrinsic": {
+        "name": "_mm_castps_si128",
+        "intel_symbol": "intel_mm_castps_si128",
+        "isa": "SSE2",
+        "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_castps_si128",
+        "header": "emmintrin.h",
+        "prototype": "__m128i _mm_castps_si128(__m128 a);",
+        "instructions": [],
+        "framework_required_isa": [
+          "sse2"
+        ],
+        "summary_ja": "128ビットを変更せず、別のベクトル型として扱う。数値変換はしない。",
+        "case_call": "_mm_castps_si128(a)"
+      },
+      "scope": "一致側の操作を説明する代表入力。2159件の不一致集計には含めない。"
+    }
+  ]
+}

@@ -592,6 +592,35 @@ def _parse_port(value: str) -> int:
     return port
 
 
+def _mismatch_report(args: argparse.Namespace) -> int:
+    from .canonical import load_file
+    from .mismatch_report import python_summary, write_mismatch_report
+
+    sources = [args.quality]
+    if args.observations is not None:
+        sources.append(args.observations)
+    if any(args.output.resolve() == source.resolve() for source in sources):
+        raise ValidationError("mismatch report output must differ from its evidence files")
+    summary = load_file(args.quality)
+    if not isinstance(summary, dict):
+        raise ValidationError("mismatch report requires a quality summary object")
+    observations = None
+    if args.observations is not None:
+        observations = load_file(args.observations)
+        if not isinstance(observations, dict):
+            raise ValidationError("mismatch report observations must be an object")
+    python = python_summary(summary)
+    report = write_mismatch_report(args.output, summary=summary, observations=observations)
+    _print({
+        "status": "report_written",
+        "report": str(report),
+        "model_finding_count": len(python["model_output_mismatches"]),
+        "native_observations_attached": observations is not None,
+        "verification_rerun": False,
+    })
+    return EXIT_MATCH
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog=COMMAND,
@@ -653,6 +682,16 @@ def _parser() -> argparse.ArgumentParser:
         help="suppress progress on stderr; final JSON still goes to stdout",
     )
     check.set_defaults(handler=_development_check)
+
+    mismatch_report = subcommands.add_parser(
+        "mismatch-report", help="write a detailed HTML view of recorded mismatch evidence",
+    )
+    mismatch_report.add_argument("--quality", required=True, type=Path,
+                                 help="quality/summary.json or standalone quality_runner summary")
+    mismatch_report.add_argument("--observations", type=Path,
+                                 help="optional, separately recorded native observation snapshot")
+    mismatch_report.add_argument("--output", required=True, type=Path, help="self-contained HTML output")
+    mismatch_report.set_defaults(handler=_mismatch_report)
 
     validate_cases = subcommands.add_parser("validate-cases")
     _add_contract_arguments(validate_cases)
