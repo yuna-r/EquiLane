@@ -20,38 +20,20 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Read the sanitized snapshot
+      - name: Read the recorded report and publishing tools
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Read the earlier canonical report
         uses: actions/checkout@v7
         with:
           ref: gh-pages
           path: saved-report
           persist-credentials: false
-      - name: Stage only public report files
-        shell: bash
-        run: |
-          mkdir _site
-          for file in index.html index.en.html summary.json deployment.json .nojekyll; do
-            test -f "saved-report/$file"
-            test ! -L "saved-report/$file"
-            cp "saved-report/$file" "_site/$file"
-          done
-          for target in openpower arm riscv riscv-vlen256; do
-            if [ -d "saved-report/$target" ]; then
-              test ! -L "saved-report/$target"
-              test -f "saved-report/$target/index.html"
-              test ! -L "saved-report/$target/index.html"
-              mkdir "_site/$target"
-              cp "saved-report/$target/index.html" "_site/$target/index.html"
-              if [ -f "saved-report/$target/index.en.html" ]; then
-                test ! -L "saved-report/$target/index.en.html"
-                cp "saved-report/$target/index.en.html" "_site/$target/index.en.html"
-              fi
-              if [ -f "saved-report/$target/differences.jsonl" ]; then
-                test ! -L "saved-report/$target/differences.jsonl"
-                cp "saved-report/$target/differences.jsonl" "_site/$target/differences.jsonl"
-              fi
-            fi
-          done
+      - name: Verify archives and stage the readable reports
+        run: >-
+          python3 tools/export_execution_snapshot.py
+          --verify reports/extended-1895 --site _site --legacy-site saved-report
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload public report snapshot

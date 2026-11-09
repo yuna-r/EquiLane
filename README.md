@@ -14,6 +14,33 @@ SVMLを除くSSEには未登録78名称、SSE2には未登録46名称があり�
 
 [公開ガイド・レポート](https://yuna-r.github.io/EquiLane/)
 
+## 追加1,895候補の実行結果
+
+既存268操作とは別の **SIMDe pure-value拡張1,895候補** を、同じ60,392入力で4環境にかけました。
+全候補のビルドと結果採取を完了しています。Intel列はCPU guardを通過した実intrinsicの結果です。
+
+| 環境 | Cを実行できた候補 | `ok`入力 | CPU未対応 |
+|---|---:|---:|---:|
+| Intel | 552 / 1,895 | 17,540 | 1,343候補・42,852入力 |
+| ARM64 | 1,895 / 1,895 | 60,392 | 0 |
+| OpenPOWER | 1,895 / 1,895 | 60,392 | 0 |
+| RISC-V64 | 1,895 / 1,895 | 60,392 | 0 |
+
+Intelと両方で実行できた17,540入力の戻り値をbyte単位で比較し、ARM64で1,008件、
+OpenPOWERで981件、RISC-V64で1,735件のraw差分を記録しました。
+近似reciprocal/rsqrtの許容誤差や、castの未定義上位bitについては、各APIの仕様に沿った評価が残っています。
+FP例外flagsは診断情報として別に記録しています。実行完了と仕様適合の判定は区別して確認してください。
+
+[ブラウザで読む実行レポート](https://yuna-r.github.io/EquiLane/extended/) · [English](https://yuna-r.github.io/EquiLane/extended/index.en.html)
+
+HTML上で関数を検索し、入力・Intel・移植先の戻り値を確認できます。
+[保存版HTML](reports/extended-1895/index.html)と[実測集計JSON](reports/extended-1895/execution-summary.json)も収録しています。
+
+Docker VMM切り替え後の同じUbuntu環境でもAVX-512は公開されず、直接実行するとSIGILLになりました。`QEMU_CPU=max`でも同じで、現在のx86エミュレーションの制限です。[診断記録](documentation/intel-cpu-diagnosis.json)に測定値を保存しています。
+
+Guide全7,126名称の対応は未完了です。masked・FP16・AMXを含むその他の開発は一時停止を維持しています。
+[チェックポイントの状態](documentation/pause-status.json)に完了範囲と残作業を記録しています。
+
 ## まず4環境で比較する
 
 検証環境は **Ubuntu 26.04 LTS のDocker** に揃えています。

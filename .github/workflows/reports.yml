@@ -52,6 +52,13 @@ jobs:
         run: |
           python3 docker/export_pages.py --input artifacts/docker-ci --output _site \
             --commit "$REPORT_COMMIT" --repository "$REPORT_REPOSITORY" --run-id "$REPORT_RUN_ID"
+          if [ -f reports/extended-1895/publication.json ]; then
+            python3 tools/export_execution_snapshot.py --verify reports/extended-1895 --site _site/extended
+            python3 - <<'PY'
+          from tools.export_execution_snapshot import link_recorded_report
+          link_recorded_report('_site')
+          PY
+          fi
         env:
           REPORT_COMMIT: ${{ github.sha }}
           REPORT_REPOSITORY: ${{ github.repository }}

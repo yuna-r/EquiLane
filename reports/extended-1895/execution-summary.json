@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.published-extended-execution",
+  "status": "completed_with_differences_and_unsupported_features",
+  "source_execution_summary_sha256": "6f759298fe8715beba9fd68b3bd889cf84046a1b4b3dd91bf5040d3421632e0e",
+  "execution_source_commit": "e3092c451238d77efe241d91a719df0c51ed993a",
+  "candidate_count": 1895,
+  "distinct_inputs": 60392,
+  "result_records": 241568,
+  "input_distribution": {
+    "inputs_per_other_function": 32,
+    "inputs_per_zero_argument_function": 1,
+    "other_functions": 1887,
+    "zero_argument_functions": 8
+  },
+  "comparison_policy": {
+    "floating_point_flags": "recorded_diagnostic_only",
+    "mismatch_is_automatically_specification_violation": false,
+    "return_bytes": "bit_exact"
+  },
+  "guide_scope": {
+    "all_guide_intrinsics_completed": false,
+    "curated_case_count": 268,
+    "distinct_api_names": 7126,
+    "version": "3.6.9"
+  },
+  "physical_hardware_evidence": false,
+  "source_identity": {
+    "catalog_sha256": "39623021b9a7ca94b08aca0b60960de492396088812b6cfe3b2679f3f953cd7b",
+    "vendor_header_tree_sha256": "343fe2dcc16f4c65f48f6dea789ca80b61f378ab113047290b1d87155623daf2",
+    "vendor_provenance_sha256": "a421c1ed0ce060b82526b00223df675c66122ff72d87683fddb0234c8c0b458f"
+  },
+  "inputs": {
+    "file": "data/inputs.jsonl.gz",
+    "compression": "gzip",
+    "compressed_byte_length": 3013184,
+    "compressed_sha256": "4cf8755f9728cc531842705e84f284f7bb540a4723aee8a73212ae8a93096805",
+    "uncompressed_byte_length": 22016567,
+    "uncompressed_sha256": "415d90168b56b20bf4bd078b1aef5b96004f08ec9ff97623d92ab4f7c8472e2a",
+    "record_count": 60392
+  },
+  "roles": {
+    "intel": {
+      "backend": "intel-intrinsics",
+      "compiled_candidates": 1895,
+      "invoked_candidates": 1895,
+      "executed_candidates": 552,
+      "unsupported_candidates": 1343,
+      "record_count": 60392,
+      "status_counts": {
+        "ok": 17540,
+        "unsupported_cpu": 42852
+      },
+      "environment": {
+        "kind": "linux_process_observation",
+        "machine": "x86_64",
+        "system": "Linux"
+      },
+      "results": {
+        "file": "data/results-intel.jsonl.gz",
+        "compression": "gzip",
+        "compressed_byte_length": 3100402,
+        "compressed_sha256": "8ed17c57741a34bb4eef83845df16f2aa9e156ac21110504053163af826914d5",
+        "uncompressed_byte_length": 27038718,
+        "uncompressed_sha256": "c695e8c8143e7d9ce2c575e426ad178f5679d1e4f243fb7af7ae5beeea7f1606",
+        "record_count": 60392
+      },
+      "original_manifest": "evidence/results-intel.manifest.json",
+      "recorded_library_sha256": "3967ec4fa7c461590520a52bfe63f52dfbcb2b361e42affb232fb067ff5cd468",
+      "recorded_generated_source_sha256": "f45c2ea221d2a9f163519688881c99772698f2f64f78ab294e8441417a502968"
+    },
+    "arm": {
+      "backend": "simde-pure-value",
+      "compiled_candidates": 1895,
+      "invoked_candidates": 1895,
+      "executed_candidates": 1895,
+      "unsupported_candidates": 0,
+      "record_count": 60392,
+      "status_counts": {
+        "ok": 60392
+      },
+      "environment": {
+        "kind": "linux_process_observation",
+        "machine": "aarch64",
+        "system": "Linux"
+      },
+      "results": {
+        "file": "data/results-arm.jsonl.gz",
+        "compression": "gzip",
+        "compressed_byte_length": 3313003,
+        "compressed_sha256": "cadeb1a446cd1004d6860097c1ea3fda57f15d8ac6daab218b23989b76c8f74e",
+        "uncompressed_byte_length": 29399683,
+        "uncompressed_sha256": "7ea2dd4b3dde0f2749aa41280dbf20cfe67cab77009368995f365d4b18d33802",
+        "record_count": 60392
+      },
+      "original_manifest": "evidence/results-arm.manifest.json",
+      "recorded_library_sha256": "d77fc01532b1f337485116c336dc1d3dd606187ec08e039fbbf229d29246ffc2",
+      "recorded_generated_source_sha256": "730dadaa2c65da2eb9b833192138640808a2e5704a562962041fb01a26f3cc48"
+    },
+    "openpower": {
+      "backend": "simde-pure-value",
+      "compiled_candidates": 1895,
+      "invoked_candidates": 1895,
+      "executed_candidates": 1895,
+      "unsupported_candidates": 0,
+      "record_count": 60392,
+      "status_counts": {
+        "ok": 60392
+      },
+      "environment": {
+        "kind": "linux_process_observation",
+        "machine": "ppc64le",
+        "system": "Linux"
+      },
+      "results": {
+        "file": "data/results-openpower.jsonl.gz",
+        "compression": "gzip",
+        "compressed_byte_length": 3392772,
+        "compressed_sha256": "7332d8e9f0f9aa87a1c2a810f2bcb10b51ac2d281249a994c33f62d7883e8e61",
+        "uncompressed_byte_length": 29822565,
+        "uncompressed_sha256": "77c9d4195fadf54e2d3f93522be4aaa3396dd7f3b583a7c091c5218503e78acf",
+        "record_count": 60392
+      },
+      "original_manifest": "evidence/results-openpower.manifest.json",
+      "recorded_library_sha256": "aac4211b0df810c75e19c68cb75acc6800723c013b81f13dfdbce9612e9de643",
+      "recorded_generated_source_sha256": "730dadaa2c65da2eb9b833192138640808a2e5704a562962041fb01a26f3cc48"
+    },
+    "riscv": {
+      "backend": "simde-pure-value",
+      "compiled_candidates": 1895,
+      "invoked_candidates": 1895,
+      "executed_candidates": 1895,
+      "unsupported_candidates": 0,
+      "record_count": 60392,
+      "status_counts": {
+        "ok": 60392
+      },
+      "environment": {
+        "kind": "linux_process_observation",
+        "machine": "riscv64",
+        "system": "Linux"
+      },
+      "results": {
+        "file": "data/results-riscv.jsonl.gz",
+        "compression": "gzip",
+        "compressed_byte_length": 3411836,
+        "compressed_sha256": "78039dd446a3ab583801c811c6f166fbc9b4f823f624b034d1c21295c0417368",
+        "uncompressed_byte_length": 29583349,
+        "uncompressed_sha256": "a0c635be35ba21cb33cdc5fa3ef8811514c448083689ab438f9996932b4f213a",
+        "record_count": 60392
+      },
+      "original_manifest": "evidence/results-riscv.manifest.json",
+      "recorded_library_sha256": "e2aad4089bc13abf9103eec40d0f301d423883a7ade1b9fa8b6f3ac62e2c38f5",
+      "recorded_generated_source_sha256": "730dadaa2c65da2eb9b833192138640808a2e5704a562962041fb01a26f3cc48"
+    }
+  },
+  "comparisons": {
+    "arm": {
+      "record_count": 60392,
+      "comparable_inputs": 17540,
+      "comparable_input_coverage_percent": "29.0436",
+      "matched_inputs": 16532,
+      "raw_byte_differences": 1008,
+      "not_comparable_inputs": 42852,
+      "match_rate_among_comparable_percent": "94.2531",
+      "differing_function_count": 64,
+      "fp_flag_differences_diagnostic_only": 841,
+      "review_candidates": {
+        "approximate_reciprocal_or_rsqrt": {
+          "_mm256_rcp_ps": 30,
+          "_mm256_rsqrt_ps": 29,
+          "_mm_rcp_ps": 29,
+          "_mm_rcp_ss": 21,
+          "_mm_rsqrt_ps": 31,
+          "_mm_rsqrt_ss": 30
+        },
+        "classification": "name-based review candidates; no verdicts are rewritten",
+        "undefined_widening_casts": {
+          "_mm256_castpd128_pd256": 31,
+          "_mm256_castps128_ps256": 31,
+          "_mm256_castsi128_si256": 31
+        }
+      },
+      "differences": {
+        "file": "arm/differences.jsonl.gz",
+        "compression": "gzip",
+        "compressed_byte_length": 3312286,
+        "compressed_sha256": "ed832e9d0437afa89a8cac22ff40351a91d700ec2fef57cf7c5475eb85c0d0d8",
+        "uncompressed_byte_length": 62492238,
+        "uncompressed_sha256": "a4f2d486d4262a00d87adee8165545ab6c77e6c3248cd4257b1e460f8145e9cc",
+        "record_count": 43860
+      },
+      "html": "arm/index.html",
+      "html_en": "arm/index.en.html",
+      "original_summary": "evidence/comparison-arm.original.json"
+    },
+    "openpower": {
+      "record_count": 60392,
+      "comparable_inputs": 17540,
+      "comparable_input_coverage_percent": "29.0436",
+      "matched_inputs": 16559,
+      "raw_byte_differences": 981,
+      "not_comparable_inputs": 42852,
+      "match_rate_among_comparable_percent": "94.4071",
+      "differing_function_count": 65,
+      "fp_flag_differences_diagnostic_only": 848,
+      "review_candidates": {
+        "approximate_reciprocal_or_rsqrt": {
+          "_mm256_rcp_ps": 30,
+          "_mm256_rsqrt_ps": 29,
+          "_mm_rcp_ps": 29,
+          "_mm_rcp_ss": 21,
+          "_mm_rsqrt_ps": 32,
+          "_mm_rsqrt_ss": 29
+        },
+        "classification": "name-based review candidates; no verdicts are rewritten",
+        "undefined_widening_casts": {
+          "_mm256_castpd128_pd256": 31,
+          "_mm256_castps128_ps256": 31,
+          "_mm256_castsi128_si256": 31
+        }
+      },
+      "differences": {
+        "file": "openpower/differences.jsonl.gz",
+        "compression": "gzip",
+        "compressed_byte_length": 3378106,
+        "compressed_sha256": "87cb399c7f1db863fb478f24567e5b91ffb306a661ecc79f5d1ae907b1248116",
+        "uncompressed_byte_length": 62772879,
+        "uncompressed_sha256": "2d0137c3070737c85ed181cb7f27184961e73964b690b2726c2dbfe720dce82e",
+        "record_count": 43833
+      },
+      "html": "openpower/index.html",
+      "html_en": "openpower/index.en.html",
+      "original_summary": "evidence/comparison-openpower.original.json"
+    },
+    "riscv": {
+      "record_count": 60392,
+      "comparable_inputs": 17540,
+      "comparable_input_coverage_percent": "29.0436",
+      "matched_inputs": 15805,
+      "raw_byte_differences": 1735,
+      "not_comparable_inputs": 42852,
+      "match_rate_among_comparable_percent": "90.1083",
+      "differing_function_count": 92,
+      "fp_flag_differences_diagnostic_only": 836,
+      "review_candidates": {
+        "approximate_reciprocal_or_rsqrt": {
+          "_mm256_rcp_ps": 31,
+          "_mm256_rsqrt_ps": 30,
+          "_mm_rcp_ps": 31,
+          "_mm_rcp_ss": 23,
+          "_mm_rsqrt_ps": 32,
+          "_mm_rsqrt_ss": 32
+        },
+        "classification": "name-based review candidates; no verdicts are rewritten",
+        "undefined_widening_casts": {
+          "_mm256_castpd128_pd256": 31,
+          "_mm256_castps128_ps256": 31,
+          "_mm256_castsi128_si256": 31
+        }
+      },
+      "differences": {
+        "file": "riscv/differences.jsonl.gz",
+        "compression": "gzip",
+        "compressed_byte_length": 3454885,
+        "compressed_sha256": "8782a6d10cd55599cae65b962bb5fb837fd652b070f5b7d526a00677fbda7087",
+        "uncompressed_byte_length": 63482777,
+        "uncompressed_sha256": "345ea14f4e4d5d2431bdc85f6b782b327bde7e866706a9770676358fcd139be8",
+        "record_count": 44587
+      },
+      "html": "riscv/index.html",
+      "html_en": "riscv/index.en.html",
+      "original_summary": "evidence/comparison-riscv.original.json"
+    }
+  },
+  "retention": {
+    "all_input_result_difference_records_included": true,
+    "native_binaries_included": false,
+    "local_build_directories_included": false,
+    "standalone_native_replay_artifact": false,
+    "original_metadata": "evidence/",
+    "original_metadata_paths_describe_local_capture": true,
+    "compression": "Lossless gzip; uncompressed digests match the original recorded streams."
+  }
+}

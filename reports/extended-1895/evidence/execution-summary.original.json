@@ -1,0 +1,629 @@
+{
+  "artifact_sha256": [
+    {
+      "byte_length": 44574,
+      "file": "intel-batch/results.manifest.json",
+      "sha256": "5cf173490ec3830e85b7850784a02af6af4dc33c02115bd4820a533b25d877c0"
+    },
+    {
+      "byte_length": 27038718,
+      "file": "intel-batch/results.jsonl",
+      "sha256": "c695e8c8143e7d9ce2c575e426ad178f5679d1e4f243fb7af7ae5beeea7f1606"
+    },
+    {
+      "byte_length": 44031,
+      "file": "intel-batch/build-evidence.json",
+      "sha256": "a71d4b38111535fc16cad7e054755f157224afe05ff267b47690b9fff2607d98"
+    },
+    {
+      "byte_length": 283,
+      "file": "intel-batch/execution-layout.json",
+      "sha256": "9d853c0bf2fb97435f2dbb867e85f54e00bcdb36d6e406f94cd0adbfbf75022a"
+    },
+    {
+      "byte_length": 1489014,
+      "file": "intel-batch/build/unit-00000.c",
+      "sha256": "f45c2ea221d2a9f163519688881c99772698f2f64f78ab294e8441417a502968"
+    },
+    {
+      "byte_length": 401568,
+      "file": "intel-batch/build/unit-00000.so",
+      "sha256": "3967ec4fa7c461590520a52bfe63f52dfbcb2b361e42affb232fb067ff5cd468"
+    },
+    {
+      "byte_length": 44546,
+      "file": "arm-batch/results.manifest.json",
+      "sha256": "cdeadaecbf97c5f372d2ff551dd1084468187edf960f88f66a0eb8f4298f6599"
+    },
+    {
+      "byte_length": 29399683,
+      "file": "arm-batch/results.jsonl",
+      "sha256": "7ea2dd4b3dde0f2749aa41280dbf20cfe67cab77009368995f365d4b18d33802"
+    },
+    {
+      "byte_length": 44025,
+      "file": "arm-batch/build-evidence.json",
+      "sha256": "f9e9e6d00b9bd8d8eed70178071c2e0fbc7d8c48b3e2f811a12213007c9d037a"
+    },
+    {
+      "byte_length": 283,
+      "file": "arm-batch/execution-layout.json",
+      "sha256": "9d853c0bf2fb97435f2dbb867e85f54e00bcdb36d6e406f94cd0adbfbf75022a"
+    },
+    {
+      "byte_length": 1393780,
+      "file": "arm-batch/build/unit-00000.c",
+      "sha256": "730dadaa2c65da2eb9b833192138640808a2e5704a562962041fb01a26f3cc48"
+    },
+    {
+      "byte_length": 512000,
+      "file": "arm-batch/build/unit-00000.so",
+      "sha256": "d77fc01532b1f337485116c336dc1d3dd606187ec08e039fbbf229d29246ffc2"
+    },
+    {
+      "byte_length": 44552,
+      "file": "openpower-fork/results.manifest.json",
+      "sha256": "587778f1438ee34f7f7954a7d2c54886021385d31597fe03356b3e8d3602ce34"
+    },
+    {
+      "byte_length": 29822565,
+      "file": "openpower-fork/results.jsonl",
+      "sha256": "77c9d4195fadf54e2d3f93522be4aaa3396dd7f3b583a7c091c5218503e78acf"
+    },
+    {
+      "byte_length": 44076,
+      "file": "openpower-fork/build-evidence.json",
+      "sha256": "76c4ec872fea0ae684f083f823939fe0c2541d71ef783f74aaef7707820f6319"
+    },
+    {
+      "byte_length": 699,
+      "file": "openpower-fork/execution-layout.json",
+      "sha256": "894c4f7e6d306c313272ecc1d8d41fbf9bc20244cc6f66d91d595b14c4e8f23d"
+    },
+    {
+      "byte_length": 1393780,
+      "file": "openpower-fork/build/unit-00000.c",
+      "sha256": "730dadaa2c65da2eb9b833192138640808a2e5704a562962041fb01a26f3cc48"
+    },
+    {
+      "byte_length": 702816,
+      "file": "openpower-fork/build/unit-00000.so",
+      "sha256": "aac4211b0df810c75e19c68cb75acc6800723c013b81f13dfdbce9612e9de643"
+    },
+    {
+      "byte_length": 44548,
+      "file": "riscv-fork/results.manifest.json",
+      "sha256": "41a88b78bc791928c408f0f7c68ca19d8e8f62c6b944721a62a2d554e487c8c1"
+    },
+    {
+      "byte_length": 29583349,
+      "file": "riscv-fork/results.jsonl",
+      "sha256": "a0c635be35ba21cb33cdc5fa3ef8811514c448083689ab438f9996932b4f213a"
+    },
+    {
+      "byte_length": 44029,
+      "file": "riscv-fork/build-evidence.json",
+      "sha256": "1ad3d13ec8ffc405d577f087a9dd2205f0055f83bec6c300c9f295638f672840"
+    },
+    {
+      "byte_length": 699,
+      "file": "riscv-fork/execution-layout.json",
+      "sha256": "894c4f7e6d306c313272ecc1d8d41fbf9bc20244cc6f66d91d595b14c4e8f23d"
+    },
+    {
+      "byte_length": 1393780,
+      "file": "riscv-fork/build/unit-00000.c",
+      "sha256": "730dadaa2c65da2eb9b833192138640808a2e5704a562962041fb01a26f3cc48"
+    },
+    {
+      "byte_length": 559456,
+      "file": "riscv-fork/build/unit-00000.so",
+      "sha256": "e2aad4089bc13abf9103eec40d0f301d423883a7ade1b9fa8b6f3ac62e2c38f5"
+    },
+    {
+      "byte_length": 150589,
+      "file": "compare-arm-batch/summary.json",
+      "sha256": "150abc21702d5e9155be0a82a9d78ad1faf61a388ec66134bab8ab93ed4298d9"
+    },
+    {
+      "byte_length": 62492238,
+      "file": "compare-arm-batch/differences.jsonl",
+      "record_count": 43860,
+      "sha256": "a4f2d486d4262a00d87adee8165545ab6c77e6c3248cd4257b1e460f8145e9cc"
+    },
+    {
+      "byte_length": 131395,
+      "file": "compare-arm-batch/showcase.html",
+      "sha256": "aaa5e78063e2737076d57b1be539441b90c3c9d13fe92605546c96714e295944"
+    },
+    {
+      "byte_length": 131446,
+      "file": "compare-arm-batch/showcase.en.html",
+      "sha256": "bf5729de395debbf1e6980c7c855789d405ac59ff8054c5fca41e6021eecbaee"
+    },
+    {
+      "byte_length": 150589,
+      "file": "compare-openpower-fork/summary.json",
+      "sha256": "49799e85327e25ee13f07a25f372465ca0d77a5553366f04f385f57028de820e"
+    },
+    {
+      "byte_length": 62772879,
+      "file": "compare-openpower-fork/differences.jsonl",
+      "record_count": 43833,
+      "sha256": "2d0137c3070737c85ed181cb7f27184961e73964b690b2726c2dbfe720dce82e"
+    },
+    {
+      "byte_length": 131394,
+      "file": "compare-openpower-fork/showcase.html",
+      "sha256": "36cdb3dbf021c5a8d961701138a4ee5882bdb3bce93237004b031764973825f1"
+    },
+    {
+      "byte_length": 131445,
+      "file": "compare-openpower-fork/showcase.en.html",
+      "sha256": "4f41c9bdaebef90be95e22513cee9f6410a0485cbf18b0bb8e8412080b826a31"
+    },
+    {
+      "byte_length": 150600,
+      "file": "compare-riscv-fork/summary.json",
+      "sha256": "87224615dc5c26d47dc3d9591ebc2629d284ee93ef2c0673d40bce50f379935c"
+    },
+    {
+      "byte_length": 63482777,
+      "file": "compare-riscv-fork/differences.jsonl",
+      "record_count": 44587,
+      "sha256": "345ea14f4e4d5d2431bdc85f6b782b327bde7e866706a9770676358fcd139be8"
+    },
+    {
+      "byte_length": 131406,
+      "file": "compare-riscv-fork/showcase.html",
+      "sha256": "b601e3c69d213fb82ea88a0880a37462ce10a3fc572afaf8febad9c45bd385a9"
+    },
+    {
+      "byte_length": 131457,
+      "file": "compare-riscv-fork/showcase.en.html",
+      "sha256": "6e769dc6e8677d9fc98c4d49ecb8c36e21521d469f7c1bd1cb36d47551c26e6e"
+    }
+  ],
+  "artifact_type": "equilane.extended-execution-overview",
+  "assembled_at": "2026-11-09T22:33:01.105113+00:00",
+  "backend": "simde-pure-value",
+  "candidate_count": 1895,
+  "catalog": {
+    "byte_length": 2144840,
+    "file": "inputs/catalog.json",
+    "sha256": "986b02bc8288650596a6bdb085c63b5b2010d2ad355d499e053329d3326d7880"
+  },
+  "comparison_pairs": 181176,
+  "comparison_policy": {
+    "floating_point_flags": "recorded_diagnostic_only",
+    "mismatch_is_automatically_specification_violation": false,
+    "return_bytes": "bit_exact"
+  },
+  "comparisons": {
+    "arm": {
+      "comparable_input_coverage_percent": "29.0436",
+      "comparable_inputs": 17540,
+      "differences": {
+        "byte_length": 62492238,
+        "file": "compare-arm-batch/differences.jsonl",
+        "record_count": 43860,
+        "sha256": "a4f2d486d4262a00d87adee8165545ab6c77e6c3248cd4257b1e460f8145e9cc"
+      },
+      "differing_function_count": 64,
+      "directory": "compare-arm-batch",
+      "fp_flag_differences_diagnostic_only": 841,
+      "html": {
+        "byte_length": 131395,
+        "file": "compare-arm-batch/showcase.html",
+        "sha256": "aaa5e78063e2737076d57b1be539441b90c3c9d13fe92605546c96714e295944"
+      },
+      "html_en": {
+        "byte_length": 131446,
+        "file": "compare-arm-batch/showcase.en.html",
+        "sha256": "bf5729de395debbf1e6980c7c855789d405ac59ff8054c5fca41e6021eecbaee"
+      },
+      "match_rate_among_comparable_percent": "94.2531",
+      "matched_inputs": 16532,
+      "not_comparable_inputs": 42852,
+      "raw_byte_differences": 1008,
+      "record_count": 60392,
+      "review_candidates": {
+        "approximate_reciprocal_or_rsqrt": {
+          "_mm256_rcp_ps": 30,
+          "_mm256_rsqrt_ps": 29,
+          "_mm_rcp_ps": 29,
+          "_mm_rcp_ss": 21,
+          "_mm_rsqrt_ps": 31,
+          "_mm_rsqrt_ss": 30
+        },
+        "classification": "name-based review candidates; no verdicts are rewritten",
+        "undefined_widening_casts": {
+          "_mm256_castpd128_pd256": 31,
+          "_mm256_castps128_ps256": 31,
+          "_mm256_castsi128_si256": 31
+        }
+      },
+      "summary": {
+        "byte_length": 150589,
+        "file": "compare-arm-batch/summary.json",
+        "sha256": "150abc21702d5e9155be0a82a9d78ad1faf61a388ec66134bab8ab93ed4298d9"
+      }
+    },
+    "openpower": {
+      "comparable_input_coverage_percent": "29.0436",
+      "comparable_inputs": 17540,
+      "differences": {
+        "byte_length": 62772879,
+        "file": "compare-openpower-fork/differences.jsonl",
+        "record_count": 43833,
+        "sha256": "2d0137c3070737c85ed181cb7f27184961e73964b690b2726c2dbfe720dce82e"
+      },
+      "differing_function_count": 65,
+      "directory": "compare-openpower-fork",
+      "fp_flag_differences_diagnostic_only": 848,
+      "html": {
+        "byte_length": 131394,
+        "file": "compare-openpower-fork/showcase.html",
+        "sha256": "36cdb3dbf021c5a8d961701138a4ee5882bdb3bce93237004b031764973825f1"
+      },
+      "html_en": {
+        "byte_length": 131445,
+        "file": "compare-openpower-fork/showcase.en.html",
+        "sha256": "4f41c9bdaebef90be95e22513cee9f6410a0485cbf18b0bb8e8412080b826a31"
+      },
+      "match_rate_among_comparable_percent": "94.4071",
+      "matched_inputs": 16559,
+      "not_comparable_inputs": 42852,
+      "raw_byte_differences": 981,
+      "record_count": 60392,
+      "review_candidates": {
+        "approximate_reciprocal_or_rsqrt": {
+          "_mm256_rcp_ps": 30,
+          "_mm256_rsqrt_ps": 29,
+          "_mm_rcp_ps": 29,
+          "_mm_rcp_ss": 21,
+          "_mm_rsqrt_ps": 32,
+          "_mm_rsqrt_ss": 29
+        },
+        "classification": "name-based review candidates; no verdicts are rewritten",
+        "undefined_widening_casts": {
+          "_mm256_castpd128_pd256": 31,
+          "_mm256_castps128_ps256": 31,
+          "_mm256_castsi128_si256": 31
+        }
+      },
+      "summary": {
+        "byte_length": 150589,
+        "file": "compare-openpower-fork/summary.json",
+        "sha256": "49799e85327e25ee13f07a25f372465ca0d77a5553366f04f385f57028de820e"
+      }
+    },
+    "riscv": {
+      "comparable_input_coverage_percent": "29.0436",
+      "comparable_inputs": 17540,
+      "differences": {
+        "byte_length": 63482777,
+        "file": "compare-riscv-fork/differences.jsonl",
+        "record_count": 44587,
+        "sha256": "345ea14f4e4d5d2431bdc85f6b782b327bde7e866706a9770676358fcd139be8"
+      },
+      "differing_function_count": 92,
+      "directory": "compare-riscv-fork",
+      "fp_flag_differences_diagnostic_only": 836,
+      "html": {
+        "byte_length": 131406,
+        "file": "compare-riscv-fork/showcase.html",
+        "sha256": "b601e3c69d213fb82ea88a0880a37462ce10a3fc572afaf8febad9c45bd385a9"
+      },
+      "html_en": {
+        "byte_length": 131457,
+        "file": "compare-riscv-fork/showcase.en.html",
+        "sha256": "6e769dc6e8677d9fc98c4d49ecb8c36e21521d469f7c1bd1cb36d47551c26e6e"
+      },
+      "match_rate_among_comparable_percent": "90.1083",
+      "matched_inputs": 15805,
+      "not_comparable_inputs": 42852,
+      "raw_byte_differences": 1735,
+      "record_count": 60392,
+      "review_candidates": {
+        "approximate_reciprocal_or_rsqrt": {
+          "_mm256_rcp_ps": 31,
+          "_mm256_rsqrt_ps": 30,
+          "_mm_rcp_ps": 31,
+          "_mm_rcp_ss": 23,
+          "_mm_rsqrt_ps": 32,
+          "_mm_rsqrt_ss": 32
+        },
+        "classification": "name-based review candidates; no verdicts are rewritten",
+        "undefined_widening_casts": {
+          "_mm256_castpd128_pd256": 31,
+          "_mm256_castps128_ps256": 31,
+          "_mm256_castsi128_si256": 31
+        }
+      },
+      "summary": {
+        "byte_length": 150600,
+        "file": "compare-riscv-fork/summary.json",
+        "sha256": "87224615dc5c26d47dc3d9591ebc2629d284ee93ef2c0673d40bce50f379935c"
+      }
+    }
+  },
+  "complete": true,
+  "distinct_inputs": 60392,
+  "guide_scope": {
+    "all_guide_intrinsics_completed": false,
+    "curated_case_count": 268,
+    "distinct_api_names": 7126,
+    "version": "3.6.9"
+  },
+  "historical_runs": {
+    "arm_first_run": "arm/results.manifest.json",
+    "bmi_retry": "../extended-bmi-retry/compare-arm/summary.json",
+    "bmi_retry_is_additional_unique_input": false,
+    "note": "Per-header first-run artifacts are retained separately. The first ARM run recorded 192 compile_error inputs in six BMI functions; batch and retry results do not erase those records."
+  },
+  "input_distribution": {
+    "inputs_per_other_function": 32,
+    "inputs_per_zero_argument_function": 1,
+    "other_functions": 1887,
+    "zero_argument_functions": 8
+  },
+  "input_manifest": {
+    "byte_length": 92630,
+    "file": "inputs/inputs.manifest.json",
+    "sha256": "0ba42ce2bc3a9ed28feca8d0ab7bbced7e97b89931c93b18ed0c6e479410e438"
+  },
+  "inputs": {
+    "byte_length": 22016567,
+    "file": "inputs/inputs.jsonl",
+    "sha256": "415d90168b56b20bf4bd078b1aef5b96004f08ec9ff97623d92ab4f7c8472e2a"
+  },
+  "overview_html": {
+    "byte_length": 11898,
+    "file": "index.html",
+    "sha256": "f53a67ff9986c06942f11f3c5e1cbf351881ac8aed5780561accdb337959b33a"
+  },
+  "overview_html_en": {
+    "byte_length": 11932,
+    "file": "index.en.html",
+    "sha256": "3091940654498f29a6162f848b599ac9849c4a6895be1aea56b10d98e82f256e"
+  },
+  "physical_hardware_evidence": false,
+  "result_records": 241568,
+  "roles": {
+    "arm": {
+      "backend": "simde-pure-value",
+      "build_evidence": {
+        "byte_length": 44025,
+        "file": "arm-batch/build-evidence.json",
+        "sha256": "f9e9e6d00b9bd8d8eed70178071c2e0fbc7d8c48b3e2f811a12213007c9d037a"
+      },
+      "compiled_candidates": 1895,
+      "directory": "arm-batch",
+      "environment": {
+        "kind": "linux_process_observation",
+        "machine": "aarch64",
+        "system": "Linux"
+      },
+      "executed_candidates": 1895,
+      "execution_layout": {
+        "byte_length": 283,
+        "file": "arm-batch/execution-layout.json",
+        "sha256": "9d853c0bf2fb97435f2dbb867e85f54e00bcdb36d6e406f94cd0adbfbf75022a"
+      },
+      "generated_source": {
+        "byte_length": 1393780,
+        "file": "arm-batch/build/unit-00000.c",
+        "sha256": "730dadaa2c65da2eb9b833192138640808a2e5704a562962041fb01a26f3cc48"
+      },
+      "invoked_candidates": 1895,
+      "layout": {
+        "driver_sha256": "e9b15a5c63c00e8e8368024dea089542b13a35e07fd480d3437308719c6e9512",
+        "purpose": "Compile the complete selected catalog in one unit; unchanged generator and case execution.",
+        "schema_version": 1,
+        "source_commit": "e3092c451238d77efe241d91a719df0c51ed993a"
+      },
+      "library": {
+        "byte_length": 512000,
+        "file": "arm-batch/build/unit-00000.so",
+        "sha256": "d77fc01532b1f337485116c336dc1d3dd606187ec08e039fbbf229d29246ffc2"
+      },
+      "manifest": {
+        "byte_length": 44546,
+        "file": "arm-batch/results.manifest.json",
+        "sha256": "cdeadaecbf97c5f372d2ff551dd1084468187edf960f88f66a0eb8f4298f6599"
+      },
+      "record_count": 60392,
+      "results": {
+        "byte_length": 29399683,
+        "file": "arm-batch/results.jsonl",
+        "sha256": "7ea2dd4b3dde0f2749aa41280dbf20cfe67cab77009368995f365d4b18d33802"
+      },
+      "status_counts": {
+        "ok": 60392
+      },
+      "unsupported_candidates": 0
+    },
+    "intel": {
+      "backend": "intel-intrinsics",
+      "build_evidence": {
+        "byte_length": 44031,
+        "file": "intel-batch/build-evidence.json",
+        "sha256": "a71d4b38111535fc16cad7e054755f157224afe05ff267b47690b9fff2607d98"
+      },
+      "compiled_candidates": 1895,
+      "directory": "intel-batch",
+      "environment": {
+        "kind": "linux_process_observation",
+        "machine": "x86_64",
+        "system": "Linux"
+      },
+      "executed_candidates": 552,
+      "execution_layout": {
+        "byte_length": 283,
+        "file": "intel-batch/execution-layout.json",
+        "sha256": "9d853c0bf2fb97435f2dbb867e85f54e00bcdb36d6e406f94cd0adbfbf75022a"
+      },
+      "generated_source": {
+        "byte_length": 1489014,
+        "file": "intel-batch/build/unit-00000.c",
+        "sha256": "f45c2ea221d2a9f163519688881c99772698f2f64f78ab294e8441417a502968"
+      },
+      "invoked_candidates": 1895,
+      "layout": {
+        "driver_sha256": "e9b15a5c63c00e8e8368024dea089542b13a35e07fd480d3437308719c6e9512",
+        "purpose": "Compile the complete selected catalog in one unit; unchanged generator and case execution.",
+        "schema_version": 1,
+        "source_commit": "e3092c451238d77efe241d91a719df0c51ed993a"
+      },
+      "library": {
+        "byte_length": 401568,
+        "file": "intel-batch/build/unit-00000.so",
+        "sha256": "3967ec4fa7c461590520a52bfe63f52dfbcb2b361e42affb232fb067ff5cd468"
+      },
+      "manifest": {
+        "byte_length": 44574,
+        "file": "intel-batch/results.manifest.json",
+        "sha256": "5cf173490ec3830e85b7850784a02af6af4dc33c02115bd4820a533b25d877c0"
+      },
+      "record_count": 60392,
+      "results": {
+        "byte_length": 27038718,
+        "file": "intel-batch/results.jsonl",
+        "sha256": "c695e8c8143e7d9ce2c575e426ad178f5679d1e4f243fb7af7ae5beeea7f1606"
+      },
+      "status_counts": {
+        "ok": 17540,
+        "unsupported_cpu": 42852
+      },
+      "unsupported_candidates": 1343
+    },
+    "openpower": {
+      "backend": "simde-pure-value",
+      "build_evidence": {
+        "byte_length": 44076,
+        "file": "openpower-fork/build-evidence.json",
+        "sha256": "76c4ec872fea0ae684f083f823939fe0c2541d71ef783f74aaef7707820f6319"
+      },
+      "compiled_candidates": 1895,
+      "directory": "openpower-fork",
+      "environment": {
+        "kind": "linux_process_observation",
+        "machine": "ppc64le",
+        "system": "Linux"
+      },
+      "executed_candidates": 1895,
+      "execution_layout": {
+        "byte_length": 699,
+        "file": "openpower-fork/execution-layout.json",
+        "sha256": "894c4f7e6d306c313272ecc1d8d41fbf9bc20244cc6f66d91d595b14c4e8f23d"
+      },
+      "generated_source": {
+        "byte_length": 1393780,
+        "file": "openpower-fork/build/unit-00000.c",
+        "sha256": "730dadaa2c65da2eb9b833192138640808a2e5704a562962041fb01a26f3cc48"
+      },
+      "invoked_candidates": 1895,
+      "layout": {
+        "case_isolation": "os.fork with stdout pipe; per-input SIGALRM and original parent deadline retained",
+        "driver_sha256": "ef1cb5975bfa7e1a5eeaaa1c79eaa0e5ce027bdd43711ad0e36769aa7ce34683",
+        "fork_worker_sha256": "3e28d5a01e9c56999e0753300b95d66f85ae727e2d0d3ba7b47fc7a6081ec308",
+        "new_python_interpreter_per_case": false,
+        "purpose": "One compilation unit with original 180-second/bisection policy; each case runs in a fresh fork using the unchanged committed _worker_main and result parser.",
+        "schema_version": 1,
+        "source_commit": "e3092c451238d77efe241d91a719df0c51ed993a",
+        "stdout_capture": "file descriptor 1, Python stream, os.write, and libc stdout; stderr uses descriptor 2"
+      },
+      "library": {
+        "byte_length": 702816,
+        "file": "openpower-fork/build/unit-00000.so",
+        "sha256": "aac4211b0df810c75e19c68cb75acc6800723c013b81f13dfdbce9612e9de643"
+      },
+      "manifest": {
+        "byte_length": 44552,
+        "file": "openpower-fork/results.manifest.json",
+        "sha256": "587778f1438ee34f7f7954a7d2c54886021385d31597fe03356b3e8d3602ce34"
+      },
+      "record_count": 60392,
+      "results": {
+        "byte_length": 29822565,
+        "file": "openpower-fork/results.jsonl",
+        "sha256": "77c9d4195fadf54e2d3f93522be4aaa3396dd7f3b583a7c091c5218503e78acf"
+      },
+      "status_counts": {
+        "ok": 60392
+      },
+      "unsupported_candidates": 0
+    },
+    "riscv": {
+      "backend": "simde-pure-value",
+      "build_evidence": {
+        "byte_length": 44029,
+        "file": "riscv-fork/build-evidence.json",
+        "sha256": "1ad3d13ec8ffc405d577f087a9dd2205f0055f83bec6c300c9f295638f672840"
+      },
+      "compiled_candidates": 1895,
+      "directory": "riscv-fork",
+      "environment": {
+        "kind": "linux_process_observation",
+        "machine": "riscv64",
+        "system": "Linux"
+      },
+      "executed_candidates": 1895,
+      "execution_layout": {
+        "byte_length": 699,
+        "file": "riscv-fork/execution-layout.json",
+        "sha256": "894c4f7e6d306c313272ecc1d8d41fbf9bc20244cc6f66d91d595b14c4e8f23d"
+      },
+      "generated_source": {
+        "byte_length": 1393780,
+        "file": "riscv-fork/build/unit-00000.c",
+        "sha256": "730dadaa2c65da2eb9b833192138640808a2e5704a562962041fb01a26f3cc48"
+      },
+      "invoked_candidates": 1895,
+      "layout": {
+        "case_isolation": "os.fork with stdout pipe; per-input SIGALRM and original parent deadline retained",
+        "driver_sha256": "ef1cb5975bfa7e1a5eeaaa1c79eaa0e5ce027bdd43711ad0e36769aa7ce34683",
+        "fork_worker_sha256": "3e28d5a01e9c56999e0753300b95d66f85ae727e2d0d3ba7b47fc7a6081ec308",
+        "new_python_interpreter_per_case": false,
+        "purpose": "One compilation unit with original 180-second/bisection policy; each case runs in a fresh fork using the unchanged committed _worker_main and result parser.",
+        "schema_version": 1,
+        "source_commit": "e3092c451238d77efe241d91a719df0c51ed993a",
+        "stdout_capture": "file descriptor 1, Python stream, os.write, and libc stdout; stderr uses descriptor 2"
+      },
+      "library": {
+        "byte_length": 559456,
+        "file": "riscv-fork/build/unit-00000.so",
+        "sha256": "e2aad4089bc13abf9103eec40d0f301d423883a7ade1b9fa8b6f3ac62e2c38f5"
+      },
+      "manifest": {
+        "byte_length": 44548,
+        "file": "riscv-fork/results.manifest.json",
+        "sha256": "41a88b78bc791928c408f0f7c68ca19d8e8f62c6b944721a62a2d554e487c8c1"
+      },
+      "record_count": 60392,
+      "results": {
+        "byte_length": 29583349,
+        "file": "riscv-fork/results.jsonl",
+        "sha256": "a0c635be35ba21cb33cdc5fa3ef8811514c448083689ab438f9996932b4f213a"
+      },
+      "status_counts": {
+        "ok": 60392
+      },
+      "unsupported_candidates": 0
+    }
+  },
+  "schema_version": 1,
+  "simde_commit": "44f2762bce640b36721d1f7dac27514acb88d22d",
+  "source_commit": "e3092c451238d77efe241d91a719df0c51ed993a",
+  "source_file_sha256": {
+    "src/equilane/extended.py": "0b06ff3f3895105bb60fcb145ffdde25bea38c63c60be6556cc462a7ced4e245",
+    "src/equilane/simde_codegen.py": "8968702a29f0c1ed0f9a771501831873b18d32429ba6a999174678e72434ec08"
+  },
+  "source_identity": {
+    "catalog_sha256": "39623021b9a7ca94b08aca0b60960de492396088812b6cfe3b2679f3f953cd7b",
+    "vendor_header_tree_sha256": "343fe2dcc16f4c65f48f6dea789ca80b61f378ab113047290b1d87155623daf2",
+    "vendor_provenance_sha256": "a421c1ed0ce060b82526b00223df675c66122ff72d87683fddb0234c8c0b458f"
+  },
+  "status": "completed_with_differences_and_unsupported_features"
+}

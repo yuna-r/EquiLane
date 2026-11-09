@@ -14,6 +14,35 @@ The [coverage audit and missing-name lists](documentation/intrinsic-coverage.jso
 
 [Published guide and reports](https://yuna-r.github.io/EquiLane/index.en.html)
 
+## Execution results for 1,895 additional candidates
+
+The separate **SIMDe pure-value extension of 1,895 candidates** was processed in all four environments
+using the same 60,392 inputs. Every candidate was built and its outcome recorded.
+Intel results come from actual intrinsics after their CPU-feature guards pass.
+
+| Environment | Candidates whose C implementation ran | `ok` inputs | CPU unsupported |
+|---|---:|---:|---:|
+| Intel | 552 / 1,895 | 17,540 | 1,343 candidates / 42,852 inputs |
+| ARM64 | 1,895 / 1,895 | 60,392 | 0 |
+| OpenPOWER | 1,895 / 1,895 | 60,392 | 0 |
+| RISC-V64 | 1,895 / 1,895 | 60,392 | 0 |
+
+Return bytes were compared for the 17,540 inputs executable on both Intel and each target.
+The recorded raw differences are 1,008 for ARM64, 981 for OpenPOWER, and 1,735 for RISC-V64.
+Approximate reciprocal/rsqrt error bounds and undefined upper bits in widening casts still require
+evaluation under each API's specification. Floating-point exception flags are recorded separately as diagnostics.
+Execution completion and specification conformance are separate results.
+
+[Read the execution report in your browser](https://yuna-r.github.io/EquiLane/extended/index.en.html) · [Japanese](https://yuna-r.github.io/EquiLane/extended/)
+
+Search functions and inspect argument, Intel and target return values directly in HTML.
+The [saved HTML](reports/extended-1895/index.en.html) and [measured summary JSON](reports/extended-1895/execution-summary.json) are also included.
+
+After switching to Docker VMM, the same Ubuntu environment still exposed no AVX-512 support, and an unguarded AVX-512 instruction raised SIGILL. `QEMU_CPU=max` made no difference. The limitation is in the current x86 emulation environment. [Diagnostic measurements](documentation/intel-cpu-diagnosis.json) are retained.
+
+Support for all 7,126 Guide names remains incomplete. Other development, including masked, FP16,
+and AMX work, remains paused. The [checkpoint status](documentation/pause-status.json) records completed and remaining work.
+
 ## Compare all four environments
 
 The shared verification environment is **Ubuntu 26.04 LTS in Docker**.

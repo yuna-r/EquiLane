@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.intel-cpu-diagnosis",
+  "language": "en",
+  "recorded_date": "2026-11-10",
+  "date_timezone": "Asia/Tokyo",
+  "host_docker_architecture": "aarch64",
+  "container_platform": "linux/amd64",
+  "docker_image": "equilane/ubuntu26.04:verify-intel",
+  "vmm_selection": "Docker VMM, reported by the user",
+  "measurements": [
+    {
+      "mode": "default",
+      "measured_at": "2026-11-09T22:50:37.333043+00:00",
+      "container_architecture": "x86_64",
+      "kernel": "7.0.14-linuxkit",
+      "ubuntu": {
+        "ID": "ubuntu",
+        "VERSION_ID": "26.04",
+        "PRETTY_NAME": "Ubuntu 26.04.1 LTS"
+      },
+      "cpuid": {
+        "vendor": "AuthenticAMD",
+        "brand": "QEMU TCG CPU version 2.5+",
+        "max_basic_leaf": 13,
+        "leaf1_ecx": "0xfffa320b",
+        "leaf7_ebx": "0x219c47a9",
+        "leaf7_ecx": "0x8041020c",
+        "leaf7_edx": "0x84000010",
+        "osxsave": true,
+        "xcr0": "0x000000000000021f",
+        "features": {
+          "sse2": true,
+          "sse3": true,
+          "ssse3": true,
+          "sse4.1": true,
+          "sse4.2": true,
+          "avx": true,
+          "avx2": true,
+          "fma": true,
+          "f16c": true,
+          "bmi": true,
+          "bmi2": true,
+          "aes": true,
+          "pclmul": true,
+          "gfni": false,
+          "avxvnni": false,
+          "avx512f": false,
+          "avx512bw": false,
+          "avx512dq": false,
+          "avx512vl": false,
+          "avx512cd": false,
+          "avx512vbmi": false,
+          "avx512vbmi2": false,
+          "avx512vnni": false,
+          "avx512bitalg": false,
+          "avx512vpopcntdq": false,
+          "avx512fp16": false
+        }
+      },
+      "unchecked_avx512": {
+        "returncode": -4,
+        "stdout": "",
+        "stderr": "qemu: uncaught target signal 4 (Illegal instruction) - core dumped"
+      },
+      "probe_binary_sha256": "63a84a5197a8fb1a3312596a9c76d753f7e2173a0edcbcd25023b8960976a811"
+    },
+    {
+      "mode": "max",
+      "measured_at": "2026-11-09T22:50:36.746057+00:00",
+      "container_architecture": "x86_64",
+      "kernel": "7.0.14-linuxkit",
+      "ubuntu": {
+        "ID": "ubuntu",
+        "VERSION_ID": "26.04",
+        "PRETTY_NAME": "Ubuntu 26.04.1 LTS"
+      },
+      "cpuid": {
+        "vendor": "AuthenticAMD",
+        "brand": "QEMU TCG CPU version 2.5+",
+        "max_basic_leaf": 13,
+        "leaf1_ecx": "0xfffa320b",
+        "leaf7_ebx": "0x219c47a9",
+        "leaf7_ecx": "0x8041020c",
+        "leaf7_edx": "0x84000010",
+        "osxsave": true,
+        "xcr0": "0x000000000000021f",
+        "features": {
+          "sse2": true,
+          "sse3": true,
+          "ssse3": true,
+          "sse4.1": true,
+          "sse4.2": true,
+          "avx": true,
+          "avx2": true,
+          "fma": true,
+          "f16c": true,
+          "bmi": true,
+          "bmi2": true,
+          "aes": true,
+          "pclmul": true,
+          "gfni": false,
+          "avxvnni": false,
+          "avx512f": false,
+          "avx512bw": false,
+          "avx512dq": false,
+          "avx512vl": false,
+          "avx512cd": false,
+          "avx512vbmi": false,
+          "avx512vbmi2": false,
+          "avx512vnni": false,
+          "avx512bitalg": false,
+          "avx512vpopcntdq": false,
+          "avx512fp16": false
+        }
+      },
+      "unchecked_avx512": {
+        "returncode": -4,
+        "stdout": "",
+        "stderr": "qemu: uncaught target signal 4 (Illegal instruction) - core dumped"
+      },
+      "probe_binary_sha256": "63a84a5197a8fb1a3312596a9c76d753f7e2173a0edcbcd25023b8960976a811"
+    }
+  ],
+  "findings": [
+    "AVX2, FMA and the other listed supported features are exposed; AVX-512 feature flags are absent.",
+    "QEMU_CPU=max did not change the measured feature flags.",
+    "An actual AVX-512 add, called without the guard, terminated with SIGILL in both configurations.",
+    "The measured limit is in the current x86 emulation environment; the CPU guard agrees with direct instruction execution."
+  ],
+  "interpretation": [
+    "The CPUID brand is a model string, not evidence of the QEMU binary version.",
+    "The prior 1895-function results remain the original observations. These later measurements do not retroactively identify their emulator or VMM.",
+    "The earlier phase-A timing could not be reliably classified as before or after the VMM change and is excluded."
+  ],
+  "sources": [
+    "https://docs.docker.com/build/building/multi-platform/",
+    "https://docs.docker.com/desktop/features/vmm/"
+  ]
+}

@@ -12,14 +12,15 @@
     "New tests exposed OpenPOWER signaling-NaN changes in set/setr/set_scalar/shuffle. The implementations were corrected without weakening expectations.",
     "The adversarial input profile generates up to 512 distinct inputs per operation and respects finite input domains. All comparisons retain complete difference JSONL; HTML and standalone replay bundles have explicit limits.",
     "English READMEs, JSON guides, reports and Studio language switching were added. The bilingual presentation regression suite passed 96 tests.",
-    "SIMDe pure-value backend generates 1895 additional candidate implementations. All four architecture compilation checks passed; full per-operation execution and conformance remain incomplete.",
+    "The separate SIMDe pure-value backend completed processing of all 1895 candidates in four environments using 60392 distinct inputs. All candidates compiled. ARM, OpenPOWER and RISC-V each executed all 1895 candidates with 60392 ok input records. Intel executed 552 candidates with 17540 ok records; CPU-feature guards recorded 1343 candidates and 42852 inputs as unsupported_cpu. This is execution evidence, not complete specification conformance.",
     "A separate masked backend generates 233 candidate implementations. Initial Intel/ARM compilation and focused tests passed; the final catalog representation change still needs revalidation.",
     "SoftFloat-backed packed FP16 arithmetic implements 117 signatures. All portable lane/mask test cases and the Intel reference compilation check passed; four-architecture comparison remains incomplete.",
     "An AMX explicit-state implementation covers 27 entry points and passed focused local tests. Four-architecture checks and CLI integration remain incomplete."
   ],
   "known_findings": [
     "Independent portable-model tests retain the previous 2159 findings and detected an additional 9010 rounding-extension findings in a separate run. No clean aggregate quality run is claimed.",
-    "Unavailable Intel CPU instructions are recorded as unsupported/not comparable, not replaced with SIMDe or SoftFloat reference values."
+    "Unavailable Intel CPU instructions are recorded as unsupported/not comparable, not replaced with SIMDe or SoftFloat reference values.",
+    "Among 17540 inputs executable on both Intel and each target, raw return-byte differences were ARM 1008, OpenPOWER 981 and RISC-V 1735. Approximate reciprocal/rsqrt results and undefined upper cast bits require per-API interpretation; no raw verdict was rewritten. FP exception flags are diagnostic-only observations."
   ],
   "remaining": [
     "Complete the remaining Guide API implementations and keep registration, compilation, execution and conformance counts separate.",
@@ -32,12 +33,100 @@
   "publication": {
     "source_push_requested": true,
     "pages_updated_in_this_checkpoint": false,
-    "ci_skipped_for_pause": true
+    "ci_skipped_for_pause": true,
+    "execution_results_push_requested": true,
+    "repository_report_paths": [
+      "reports/extended-1895/index.html",
+      "reports/extended-1895/index.en.html",
+      "reports/extended-1895/execution-summary.json"
+    ]
   },
   "local_evidence": [
     {
       "file": "artifacts/test-expansion/native-adversarial-summary.json",
       "sha256": "79200fdc19b7d555d4e36b14fbe7c0c1d63a5af0ee3ed0f6da915859e400292d"
+    },
+    {
+      "file": "artifacts/test-expansion/extended-full-1895/execution-summary.json",
+      "sha256": "6f759298fe8715beba9fd68b3bd889cf84046a1b4b3dd91bf5040d3421632e0e"
     }
-  ]
+  ],
+  "extended_pure_value_execution": {
+    "status": "completed_with_differences_and_unsupported_features",
+    "processing_complete": true,
+    "specification_conformance_complete": false,
+    "source_commit": "e3092c451238d77efe241d91a719df0c51ed993a",
+    "simde_commit": "44f2762bce640b36721d1f7dac27514acb88d22d",
+    "candidate_count": 1895,
+    "distinct_inputs": 60392,
+    "result_records": 241568,
+    "physical_hardware_evidence": false,
+    "roles": {
+      "arm": {
+        "compiled_candidates": 1895,
+        "invoked_candidates": 1895,
+        "executed_candidates": 1895,
+        "unsupported_candidates": 0,
+        "record_count": 60392,
+        "status_counts": {
+          "ok": 60392
+        }
+      },
+      "intel": {
+        "compiled_candidates": 1895,
+        "invoked_candidates": 1895,
+        "executed_candidates": 552,
+        "unsupported_candidates": 1343,
+        "record_count": 60392,
+        "status_counts": {
+          "ok": 17540,
+          "unsupported_cpu": 42852
+        }
+      },
+      "openpower": {
+        "compiled_candidates": 1895,
+        "invoked_candidates": 1895,
+        "executed_candidates": 1895,
+        "unsupported_candidates": 0,
+        "record_count": 60392,
+        "status_counts": {
+          "ok": 60392
+        }
+      },
+      "riscv": {
+        "compiled_candidates": 1895,
+        "invoked_candidates": 1895,
+        "executed_candidates": 1895,
+        "unsupported_candidates": 0,
+        "record_count": 60392,
+        "status_counts": {
+          "ok": 60392
+        }
+      }
+    },
+    "comparison": {
+      "return_bytes": "bit_exact_raw_observations",
+      "floating_point_flags": "recorded_diagnostic_only",
+      "raw_difference_is_automatically_a_specification_violation": false,
+      "comparable_inputs_per_target": 17540,
+      "not_comparable_inputs_per_target": 42852,
+      "raw_byte_differences": {
+        "arm": 1008,
+        "openpower": 981,
+        "riscv": 1735
+      },
+      "review_required": [
+        "Approximate reciprocal and reciprocal-square-root error bounds.",
+        "Defined versus undefined bits in widening casts.",
+        "Per-API NaN and signed-zero requirements."
+      ]
+    },
+    "reports": {
+      "japanese": "reports/extended-1895/index.html",
+      "english": "reports/extended-1895/index.en.html",
+      "summary": "reports/extended-1895/execution-summary.json"
+    },
+    "other_development_status": "paused_at_user_request",
+    "all_guide_names_completed": false
+  }
 }

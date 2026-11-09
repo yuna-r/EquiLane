@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.published-extended-comparison",
+  "target": "openpower",
+  "source_summary_sha256": "49799e85327e25ee13f07a25f372465ca0d77a5553366f04f385f57028de820e",
+  "record_count": 60392,
+  "comparable_inputs": 17540,
+  "comparable_input_coverage_percent": "29.0436",
+  "matched_inputs": 16559,
+  "raw_byte_differences": 981,
+  "not_comparable_inputs": 42852,
+  "match_rate_among_comparable_percent": "94.4071",
+  "differing_function_count": 65,
+  "fp_flag_differences_diagnostic_only": 848,
+  "review_candidates": {
+    "approximate_reciprocal_or_rsqrt": {
+      "_mm256_rcp_ps": 30,
+      "_mm256_rsqrt_ps": 29,
+      "_mm_rcp_ps": 29,
+      "_mm_rcp_ss": 21,
+      "_mm_rsqrt_ps": 32,
+      "_mm_rsqrt_ss": 29
+    },
+    "classification": "name-based review candidates; no verdicts are rewritten",
+    "undefined_widening_casts": {
+      "_mm256_castpd128_pd256": 31,
+      "_mm256_castps128_ps256": 31,
+      "_mm256_castsi128_si256": 31
+    }
+  },
+  "differences": {
+    "file": "openpower/differences.jsonl.gz",
+    "compression": "gzip",
+    "compressed_byte_length": 3378106,
+    "compressed_sha256": "87cb399c7f1db863fb478f24567e5b91ffb306a661ecc79f5d1ae907b1248116",
+    "uncompressed_byte_length": 62772879,
+    "uncompressed_sha256": "2d0137c3070737c85ed181cb7f27184961e73964b690b2726c2dbfe720dce82e",
+    "record_count": 43833
+  },
+  "html": "openpower/index.html",
+  "html_en": "openpower/index.en.html",
+  "original_summary": "evidence/comparison-openpower.original.json"
+}

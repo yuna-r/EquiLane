@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.published-extended-comparison",
+  "target": "riscv",
+  "source_summary_sha256": "87224615dc5c26d47dc3d9591ebc2629d284ee93ef2c0673d40bce50f379935c",
+  "record_count": 60392,
+  "comparable_inputs": 17540,
+  "comparable_input_coverage_percent": "29.0436",
+  "matched_inputs": 15805,
+  "raw_byte_differences": 1735,
+  "not_comparable_inputs": 42852,
+  "match_rate_among_comparable_percent": "90.1083",
+  "differing_function_count": 92,
+  "fp_flag_differences_diagnostic_only": 836,
+  "review_candidates": {
+    "approximate_reciprocal_or_rsqrt": {
+      "_mm256_rcp_ps": 31,
+      "_mm256_rsqrt_ps": 30,
+      "_mm_rcp_ps": 31,
+      "_mm_rcp_ss": 23,
+      "_mm_rsqrt_ps": 32,
+      "_mm_rsqrt_ss": 32
+    },
+    "classification": "name-based review candidates; no verdicts are rewritten",
+    "undefined_widening_casts": {
+      "_mm256_castpd128_pd256": 31,
+      "_mm256_castps128_ps256": 31,
+      "_mm256_castsi128_si256": 31
+    }
+  },
+  "differences": {
+    "file": "riscv/differences.jsonl.gz",
+    "compression": "gzip",
+    "compressed_byte_length": 3454885,
+    "compressed_sha256": "8782a6d10cd55599cae65b962bb5fb837fd652b070f5b7d526a00677fbda7087",
+    "uncompressed_byte_length": 63482777,
+    "uncompressed_sha256": "345ea14f4e4d5d2431bdc85f6b782b327bde7e866706a9770676358fcd139be8",
+    "record_count": 44587
+  },
+  "html": "riscv/index.html",
+  "html_en": "riscv/index.en.html",
+  "original_summary": "evidence/comparison-riscv.original.json"
+}
