@@ -1,0 +1,105 @@
+{
+  "artifact_type": "equilane.public-report",
+  "schema_version": 1,
+  "status": "findings",
+  "wrapper_comparisons": [
+    {
+      "status": "mismatch",
+      "target": "openpower",
+      "samples": 762,
+      "matched": 737,
+      "mismatch_count": 25
+    },
+    {
+      "status": "mismatch",
+      "target": "arm",
+      "samples": 762,
+      "matched": 738,
+      "mismatch_count": 24
+    },
+    {
+      "status": "mismatch",
+      "target": "riscv",
+      "samples": 762,
+      "matched": 739,
+      "mismatch_count": 23
+    }
+  ],
+  "canonical_comparisons": [
+    {
+      "status": "mismatch",
+      "target": "openpower",
+      "record_count": 2032,
+      "matched_inputs": 2006,
+      "mismatched_inputs": 26,
+      "not_comparable_inputs": 0,
+      "mismatch_atoms": 34
+    },
+    {
+      "status": "mismatch",
+      "target": "arm",
+      "record_count": 2032,
+      "matched_inputs": 2016,
+      "mismatched_inputs": 16,
+      "not_comparable_inputs": 0,
+      "mismatch_atoms": 18
+    },
+    {
+      "status": "mismatch",
+      "target": "riscv",
+      "record_count": 2032,
+      "matched_inputs": 1994,
+      "mismatched_inputs": 38,
+      "not_comparable_inputs": 0,
+      "mismatch_atoms": 53
+    },
+    {
+      "status": "mismatch",
+      "target": "riscv-vlen256",
+      "record_count": 2032,
+      "matched_inputs": 1994,
+      "mismatched_inputs": 38,
+      "not_comparable_inputs": 0,
+      "mismatch_atoms": 53
+    }
+  ],
+  "native_tests": [
+    {
+      "status": "pass",
+      "target": "intel"
+    },
+    {
+      "status": "pass",
+      "target": "openpower"
+    },
+    {
+      "status": "pass",
+      "target": "arm"
+    },
+    {
+      "status": "pass",
+      "target": "riscv"
+    }
+  ],
+  "quality": {
+    "status": "findings",
+    "tests_run": 1349,
+    "skipped": 0,
+    "portable_model_mismatches": 2159,
+    "execution_and_assertion_errors": 0
+  },
+  "physical_hardware_evidence": false,
+  "created_at": "2026-11-09T21:27:13.449412+00:00",
+  "rvv_width_check": {
+    "status": "pass",
+    "samples": 762
+  },
+  "commit": "ec0ccc568f7784667a241615418eaa9fd5ecf3f3",
+  "repository": "yuna-r/EquiLane",
+  "detail_pages": [
+    "openpower",
+    "arm",
+    "riscv",
+    "riscv-vlen256"
+  ]
+}

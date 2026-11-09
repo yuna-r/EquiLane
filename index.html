@@ -1,0 +1,32 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>EquiLane — Intel Intrinsics 移植検証</title>
+<style>body{max-width:1100px;margin:3rem auto;padding:0 1rem;font:16px/1.7 system-ui;background:#faf7f0;color:#393244}h1{color:#70538f}table{width:100%;border-collapse:collapse;background:#fffdf9}th,td{padding:.7rem;border:1px solid #e6dfec;text-align:left}a{color:#70538f}.status{padding:1rem;background:#f8e5e9;border-radius:14px}code{overflow-wrap:anywhere}</style>
+<h1>Intel Intrinsics 移植検証</h1>
+<p class="status">検証状態: <strong>未適合・検証指摘あり</strong></p>
+<p>Intel Intrinsics の動作を各アーキテクチャへ正しく移植できているか、Intel の実行結果を基準としてケース契約に沿って検証します。Guide の関数をケースへ対応付け、共通入力を各実装の C ABI に渡し、戻り値とメモリ出力を照合します。</p>
+<p>共通環境は Ubuntu 26.04 LTS。対象は Intel / SSE2（linux/amd64）、OpenPOWER / VSX（linux/ppc64le）、ARM64 / NEON（linux/arm64）、RISC-V64 / RVV（linux/riscv64）。異種 CPU の実行はエミュレータの観測として扱います。</p>
+<p>実行・テスト工程の成否と、出力の意味上の一致を分けて表示します。各対象の詳細には <code>_mm_*</code> 関数、シグネチャ、操作、アーキテクチャ間の対応、期待値と実測値をまとめます。</p>
+<p>ケース契約で許容されない不一致は移植の不適合として扱い、原因の調査が必要です。契約が明示的に許容する差は比較ルールに従います。補助的な wrapper のビット差だけから個別の不具合を断定せず、契約に基づく判定と入力・実測値を確認してください。</p>
+<p><a href="summary.json">公開用の集計 JSON</a></p>
+<p>Source commit: <code>ec0ccc568f7784667a241615418eaa9fd5ecf3f3</code></p>
+<h2>共通 C ABI の比較</h2><table><tr><th>対象</th><th>状態</th><th>一致</th><th>不一致</th><th>合計</th><th>詳細</th></tr>
+<tr><td>OpenPOWER / VSX</td><td>未適合あり</td><td>2006</td><td>26</td><td>2032</td><td><a href="openpower/">ケースと検証範囲</a></td></tr>
+<tr><td>ARM64 / NEON</td><td>未適合あり</td><td>2016</td><td>16</td><td>2032</td><td><a href="arm/">ケースと検証範囲</a></td></tr>
+<tr><td>RISC-V / RVV（VLEN 128）</td><td>未適合あり</td><td>1994</td><td>38</td><td>2032</td><td><a href="riscv/">ケースと検証範囲</a></td></tr>
+<tr><td>RISC-V / RVV（VLEN 256）</td><td>未適合あり</td><td>1994</td><td>38</td><td>2032</td><td><a href="riscv-vlen256/">ケースと検証範囲</a></td></tr>
+</table>
+<h2>Wrapper のバイト比較</h2><table><tr><th>対象</th><th>状態</th><th>一致</th><th>不一致</th><th>合計</th><th>詳細</th></tr>
+<tr><td>OpenPOWER / VSX</td><td>ビット差あり（補助診断）</td><td>737</td><td>25</td><td>762</td><td>—</td></tr>
+<tr><td>ARM64 / NEON</td><td>ビット差あり（補助診断）</td><td>738</td><td>24</td><td>762</td><td>—</td></tr>
+<tr><td>RISC-V / RVV（VLEN 128）</td><td>ビット差あり（補助診断）</td><td>739</td><td>23</td><td>762</td><td>—</td></tr>
+</table>
+<h2>検証工程の実行状態</h2>
+<p>Intel / SSE2 CMake / CTest: 成功</p>
+<p>OpenPOWER / VSX CMake / CTest: 成功</p>
+<p>ARM64 / NEON CMake / CTest: 成功</p>
+<p>RISC-V / RVV（VLEN 128） CMake / CTest: 成功</p>
+<p>回帰テスト・画面 JS・sanitizer・cross build: 工程完了（モデルの検証指摘あり）</p>
+<p>実行した回帰テスト: 1,349件</p>
+<p>省略したテスト: 0件</p>
+<p>テスト実行エラー・その他の assertion 失敗: 0件</p>
+<h3>Python portable model の既知の不一致</h3><p>2,159件。開発用モデルの出力を、独立した期待値と照合して検出した指摘です。移植先 C 実装の適合判定は、上の「共通 C ABI の比較」で確認できます。</p>
+<p>適合の表示は、今回のケース契約と入力範囲についての結果です。未適合の入力は、詳細ページの関数・丸め条件・期待値・実測値から調査できます。実行工程の完了と Intel 互換要求への適合は、それぞれの欄で確認してください。</p></html>

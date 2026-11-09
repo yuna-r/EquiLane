@@ -1,0 +1,36 @@
+{
+  "artifact_type": "equilane.pages-export",
+  "schema_version": 1,
+  "exported_at": "2026-11-09T21:33:54.447321+00:00",
+  "status": "findings",
+  "files": [
+    {
+      "file": ".nojekyll",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "arm/index.html",
+      "sha256": "10552ebcdad1f60ef32253076c5fee1be7fcb907f6e6b134c98182439a76d338"
+    },
+    {
+      "file": "index.html",
+      "sha256": "fa59d86a29bc49ca0b6222b18d41d137d41706ef0fb9958969d03772cb7ddfe8"
+    },
+    {
+      "file": "openpower/index.html",
+      "sha256": "c96b5159b6727d38039285249df5540876fc7e8312fded4a8979e4b52ae73b21"
+    },
+    {
+      "file": "riscv/index.html",
+      "sha256": "740c09f8c2bd92810ca15483856b0f0551532032ebfd51379ba28fc81deac0f6"
+    },
+    {
+      "file": "riscv-vlen256/index.html",
+      "sha256": "78e2e643a7a492a0bd61e669f9a3cfa57217de876f609cd1c236d0d6bcc615bd"
+    },
+    {
+      "file": "summary.json",
+      "sha256": "5d286b99236da2c9994cc9e6a431167448bf6c8711babe176cb53e0da4082ee6"
+    }
+  ]
+}
