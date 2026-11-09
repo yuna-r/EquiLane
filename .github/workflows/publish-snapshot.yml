@@ -1,0 +1,55 @@
+name: Publish verified report snapshot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish the verified local report
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: github-pages-deployment
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Read the sanitized snapshot
+        uses: actions/checkout@v7
+        with:
+          ref: gh-pages
+          path: saved-report
+          persist-credentials: false
+      - name: Stage only public report files
+        shell: bash
+        run: |
+          mkdir _site
+          for file in index.html summary.json deployment.json .nojekyll; do
+            test -f "saved-report/$file"
+            test ! -L "saved-report/$file"
+            cp "saved-report/$file" "_site/$file"
+          done
+          for target in openpower arm riscv riscv-vlen256; do
+            if [ -d "saved-report/$target" ]; then
+              test ! -L "saved-report/$target"
+              test -f "saved-report/$target/index.html"
+              test ! -L "saved-report/$target/index.html"
+              mkdir "_site/$target"
+              cp "saved-report/$target/index.html" "_site/$target/index.html"
+            fi
+          done
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload public report snapshot
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - name: Deploy verified snapshot
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -64,6 +64,9 @@ jobs:
 
   deploy:
     name: Publish reports
+    concurrency:
+      group: github-pages-deployment
+      cancel-in-progress: false
     needs: reports
     if: always() && needs.reports.outputs.artifact_ready == 'true'
     runs-on: ubuntu-latest
