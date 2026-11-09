@@ -288,3 +288,49 @@ void arm_storer_f32x4(void *destination, f32x4 a)
         ((u32x4)a)[3], ((u32x4)a)[2], ((u32x4)a)[1], ((u32x4)a)[0]};
     __builtin_memcpy(destination, values, sizeof(values));
 }
+
+/* Aligned memory and zero constructors added to the encoded case registry. */
+f32x4 arm_setzero_f32x4(void)
+{
+    return (f32x4)vdupq_n_u32(0);
+}
+
+f32x4 arm_load_f32x4(const void *source)
+{
+    return arm_loadu_f32x4(__builtin_assume_aligned(source, 16));
+}
+
+void arm_store_f32x4(void *destination, f32x4 a)
+{
+    arm_storeu_f32x4(__builtin_assume_aligned(destination, 16), a);
+}
+
+f32x4 arm_loadh_f32x4(f32x4 a, const void *source)
+{
+    unsigned long long loaded;
+    __builtin_memcpy(&loaded, source, sizeof(loaded));
+    u64x2 bits = (u64x2)a;
+    return (f32x4)(u64x2){bits[0], loaded};
+}
+
+void arm_storeh_f32x4(void *destination, f32x4 a)
+{
+    u64x2 bits = (u64x2)a;
+    unsigned long long stored = bits[1];
+    __builtin_memcpy(destination, &stored, sizeof(stored));
+}
+
+f32x4 arm_loadl_f32x4(f32x4 a, const void *source)
+{
+    unsigned long long loaded;
+    __builtin_memcpy(&loaded, source, sizeof(loaded));
+    u64x2 bits = (u64x2)a;
+    return (f32x4)(u64x2){loaded, bits[1]};
+}
+
+void arm_storel_f32x4(void *destination, f32x4 a)
+{
+    u64x2 bits = (u64x2)a;
+    unsigned long long stored = bits[0];
+    __builtin_memcpy(destination, &stored, sizeof(stored));
+}

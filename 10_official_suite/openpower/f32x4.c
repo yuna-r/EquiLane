@@ -7,14 +7,32 @@ typedef __vector signed int i32x4;
 typedef __vector unsigned int u32x4;
 typedef __vector unsigned long long u64x2;
 
+/* Keep the non-signaling scalar conversion used by vec_splats separate.
+ * Combining float constructors lets Clang use xvcvdpsp, which quiets sNaNs.
+ * This register barrier emits no instructions and prevents that combination. */
+static u32x4 raw_f32_lanes(float value)
+{
+    u32x4 bits = (u32x4)vec_splats(value);
+    __asm__("" : "+v"(bits));
+    return bits;
+}
+
 f32x4 power_set_f32x4(float lane3, float lane2, float lane1, float lane0)
 {
-    return (f32x4){lane0, lane1, lane2, lane3};
+    u32x4 a = raw_f32_lanes(lane0);
+    u32x4 b = raw_f32_lanes(lane1);
+    u32x4 c = raw_f32_lanes(lane2);
+    u32x4 d = raw_f32_lanes(lane3);
+    return (f32x4)(u32x4){a[0], b[0], c[0], d[0]};
 }
 
 f32x4 power_setr_f32x4(float lane0, float lane1, float lane2, float lane3)
 {
-    return (f32x4){lane0, lane1, lane2, lane3};
+    u32x4 a = raw_f32_lanes(lane0);
+    u32x4 b = raw_f32_lanes(lane1);
+    u32x4 c = raw_f32_lanes(lane2);
+    u32x4 d = raw_f32_lanes(lane3);
+    return (f32x4)(u32x4){a[0], b[0], c[0], d[0]};
 }
 
 f32x4 power_set1_f32x4(float value)
@@ -24,8 +42,8 @@ f32x4 power_set1_f32x4(float value)
 
 f32x4 power_set_scalar_f32x4(float value)
 {
-    union { float value; unsigned bits; } scalar = {value};
-    return (f32x4)(u32x4){scalar.bits, 0, 0, 0};
+    u32x4 a = raw_f32_lanes(value);
+    return (f32x4)(a & (u32x4){0xffffffffU, 0, 0, 0});
 }
 
 f32x4 power_load1_f32x4(const void *source)
@@ -144,8 +162,11 @@ f64x2 power_cvt_i64_f64x2(f64x2 a, long long value)
 
 f32x4 power_shuffle_f32x4(f32x4 a, f32x4 b, unsigned imm)
 {
-    return (f32x4){a[imm & 3U], a[(imm >> 2) & 3U],
-                    b[(imm >> 4) & 3U], b[(imm >> 6) & 3U]};
+    /* SHUFPS moves bits; scalar float extraction can quiet signaling NaNs. */
+    u32x4 left = (u32x4)a;
+    u32x4 right = (u32x4)b;
+    return (f32x4)(u32x4){left[imm & 3U], left[(imm >> 2) & 3U],
+                         right[(imm >> 4) & 3U], right[(imm >> 6) & 3U]};
 }
 
 IOITF_BINARY(f32x4, f32x4, power_movehl_f32x4, (f32x4){b[2], b[3], a[2], a[3]})
@@ -673,4 +694,50 @@ void power_storer_f32x4(void *destination, f32x4 a)
     unsigned values[4] = {
         ((u32x4)a)[3], ((u32x4)a)[2], ((u32x4)a)[1], ((u32x4)a)[0]};
     __builtin_memcpy(destination, values, sizeof(values));
+}
+
+/* Aligned memory and zero constructors added to the encoded case registry. */
+f32x4 power_setzero_f32x4(void)
+{
+    return (f32x4)(u32x4){0, 0, 0, 0};
+}
+
+f32x4 power_load_f32x4(const void *source)
+{
+    return power_loadu_f32x4(__builtin_assume_aligned(source, 16));
+}
+
+void power_store_f32x4(void *destination, f32x4 a)
+{
+    power_storeu_f32x4(__builtin_assume_aligned(destination, 16), a);
+}
+
+f32x4 power_loadh_f32x4(f32x4 a, const void *source)
+{
+    unsigned long long loaded;
+    __builtin_memcpy(&loaded, source, sizeof(loaded));
+    u64x2 bits = (u64x2)a;
+    return (f32x4)(u64x2){bits[0], loaded};
+}
+
+void power_storeh_f32x4(void *destination, f32x4 a)
+{
+    u64x2 bits = (u64x2)a;
+    unsigned long long stored = bits[1];
+    __builtin_memcpy(destination, &stored, sizeof(stored));
+}
+
+f32x4 power_loadl_f32x4(f32x4 a, const void *source)
+{
+    unsigned long long loaded;
+    __builtin_memcpy(&loaded, source, sizeof(loaded));
+    u64x2 bits = (u64x2)a;
+    return (f32x4)(u64x2){loaded, bits[1]};
+}
+
+void power_storel_f32x4(void *destination, f32x4 a)
+{
+    u64x2 bits = (u64x2)a;
+    unsigned long long stored = bits[0];
+    __builtin_memcpy(destination, &stored, sizeof(stored));
 }

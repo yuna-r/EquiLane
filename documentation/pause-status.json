@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.paused-development-status",
+  "date": "2026-11-10",
+  "language": "en",
+  "status": "paused_at_user_request",
+  "requested_scope": "Add tests, provide English versions of all Japanese material, and expand support toward all 7,126 distinct Intel Intrinsics Guide 3.6.9 names.",
+  "complete": false,
+  "completed": [
+    "The original shared-ABI suite was expanded from 254 to 268 registered intrinsic names, including 14 zero/aligned-memory/partial-memory operations.",
+    "The 268-case native adversarial suite passed 219 tests on each of Intel, ARM, OpenPOWER and RISC-V: 876 test executions, 288740 ABI calls, 3464504 lane checks. Additional RISC-V VLEN256 tests passed.",
+    "New tests exposed OpenPOWER signaling-NaN changes in set/setr/set_scalar/shuffle. The implementations were corrected without weakening expectations.",
+    "The adversarial input profile generates up to 512 distinct inputs per operation and respects finite input domains. All comparisons retain complete difference JSONL; HTML and standalone replay bundles have explicit limits.",
+    "English READMEs, JSON guides, reports and Studio language switching were added. The bilingual presentation regression suite passed 96 tests.",
+    "SIMDe pure-value backend generates 1895 additional candidate implementations. All four architecture compilation checks passed; full per-operation execution and conformance remain incomplete.",
+    "A separate masked backend generates 233 candidate implementations. Initial Intel/ARM compilation and focused tests passed; the final catalog representation change still needs revalidation.",
+    "SoftFloat-backed packed FP16 arithmetic implements 117 signatures. All portable lane/mask test cases and the Intel reference compilation check passed; four-architecture comparison remains incomplete.",
+    "An AMX explicit-state implementation covers 27 entry points and passed focused local tests. Four-architecture checks and CLI integration remain incomplete."
+  ],
+  "known_findings": [
+    "Independent portable-model tests retain the previous 2159 findings and detected an additional 9010 rounding-extension findings in a separate run. No clean aggregate quality run is claimed.",
+    "Unavailable Intel CPU instructions are recorded as unsupported/not comparable, not replaced with SIMDe or SoftFloat reference values."
+  ],
+  "remaining": [
+    "Complete the remaining Guide API implementations and keep registration, compilation, execution and conformance counts separate.",
+    "Run the final integrated regression and complete Docker pipelines after the last source changes.",
+    "Revalidate masked adapters after the final fixed-width hexadecimal catalog change.",
+    "Complete FP16/masked/AMX cross-architecture execution and report integration.",
+    "Refresh preview assets and publish a newly verified bilingual GitHub Pages snapshot.",
+    "Update older documentation examples and counts where they still describe previous 254-case snapshots."
+  ],
+  "publication": {
+    "source_push_requested": true,
+    "pages_updated_in_this_checkpoint": false,
+    "ci_skipped_for_pause": true
+  },
+  "local_evidence": [
+    {
+      "file": "artifacts/test-expansion/native-adversarial-summary.json",
+      "sha256": "79200fdc19b7d555d4e36b14fbe7c0c1d63a5af0ee3ed0f6da915859e400292d"
+    }
+  ]
+}

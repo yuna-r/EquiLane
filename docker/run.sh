@@ -172,8 +172,10 @@ canonical_pipeline() {
     # The same canonical vectors are decoded by the actual C ABI on every CPU.
     ensure_comparator || return 2
     code=0
+    default_count=8
+    if [ "${EQUILANE_PROFILE:-smoke}" = adversarial ]; then default_count=512; fi
     run_target "$comparator_role" equilane generate-vectors --profile "${EQUILANE_PROFILE:-smoke}" \
-        --count-per-case "${EQUILANE_COUNT_PER_CASE:-8}" --output /results/vectors || code=$?
+        --count-per-case "${EQUILANE_COUNT_PER_CASE:-$default_count}" --output /results/vectors || code=$?
     if [ "$code" -ne 0 ]; then record_error canonical-vectors generate "$code"; return 2; fi
     for target in intel openpower arm riscv; do
         code=0

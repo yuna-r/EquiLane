@@ -35,6 +35,7 @@ jobs:
         env:
           EQUILANE_GIT_COMMIT: ${{ github.sha }}
           EQUILANE_JOBS: '2'
+          EQUILANE_PROFILE: adversarial
         run: |
           set +e
           ./docker/run.sh verify artifacts/docker-ci

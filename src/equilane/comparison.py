@@ -13,7 +13,7 @@ from .artifacts import (
     validate_input_artifact,
     validate_result_artifact,
 )
-from .canonical import JSONValue, atomic_write, dump_bytes
+from .canonical import JSONValue, atomic_write, dump_bytes, write_jsonl
 from .cases import CaseRegistry
 from .compare import compare_result_record_set
 from .errors import (
@@ -200,6 +200,7 @@ def compare_artifacts(
     allow_development_fixtures: bool = False,
     jobs: int = 1,
     progress: Callable[[int], None] | None = None,
+    failure_limit: int | None = None,
 ) -> ComparisonRun:
     """Compare validated snapshots and write reports without terminal output.
 
@@ -209,6 +210,10 @@ def compare_artifacts(
     """
 
     inputs = context.input_artifact
+    if failure_limit is not None and (type(failure_limit) is not int or failure_limit < 0):
+        raise ValidationError("failure limit must be a nonnegative integer")
+    if failure_limit is None and inputs.manifest["profile"] == "adversarial":
+        failure_limit = 128
     intel = context.intel_artifact
     openpower = context.openpower_artifact
     if context.target_role not in TARGET_TARGETS:
@@ -230,6 +235,8 @@ def compare_artifacts(
             )
     _check_reference_oracle(context, destination)
     reports: list[RecordReport] = []
+    differences: list[dict[str, JSONValue]] = []
+    saved_bundles = 0
     saw_unsupported = False
     comparisons = compare_result_record_set(
         cases=context.cases,
@@ -250,7 +257,17 @@ def compare_artifacts(
         )
         case = context.cases.get(str(input_record["case_id"]))
         failure_path: str | None = None
-        if comparison.outcome == "mismatch":
+        if failure_limit is not None and comparison.outcome != "match":
+            differences.append({
+                "case_id": case.id, "input_id": input_id,
+                "target_role": context.target_role,
+                "input": input_record, "intel": intel_record, "target": power_record,
+                "comparison": {"outcome": comparison.outcome,
+                               "mismatch_count": comparison.mismatch_count,
+                               "first_difference": comparison.first_difference,
+                               "reason": comparison.reason},
+            })
+        if comparison.outcome == "mismatch" and (failure_limit is None or saved_bundles < failure_limit):
             bundle = write_failure_bundle(
                 output=destination,
                 input_artifact=inputs,
@@ -263,15 +280,20 @@ def compare_artifacts(
                 target_role=context.target_role,
             )
             failure_path = str(bundle.relative_to(destination) / "failure.json")
+            saved_bundles += 1
         reports.append(RecordReport(case.id, input_id, comparison, failure_path))
 
-    files = write_reports(destination, reports)
+    extra: dict[str, JSONValue] = {}
+    if failure_limit is not None:
+        count, length, digest = write_jsonl(destination / "differences.jsonl", differences)
+        extra["differences"] = {"file": "differences.jsonl", "record_count": count,
+                                "byte_length": length, "sha256": digest}
+        extra["failure_bundle_limit"] = failure_limit
+        extra["failure_bundles_saved"] = saved_bundles
+        extra["failure_bundles_omitted"] = sum(item.comparison.outcome == "mismatch" for item in reports) - saved_bundles
     if context.target_role != "openpower":
-        from .canonical import read_canonical_json
-        summary = read_canonical_json(files.summary_path)
-        assert isinstance(summary, dict)
-        summary["target_role"] = context.target_role
-        atomic_write(files.summary_path, dump_bytes(summary, newline=True))
+        extra["target_role"] = context.target_role
+    files = write_reports(destination, reports, summary_metadata=extra)
     mismatch_count = sum(item.comparison.outcome == "mismatch" for item in reports)
     not_comparable = sum(
         item.comparison.outcome == "not_comparable" for item in reports

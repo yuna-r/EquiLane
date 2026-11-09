@@ -160,3 +160,24 @@ void intel_storer_f64x2(void *destination, f64x2 a)
 {
     _mm_storer_pd((double *)destination, a);
 }
+
+/* Aligned memory and zero constructors added to the encoded case registry. */
+f64x2 intel_setzero_f64x2(void)
+{
+    return _mm_setzero_pd();
+}
+
+f64x2 intel_load_f64x2(const void *source)
+{
+    return _mm_load_pd((const double *)source);
+}
+
+void intel_store_f64x2(void *destination, f64x2 a)
+{
+    _mm_store_pd((double *)destination, a);
+}
+
+void intel_storel_f64x2(void *destination, f64x2 a)
+{
+    _mm_storel_pd((double *)destination, a);
+}

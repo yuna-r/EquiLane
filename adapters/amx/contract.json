@@ -1,0 +1,655 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.amx-interface-contract",
+  "source_guide_sha256": "6762a50652a35ef663fd532ed83b789d19bbc2ac7e94b1771f19d666d96c2c30",
+  "source_guide_version": {
+    "version": "3.6.9",
+    "date": "07/12/2024"
+  },
+  "sources": [
+    {
+      "url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html"
+    },
+    {
+      "url": "https://cdrdv2-public.intel.com/835781/325462-sdm-vol-1-2abcd-3abcd-4.pdf",
+      "sha256": "ae21642237489554840f3e640848e53bdbbbfa73108a92e60139748b4f804de3"
+    },
+    {
+      "url": "https://cdrdv2-public.intel.com/843860/architecture-instruction-set-extensions-programming-reference-dec-24.pdf",
+      "sha256": "bbffe2b3bc6129cd9131a7c4981ab0c4b34fbc89a3032be0c7f822736f4b1bad"
+    }
+  ],
+  "operations": [
+    {
+      "name": "_tile_dpbf16ps",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "constexpr int",
+          "varname": "dst"
+        },
+        {
+          "type": "constexpr int",
+          "varname": "a"
+        },
+        {
+          "type": "constexpr int",
+          "varname": "b"
+        }
+      ],
+      "cpuid": [
+        "AMX-BF16"
+      ],
+      "instruction": [
+        "TDPBF16PS"
+      ]
+    },
+    {
+      "name": "__tile_dpbf16ps",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "__tile1024i*",
+          "varname": "dst"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src0"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src1"
+        }
+      ],
+      "cpuid": [
+        "AMX-BF16"
+      ],
+      "instruction": [
+        "TDPBF16PS"
+      ]
+    },
+    {
+      "name": "_tile_cmmimfp16ps",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "constexpr int",
+          "etype": "FP32",
+          "varname": "dst"
+        },
+        {
+          "type": "constexpr int",
+          "etype": "FP16",
+          "varname": "a"
+        },
+        {
+          "type": "constexpr int",
+          "etype": "FP16",
+          "varname": "b"
+        }
+      ],
+      "cpuid": [
+        "AMX-COMPLEX"
+      ],
+      "instruction": [
+        "TCMMIMFP16PS"
+      ]
+    },
+    {
+      "name": "_tile_cmmrlfp16ps",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "constexpr int",
+          "etype": "FP32",
+          "varname": "dst"
+        },
+        {
+          "type": "constexpr int",
+          "etype": "FP16",
+          "varname": "a"
+        },
+        {
+          "type": "constexpr int",
+          "etype": "FP16",
+          "varname": "b"
+        }
+      ],
+      "cpuid": [
+        "AMX-COMPLEX"
+      ],
+      "instruction": [
+        "TCMMRLFP16PS"
+      ]
+    },
+    {
+      "name": "__tile_cmmimfp16ps",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "__tile1024i*",
+          "varname": "dst"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src0"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src1"
+        }
+      ],
+      "cpuid": [
+        "AMX-COMPLEX"
+      ],
+      "instruction": [
+        "TCMMIMFP16PS"
+      ]
+    },
+    {
+      "name": "__tile_cmmrlfp16ps",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "__tile1024i*",
+          "varname": "dst"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src0"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src1"
+        }
+      ],
+      "cpuid": [
+        "AMX-COMPLEX"
+      ],
+      "instruction": [
+        "TCMMRLFP16PS"
+      ]
+    },
+    {
+      "name": "_tile_dpfp16ps",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "constexpr int",
+          "etype": "FP32",
+          "varname": "dst"
+        },
+        {
+          "type": "constexpr int",
+          "etype": "FP16",
+          "varname": "a"
+        },
+        {
+          "type": "constexpr int",
+          "etype": "FP16",
+          "varname": "b"
+        }
+      ],
+      "cpuid": [
+        "AMX-FP16"
+      ],
+      "instruction": [
+        "TDPFP16PS"
+      ]
+    },
+    {
+      "name": "__tile_dpfp16ps",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "__tile1024i*",
+          "varname": "dst"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src0"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src1"
+        }
+      ],
+      "cpuid": [
+        "AMX-FP16"
+      ],
+      "instruction": [
+        "TDPBF16PS"
+      ]
+    },
+    {
+      "name": "_tile_dpbsud",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "constexpr int",
+          "varname": "dst"
+        },
+        {
+          "type": "constexpr int",
+          "varname": "a"
+        },
+        {
+          "type": "constexpr int",
+          "varname": "b"
+        }
+      ],
+      "cpuid": [
+        "AMX-INT8"
+      ],
+      "instruction": [
+        "TDPBSUD"
+      ]
+    },
+    {
+      "name": "_tile_dpbusd",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "constexpr int",
+          "varname": "dst"
+        },
+        {
+          "type": "constexpr int",
+          "varname": "a"
+        },
+        {
+          "type": "constexpr int",
+          "varname": "b"
+        }
+      ],
+      "cpuid": [
+        "AMX-INT8"
+      ],
+      "instruction": [
+        "TDPBUSD"
+      ]
+    },
+    {
+      "name": "_tile_dpbuud",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "constexpr int",
+          "varname": "dst"
+        },
+        {
+          "type": "constexpr int",
+          "varname": "a"
+        },
+        {
+          "type": "constexpr int",
+          "varname": "b"
+        }
+      ],
+      "cpuid": [
+        "AMX-INT8"
+      ],
+      "instruction": [
+        "TDPBUUD"
+      ]
+    },
+    {
+      "name": "_tile_dpbssd",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "constexpr int",
+          "varname": "dst"
+        },
+        {
+          "type": "constexpr int",
+          "varname": "a"
+        },
+        {
+          "type": "constexpr int",
+          "varname": "b"
+        }
+      ],
+      "cpuid": [
+        "AMX-INT8"
+      ],
+      "instruction": [
+        "TDPBSSD"
+      ]
+    },
+    {
+      "name": "__tile_dpbssd",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "__tile1024i*",
+          "varname": "dst"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src0"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src1"
+        }
+      ],
+      "cpuid": [
+        "AMX-INT8"
+      ],
+      "instruction": [
+        "TDPBSSD"
+      ]
+    },
+    {
+      "name": "__tile_dpbsud",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "__tile1024i*",
+          "varname": "dst"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src0"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src1"
+        }
+      ],
+      "cpuid": [
+        "AMX-INT8"
+      ],
+      "instruction": [
+        "TDPBSUD"
+      ]
+    },
+    {
+      "name": "__tile_dpbusd",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "__tile1024i*",
+          "varname": "dst"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src0"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src1"
+        }
+      ],
+      "cpuid": [
+        "AMX-INT8"
+      ],
+      "instruction": [
+        "TDPBUSD"
+      ]
+    },
+    {
+      "name": "__tile_dpbuud",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "__tile1024i*",
+          "varname": "dst"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src0"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src1"
+        }
+      ],
+      "cpuid": [
+        "AMX-INT8"
+      ],
+      "instruction": [
+        "TDPBUUD"
+      ]
+    },
+    {
+      "name": "_tile_loadconfig",
+      "return": "void",
+      "parameters": [
+        {
+          "memwidth": "512",
+          "type": "const void *",
+          "varname": "mem_addr"
+        }
+      ],
+      "cpuid": [
+        "AMX-TILE"
+      ],
+      "instruction": [
+        "LDTILECFG"
+      ]
+    },
+    {
+      "name": "_tile_storeconfig",
+      "return": "void",
+      "parameters": [
+        {
+          "memwidth": "512",
+          "type": "void *",
+          "varname": "mem_addr"
+        }
+      ],
+      "cpuid": [
+        "AMX-TILE"
+      ],
+      "instruction": [
+        "STTILECFG"
+      ]
+    },
+    {
+      "name": "_tile_loadd",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "constexpr int",
+          "varname": "dst"
+        },
+        {
+          "type": "const void *",
+          "varname": "base"
+        },
+        {
+          "etype": "UI32",
+          "type": "size_t",
+          "varname": "stride"
+        }
+      ],
+      "cpuid": [
+        "AMX-TILE"
+      ],
+      "instruction": [
+        "TILELOADD"
+      ]
+    },
+    {
+      "name": "_tile_stream_loadd",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "constexpr int",
+          "varname": "dst"
+        },
+        {
+          "type": "const void *",
+          "varname": "base"
+        },
+        {
+          "etype": "UI32",
+          "type": "size_t",
+          "varname": "stride"
+        }
+      ],
+      "cpuid": [
+        "AMX-TILE"
+      ],
+      "instruction": [
+        "TILELOADDT1"
+      ]
+    },
+    {
+      "name": "_tile_release",
+      "return": "void",
+      "parameters": [],
+      "cpuid": [
+        "AMX-TILE"
+      ],
+      "instruction": [
+        "TILERELEASE"
+      ]
+    },
+    {
+      "name": "_tile_stored",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "constexpr int",
+          "varname": "src"
+        },
+        {
+          "type": "void *",
+          "varname": "base"
+        },
+        {
+          "etype": "UI32",
+          "type": "size_t",
+          "varname": "stride"
+        }
+      ],
+      "cpuid": [
+        "AMX-TILE"
+      ],
+      "instruction": [
+        "TILESTORED"
+      ]
+    },
+    {
+      "name": "_tile_zero",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "constexpr int",
+          "varname": "tdest"
+        }
+      ],
+      "cpuid": [
+        "AMX-TILE"
+      ],
+      "instruction": [
+        "TILEZERO"
+      ]
+    },
+    {
+      "name": "__tile_loadd",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "__tile1024i*",
+          "varname": "dst"
+        },
+        {
+          "type": "const void*",
+          "varname": "base"
+        },
+        {
+          "type": "size_t",
+          "varname": "stride"
+        }
+      ],
+      "cpuid": [
+        "AMX-TILE"
+      ],
+      "instruction": [
+        "TILELOADD"
+      ]
+    },
+    {
+      "name": "__tile_stored",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "void*",
+          "varname": "base"
+        },
+        {
+          "type": "size_t",
+          "varname": "stride"
+        },
+        {
+          "type": "__tile1024i",
+          "varname": "src"
+        }
+      ],
+      "cpuid": [
+        "AMX-TILE"
+      ],
+      "instruction": [
+        "TILESTORED"
+      ]
+    },
+    {
+      "name": "__tile_stream_loadd",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "__tile1024i*",
+          "varname": "dst"
+        },
+        {
+          "type": "const void*",
+          "varname": "base"
+        },
+        {
+          "type": "size_t",
+          "varname": "stride"
+        }
+      ],
+      "cpuid": [
+        "AMX-TILE"
+      ],
+      "instruction": [
+        "TILELOADDT1"
+      ]
+    },
+    {
+      "name": "__tile_zero",
+      "return": "void",
+      "parameters": [
+        {
+          "type": "__tile1024i*",
+          "varname": "dst"
+        }
+      ],
+      "cpuid": [
+        "AMX-TILE"
+      ],
+      "instruction": [
+        "TILEZERO"
+      ]
+    }
+  ],
+  "state": {
+    "palette": 1,
+    "tile_count": 8,
+    "max_rows": 16,
+    "row_bytes": 64,
+    "tile_bytes": 1024,
+    "config_bytes": 64
+  },
+  "semantics": {
+    "floating_point": "Two separate FP32 FMA partial sums; RNE; input FP32 DAZ and output FTZ; combine partial sums before adding the original destination. BF16 expands by bits<<16; FP16 subnormals are retained on widening.",
+    "native_intel_reference": "unsupported until actual CPU and OS execution is available; portable execution is never native reference evidence",
+    "memory_faults": "Malformed or out-of-bounds records are rejected atomically; architectural page-fault delivery is outside the input contract.",
+    "typed_tile_arguments": "__tile1024i operands are normalized to explicit selectors and configured shapes in the eight-tile state."
+  }
+}

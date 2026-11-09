@@ -1,5 +1,7 @@
 # RISC-V RV64 / RVV 1.0
 
+[日本語](README.md) | [English](README.en.md)
+
 Intel側と同じ254操作を、RISC-V向けのC wrapperで実装しています。
 `f32x4.c`、`f64x2.c`、`i8x16.c`、`i16x8.c`、`i32x4.c`、`i64x2.c` の6ブロックです。
 
@@ -52,9 +54,10 @@ packed / scalarのf32 / f64 add、sub、mulで、RVVのcanonical NaNとSSE2のNa
 これらを隠さず記録し、比較ツールは終了コード1を返します。両VLENの結果全体は一致しています。
 他の入力での一致、全丸めモード、全native FP例外の適合性まで証明した結果ではありません。
 
-これは**エミュレーター上でのRISC-V機械語実行**です。RISC-V実機やLinux runnerの
-native conformance成果物ではありません。共通encoded ABI v1のadd / set1 / shuffle adapterは
-`adapters/riscv/` にありますが、そのLinux libc / fenvとのlink・実行は別途検証が必要です。
+上記は**エミュレーター上でのRISC-V機械語実行**を記録したbare-metal検証です。
+RISC-V実機の観測とは区別します。現在のLinux runnerは全254操作の共通C ABIと
+libc / fenvによる実行に対応しています。4環境のDocker比較は `./docker/run.sh all`、
+現在の検証記録は [Native status](../../documentation/native-status.json) を参照してください。
 
 仕様資料：
 [RVV 1.0](https://docs.riscv.org/reference/isa/unpriv/v-st-ext)、

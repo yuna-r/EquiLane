@@ -126,7 +126,7 @@ class ShowcaseReportTests(unittest.TestCase):
         self.assertIn("data:image/png;base64,", html)
         resources = _ReportStructure()
         resources.feed(html)
-        self.assertEqual(resources.external_resources, [])
+        self.assertEqual(resources.external_resources, ["showcase.html", "showcase.en.html", "https://github.com/yuna-r/EquiLane/blob/main/documentation/intrinsic-coverage.json"])
         self.assertLessEqual(resources.targets, resources.ids)
         self.assertNotIn("@import", html)
 
@@ -435,7 +435,7 @@ class ShowcaseReportTests(unittest.TestCase):
         image = structure.images[0]
         self.assertNotIn("onerror", image)
         self.assertTrue(image["src"].startswith("data:image/png;base64,"))
-        self.assertEqual(structure.external_resources, [])
+        self.assertEqual(structure.external_resources, ["showcase.html", "showcase.en.html", "https://github.com/yuna-r/EquiLane/blob/main/documentation/intrinsic-coverage.json"])
         self.assertIn('<body class="incomplete">', html)
 
     def test_catalog_filters_are_labeled_and_do_not_infer_case_verdicts(self) -> None:

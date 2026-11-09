@@ -1,0 +1,1902 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.vendored-source",
+  "project": "SIMDe",
+  "repository": "https://github.com/simd-everywhere/simde",
+  "commit": "44f2762bce640b36721d1f7dac27514acb88d22d",
+  "commit_date": "2026-11-04T22:24:57+01:00",
+  "license": "MIT",
+  "license_file": "COPYING",
+  "license_sha256": "75ce0a8c5a7bff42fbd6f8f3b469b518132132c4f4948fb8d02b1ccb5d0df9d8",
+  "file_count": 472,
+  "files": [
+    {
+      "file": "simde/arm/neon/aba.h",
+      "sha256": "90b624c12fbc1e081b2fc8b8ba298b093b517ea4e59e6ae8668abbb19a05f8b8"
+    },
+    {
+      "file": "simde/arm/neon/abal.h",
+      "sha256": "e7b15599944c1281ed9d86845134a5893f1d6db7351b48807f4931f557b4573e"
+    },
+    {
+      "file": "simde/arm/neon/abal_high.h",
+      "sha256": "ce90e60170914000fa199e2df3d8fc48f5e38a55161a1f13507f266b8764940d"
+    },
+    {
+      "file": "simde/arm/neon/abd.h",
+      "sha256": "406552f44350653db232d749278529266e8853f2ea3324ee9cfec556ecb23864"
+    },
+    {
+      "file": "simde/arm/neon/abdl.h",
+      "sha256": "169e79af161ce01c7b0c56cb05b2a5265133c27610dbb4584dc4b3e1e52496be"
+    },
+    {
+      "file": "simde/arm/neon/abdl_high.h",
+      "sha256": "c29d7363d3507ad7a0125a48f8d4abbdf86354e3bf0f074dbc0fd2a6d2bccd2f"
+    },
+    {
+      "file": "simde/arm/neon/abs.h",
+      "sha256": "0c9b93f6b4916ac047ba296cefb3eb663ee687017990a38dcf618a17402b5910"
+    },
+    {
+      "file": "simde/arm/neon/add.h",
+      "sha256": "2bf32894c84e231ad769a1f4a4d2c5aec01d1f00d480d2c9e94c5f786d5ccdef"
+    },
+    {
+      "file": "simde/arm/neon/addhn.h",
+      "sha256": "fa0e399c09c88a4ca94a9263964ed8c7837356f6911a19c9f73d06b25b901cfb"
+    },
+    {
+      "file": "simde/arm/neon/addhn_high.h",
+      "sha256": "b5488c1bc4bd05985d663f2988765198580a8fc77e62ed3008dc417ccd07ead4"
+    },
+    {
+      "file": "simde/arm/neon/addl.h",
+      "sha256": "48f108243620bad140d7725c0723c810721da44da84c9e256a2a46745df384d9"
+    },
+    {
+      "file": "simde/arm/neon/addl_high.h",
+      "sha256": "85f3db226393f33f84ed93c52fafbab7472c29e3af06ea8c2285b926b9d49cc0"
+    },
+    {
+      "file": "simde/arm/neon/addlv.h",
+      "sha256": "21aa3cd07258e620de9f04dacefccaa71fab661adf82d6ad2ecd8872663bf7c2"
+    },
+    {
+      "file": "simde/arm/neon/addv.h",
+      "sha256": "9ad120e23058433a0944cb54e384300a8404be51df8124a7cf18c27451c5f6ff"
+    },
+    {
+      "file": "simde/arm/neon/addw.h",
+      "sha256": "1482af361e2770a7c03351cceac71e6056df61b78eb31e6196714be1b813a034"
+    },
+    {
+      "file": "simde/arm/neon/addw_high.h",
+      "sha256": "5afc82eb5b293e34b47a342450f740652a59e236781f504d6dd1ece6d1879336"
+    },
+    {
+      "file": "simde/arm/neon/aes.h",
+      "sha256": "2624e6ceee6790f342def5dd3dcf8a689ee33730accd7ac8758c42836a0e315b"
+    },
+    {
+      "file": "simde/arm/neon/and.h",
+      "sha256": "a4da8f2defb186c09a2e4b90946274c8441f04f9cb572ec2220dbd416e031682"
+    },
+    {
+      "file": "simde/arm/neon/bcax.h",
+      "sha256": "4d1e00d77a7cadf4bc0a893a6f61b4632d1f5cda698922aa98e05f2e65d86141"
+    },
+    {
+      "file": "simde/arm/neon/bic.h",
+      "sha256": "4e753f88560fbe3521012b505a6209eb6485e4210d04c410d5def7f9fc484eaa"
+    },
+    {
+      "file": "simde/arm/neon/bsl.h",
+      "sha256": "ec9490f1e8e2a1d4a82ba8a4d03a356ba8741ff57a98b0400ed9d4e25024724f"
+    },
+    {
+      "file": "simde/arm/neon/cadd_rot270.h",
+      "sha256": "0aca0a01286a42ccab82fd085aad4d375ed6d0d77abc80671ef156a11d0fe7e0"
+    },
+    {
+      "file": "simde/arm/neon/cadd_rot90.h",
+      "sha256": "c89824278ce1076cdab6178b626bc5a8b86f47404dcac19cc1131a2612d199b5"
+    },
+    {
+      "file": "simde/arm/neon/cage.h",
+      "sha256": "05a36cb28c523a829905ccaa3dfe383c992df21975ff3ec26ce76bfd2d920667"
+    },
+    {
+      "file": "simde/arm/neon/cagt.h",
+      "sha256": "1d83d8bea5f59a677b40070875992a2dfd31615ce4baf152e0861f8fc9f59976"
+    },
+    {
+      "file": "simde/arm/neon/cale.h",
+      "sha256": "699d66cd7b9ad9c22644a4510a6c7059b109ec9f009fc8bf1553fa9227857a5f"
+    },
+    {
+      "file": "simde/arm/neon/calt.h",
+      "sha256": "7c3a1c124483151e1d6bd10cad45d06c4e38e362dd8c01362c658e8efed01fd6"
+    },
+    {
+      "file": "simde/arm/neon/ceq.h",
+      "sha256": "6765e3d6f89fe23c3ba15ca9673b08096451c9b15318ed047a93039453d17cac"
+    },
+    {
+      "file": "simde/arm/neon/ceqz.h",
+      "sha256": "503942bb501dc36caf2059e923731f7cbc29116c8d508b6a1665429c5f3b8ee2"
+    },
+    {
+      "file": "simde/arm/neon/cge.h",
+      "sha256": "11e60241c46bfce8dee734c37c347f6459a6ee85b7c9559f191b8a4b92ba3942"
+    },
+    {
+      "file": "simde/arm/neon/cgez.h",
+      "sha256": "52fc1e14bb8da1b972c9ef4cb29eb20800644e235b2f60d8249c07d98711b392"
+    },
+    {
+      "file": "simde/arm/neon/cgt.h",
+      "sha256": "175715f3e65b6eb3a60a7699ba1279fc8272cfeaa5eda9aaded2a1425ae5d865"
+    },
+    {
+      "file": "simde/arm/neon/cgtz.h",
+      "sha256": "20e4b1e6a131d34800e7c7f454e341d71a386d2387234fa64b51ed4dff6e71a7"
+    },
+    {
+      "file": "simde/arm/neon/cle.h",
+      "sha256": "717117d70137ad6e31800f8e9a3bee4fc085be41c94c95d47978cb1505b61fe7"
+    },
+    {
+      "file": "simde/arm/neon/clez.h",
+      "sha256": "3a80d2485ad48b9cef56435e87135308a19c6f919f98b7eab49a8234c5a961f8"
+    },
+    {
+      "file": "simde/arm/neon/cls.h",
+      "sha256": "39576d582a2d2a83c471c03dd2b79d43d156925626fb190ab7c45f1d85e1c0c7"
+    },
+    {
+      "file": "simde/arm/neon/clt.h",
+      "sha256": "2f72f710f9adeaa34b9375f0b310fea51017added495a6f88a4ada6c1d3471b7"
+    },
+    {
+      "file": "simde/arm/neon/cltz.h",
+      "sha256": "a493173536f17758975c77bcf0101c7f3c3f646bcf358d36221ec325197faac1"
+    },
+    {
+      "file": "simde/arm/neon/clz.h",
+      "sha256": "7714fd203f55accf622863f43e49564b4de10a430c153d5d26518eb24a6eaf77"
+    },
+    {
+      "file": "simde/arm/neon/cmla.h",
+      "sha256": "c59c72eba68af5b1fa24dccc69e883f63d03ba9ccd090b470f52bc150c94d404"
+    },
+    {
+      "file": "simde/arm/neon/cmla_lane.h",
+      "sha256": "0943accd8e8de9afe3b7eb60e9aa234a4c17b9cb6f124ca024936fb2a194b91b"
+    },
+    {
+      "file": "simde/arm/neon/cmla_rot180.h",
+      "sha256": "af26b40d8d514e4077ea7e6c99ca4f3edd36d2bbeff75febeb65358cff3e2182"
+    },
+    {
+      "file": "simde/arm/neon/cmla_rot180_lane.h",
+      "sha256": "0e015d6469f8bdad4af63687fd8fc7f22c928b41756beba318b4236ed8337864"
+    },
+    {
+      "file": "simde/arm/neon/cmla_rot270.h",
+      "sha256": "1244d276a2bc1803c7799df2c0682fd73dfaa3161febf63c7ca4e114dfd1eb0a"
+    },
+    {
+      "file": "simde/arm/neon/cmla_rot270_lane.h",
+      "sha256": "076db2139747d8f942016321d52bc235e956bac916623b42c6c75a92eb86a436"
+    },
+    {
+      "file": "simde/arm/neon/cmla_rot90.h",
+      "sha256": "3ceca5dd36a939939a1151d6e2b5a57d4a40727713547b69ccd031489fa4482d"
+    },
+    {
+      "file": "simde/arm/neon/cmla_rot90_lane.h",
+      "sha256": "b73f74b5af4e9b6507d0cb9080da2e483b362e39a8afe3460a331b4c2a272049"
+    },
+    {
+      "file": "simde/arm/neon/cnt.h",
+      "sha256": "23c492adbcf25a39f4e2d711b2a22218ad30604d28c8ff9a1c9cb4531ef6948b"
+    },
+    {
+      "file": "simde/arm/neon/combine.h",
+      "sha256": "a1d12b7ef22cf0da65146c7c4c2c802b29b9c9078867ff55c2b2fdd664708ff6"
+    },
+    {
+      "file": "simde/arm/neon/copy_lane.h",
+      "sha256": "333e06e70cf5729f7ffbc7f1e91dd7e20da42dfe1ee8c441988dca9ee2b39f84"
+    },
+    {
+      "file": "simde/arm/neon/crc32.h",
+      "sha256": "552d307a24a5bbcb03a62c6e3513a227e8e7fcbfbacb3b0ed433f2ae6809eeff"
+    },
+    {
+      "file": "simde/arm/neon/create.h",
+      "sha256": "3a0370f43b647f472a7af39109a34bec6232a8c21589e3580397e6a7fbb90bcd"
+    },
+    {
+      "file": "simde/arm/neon/cvt.h",
+      "sha256": "46624501706f29359d015cae55488a41990f062aa787f39691f4a18393aab56a"
+    },
+    {
+      "file": "simde/arm/neon/cvt_n.h",
+      "sha256": "f82297682642a51a274e2702f81ea6f475f36f7d8f981e16b995b0f49efafb54"
+    },
+    {
+      "file": "simde/arm/neon/cvtm.h",
+      "sha256": "4ab3366362e20bfc877b4b0e23b4fa08cdd3112d27642eade8dd521098139fd8"
+    },
+    {
+      "file": "simde/arm/neon/cvtn.h",
+      "sha256": "c589f7d34ed44eca1a11016dfa69480b90e4cbb1bd21cf2c9b48a970bb4a7f5e"
+    },
+    {
+      "file": "simde/arm/neon/cvtp.h",
+      "sha256": "584e586e12b1f662ace9ed8fed454f0b384c8d6b53a3a3e83e0b422e61fede98"
+    },
+    {
+      "file": "simde/arm/neon/div.h",
+      "sha256": "d36ec567a1befb28c2a57b7f72e9065a446db3bbb8d8db82684de22e22771195"
+    },
+    {
+      "file": "simde/arm/neon/dot.h",
+      "sha256": "628e6da76ab5c4d46d1aae8bdc412db3f6335888e60b90e34ad707ed7c9e6c0b"
+    },
+    {
+      "file": "simde/arm/neon/dot_lane.h",
+      "sha256": "97afc3b2947d131b4f5fd94f910c28d62e25e3d629840ec8e91b3a5c4147fda7"
+    },
+    {
+      "file": "simde/arm/neon/dup_lane.h",
+      "sha256": "a1a83678843695b5a5a654f418ef5c320a87b18352478fc6c8d4c42ff5d3d588"
+    },
+    {
+      "file": "simde/arm/neon/dup_n.h",
+      "sha256": "24bd039e72d50f0e3ea61b564445f5dce251a32dd4710a06715a59987dced257"
+    },
+    {
+      "file": "simde/arm/neon/eor.h",
+      "sha256": "e537e3e6b0a2b5691701c28a0c5eb79b196f99748dd01f31b9160e2cff4afc63"
+    },
+    {
+      "file": "simde/arm/neon/ext.h",
+      "sha256": "9c1dd8034d955abee5d20ced5f32fd6b2be1a366891b76929d202efbcd280969"
+    },
+    {
+      "file": "simde/arm/neon/fma.h",
+      "sha256": "98a7cb0e520af3fd1aff1852fabd5de86f17a43cd5fbce9c9e388464079b7f14"
+    },
+    {
+      "file": "simde/arm/neon/fma_lane.h",
+      "sha256": "29235bf8a584f0adac8b99eef54d09231c09e33d4d7c0387b9f9c7ca7f0e5152"
+    },
+    {
+      "file": "simde/arm/neon/fma_n.h",
+      "sha256": "9242bb367f8288985bc58c47f7fd5cab8a679956f2bb1557e1c353ccd1f886ae"
+    },
+    {
+      "file": "simde/arm/neon/fmlal.h",
+      "sha256": "04eb884adb1ade12af5ee007f3b60f7f8c6c7ff4361ba0345a34cb83eeb2939c"
+    },
+    {
+      "file": "simde/arm/neon/fmlsl.h",
+      "sha256": "e621dd37452109147598e1348004b86b8f7b19bf6529a23bb94e65a5bfbe4c54"
+    },
+    {
+      "file": "simde/arm/neon/fms.h",
+      "sha256": "ea3f288348e567afe26c897f17d966d18b270f28184bd1441a93cc7175240e4b"
+    },
+    {
+      "file": "simde/arm/neon/fms_lane.h",
+      "sha256": "15434998625230811e2a0b2f085e889c74ac6c8b7f3222275b9652f685467f7c"
+    },
+    {
+      "file": "simde/arm/neon/fms_n.h",
+      "sha256": "b3a68baed6a4d4bf1b597e8db6f88b16a8295b4e0a149a2f6e7b0cc64fb3a198"
+    },
+    {
+      "file": "simde/arm/neon/get_high.h",
+      "sha256": "bcfe75531ecd00a407ed825272630b0fdbc9a1d2a6eb47d8f06c6052ab4dd86c"
+    },
+    {
+      "file": "simde/arm/neon/get_lane.h",
+      "sha256": "f02d780d1964fa82a4c55353d6d4fd6ef9b35ef6232c9dcc35ad9e862c653f9d"
+    },
+    {
+      "file": "simde/arm/neon/get_low.h",
+      "sha256": "323ef999c7f26ee8af263fb5cdb3ffb7c1fc29a26e56458ab3ccb48b17016dc8"
+    },
+    {
+      "file": "simde/arm/neon/hadd.h",
+      "sha256": "0a412a513acbddf44e615b15123150d771c15e7d0f95d2f5f79919c2b812faec"
+    },
+    {
+      "file": "simde/arm/neon/hsub.h",
+      "sha256": "020e30438976abf1dfe01510caa989af4a83f4919e6a70bf4fbf9197a50ad291"
+    },
+    {
+      "file": "simde/arm/neon/ld1.h",
+      "sha256": "c831b0606f0a1d6d804026e592e36a6158413a19a32d473b0c672e21ae56e91f"
+    },
+    {
+      "file": "simde/arm/neon/ld1_dup.h",
+      "sha256": "80812849d0f0ed5add1a8aa576686853be41d1591bb06e6e84b05a2efb2ed96e"
+    },
+    {
+      "file": "simde/arm/neon/ld1_lane.h",
+      "sha256": "136e05cdd08568d9ffe5bb87cd18614add347012809b163196ccdef633ca520f"
+    },
+    {
+      "file": "simde/arm/neon/ld1_x2.h",
+      "sha256": "8561b6df06309d7e211457d91e5d253a41a2f8415626f5c4da9c671d88249819"
+    },
+    {
+      "file": "simde/arm/neon/ld1_x3.h",
+      "sha256": "659d6531fde2253897b85152f050051db897e94c12d74ac8d626f96259a23a51"
+    },
+    {
+      "file": "simde/arm/neon/ld1_x4.h",
+      "sha256": "215da047f44e4b36fff043d159fb6f6f3f2ef6969d52df0a99ccb61d85708516"
+    },
+    {
+      "file": "simde/arm/neon/ld1q_x2.h",
+      "sha256": "b25f6434e4f86193712b211ca720a4dae30f406dc678166c828427f34c1be94c"
+    },
+    {
+      "file": "simde/arm/neon/ld1q_x3.h",
+      "sha256": "20169e187197d6fd8dbc84a70cb9ec516fe6ead4c6255c27300cfffbbff69151"
+    },
+    {
+      "file": "simde/arm/neon/ld1q_x4.h",
+      "sha256": "208a32ba162a58182454e07db3e6204d329b59b78ad20c0dc207cc2b4681fadd"
+    },
+    {
+      "file": "simde/arm/neon/ld2.h",
+      "sha256": "e574e686e16872b0891f8aec88624ccd5d0ffdd3ec42fccbb0262bfcdda7d53d"
+    },
+    {
+      "file": "simde/arm/neon/ld2_dup.h",
+      "sha256": "0d7353afc498560b6cc635ece8974f6ae7e94d93cd7649ce804c5b5096a493f2"
+    },
+    {
+      "file": "simde/arm/neon/ld2_lane.h",
+      "sha256": "570797d96375969ebc2d12d4ae3d43ed3762107e7105674d95ebf85b93d099b8"
+    },
+    {
+      "file": "simde/arm/neon/ld3.h",
+      "sha256": "2478f49c6dbe61dc6e92e8e019e75076d1cea3b1327679b14c172fa36992f251"
+    },
+    {
+      "file": "simde/arm/neon/ld3_dup.h",
+      "sha256": "8502858ca807ba2042ab893e907d66d1f11e8142c3403b849b3599189762b1fa"
+    },
+    {
+      "file": "simde/arm/neon/ld3_lane.h",
+      "sha256": "c553e08e951610e86d2d91388c054f753b9b621b9c8bb686b818db34239ae4fe"
+    },
+    {
+      "file": "simde/arm/neon/ld4.h",
+      "sha256": "26b77ffe7f6212592ed626ed36cff57df377d7a75b1f6b4acc75e71ab235fe17"
+    },
+    {
+      "file": "simde/arm/neon/ld4_dup.h",
+      "sha256": "2c0c3de6a650658569e08a6ab90724f6e34860974b737a2c6268cdd71e431388"
+    },
+    {
+      "file": "simde/arm/neon/ld4_lane.h",
+      "sha256": "f6a4642517e030095de42f516b8aac992b3dfce37939015cc11d2c6eec4e3fe2"
+    },
+    {
+      "file": "simde/arm/neon/max.h",
+      "sha256": "5baaad6fe11cafab4d1b30c077d481d3ea7a273d1b0dc2ec83f2ffff0aa8a315"
+    },
+    {
+      "file": "simde/arm/neon/maxnm.h",
+      "sha256": "5d50aa70cdb54aeb98807557ed2725c2622fd8a43173f10a11db6d77857c5851"
+    },
+    {
+      "file": "simde/arm/neon/maxnmv.h",
+      "sha256": "630e8f627fbe197cebed331318e513380e5b08c8cc42cb3936f4754b01fdabbb"
+    },
+    {
+      "file": "simde/arm/neon/maxv.h",
+      "sha256": "7ab37839648347e446b7141dca569cb2cff28e89735e6815bc36aafe03b9102d"
+    },
+    {
+      "file": "simde/arm/neon/min.h",
+      "sha256": "842129330293f5576946a3c8483b1e4edd941315d364a7c6808aec92eb8a8a3c"
+    },
+    {
+      "file": "simde/arm/neon/minnm.h",
+      "sha256": "d6398b3a46094beb27ad0c75df161b23885dd2943c66bc6e50d639d67fb5198a"
+    },
+    {
+      "file": "simde/arm/neon/minnmv.h",
+      "sha256": "b89295f864c3fc039228258bf9be12c460cae0d80415e1affdd8e8a3e738ffbb"
+    },
+    {
+      "file": "simde/arm/neon/minv.h",
+      "sha256": "456b5eed7e0ea911bdd53ace6d693cbb4d9ff137a6ec667d5cbf5f79bbfdf9dc"
+    },
+    {
+      "file": "simde/arm/neon/mla.h",
+      "sha256": "fae87415684cdcf2a5c33bcc533f93f20ab8b146c3aa7c4817cff6b660974a51"
+    },
+    {
+      "file": "simde/arm/neon/mla_lane.h",
+      "sha256": "08ebaae46427c8254297cdc5babe3196245337e7bce3a1879cbc6240f44b0e0d"
+    },
+    {
+      "file": "simde/arm/neon/mla_n.h",
+      "sha256": "0309206478c53419056e247c642d5992c001198219f080d69a6d54ad75201623"
+    },
+    {
+      "file": "simde/arm/neon/mlal.h",
+      "sha256": "5602214939e60fe3b24d8859a39ad61b917e7dc1651b57d6d865abab4149346b"
+    },
+    {
+      "file": "simde/arm/neon/mlal_high.h",
+      "sha256": "b10b385c93fab4ccbb36c0911577863dbee6cea681edcf9b1b4341c9c0d9e9f6"
+    },
+    {
+      "file": "simde/arm/neon/mlal_high_lane.h",
+      "sha256": "1598ead0bdb356e7e45ce51b5c158f9097146101b7baa83defc4f634319db056"
+    },
+    {
+      "file": "simde/arm/neon/mlal_high_n.h",
+      "sha256": "fce63587ed0d80fa548f1e313f45e1c93e01c93bf9e4e55b1b98f5b571a5ee5c"
+    },
+    {
+      "file": "simde/arm/neon/mlal_lane.h",
+      "sha256": "bced97449f355066a79a81fb897909f28d64b68bb41c5db3e5c87bcfc4fd1258"
+    },
+    {
+      "file": "simde/arm/neon/mlal_n.h",
+      "sha256": "c601bff7d6a03d074964f63db5296cf081e4de1d0f5a3ab4ac59a8e51ba42ba9"
+    },
+    {
+      "file": "simde/arm/neon/mls.h",
+      "sha256": "6dbd909fdb975f4797d86587a9c881e027baef4910b712127b1a1c6ca3425e35"
+    },
+    {
+      "file": "simde/arm/neon/mls_lane.h",
+      "sha256": "80328e89a21e84023e23573f0d24c7abf79f7f5f0525a591de9c69f089484952"
+    },
+    {
+      "file": "simde/arm/neon/mls_n.h",
+      "sha256": "1e9cfe47fcb13eedc7edaad9ede6e3334efa84edd83d462d89795bd37ad445db"
+    },
+    {
+      "file": "simde/arm/neon/mlsl.h",
+      "sha256": "1aeef10da1c6974d9da5698609697693e6e92f6d851656bcaa752da72a55d165"
+    },
+    {
+      "file": "simde/arm/neon/mlsl_high.h",
+      "sha256": "b265a253de55d25072171da8249e5a3e8e6a71ba634ad736cd5773e6e03ff067"
+    },
+    {
+      "file": "simde/arm/neon/mlsl_high_lane.h",
+      "sha256": "f56a383920bd027b46ca6f04557766f0537c364f5347c85d2e1a43d8ad94118f"
+    },
+    {
+      "file": "simde/arm/neon/mlsl_high_n.h",
+      "sha256": "a8c75437af75ca3540f72fb079c73030ec29848982d6354b36b2aa805b3ec4a2"
+    },
+    {
+      "file": "simde/arm/neon/mlsl_lane.h",
+      "sha256": "976c35c30239d8c4ba9c147bf5ce536a8f668d59cb2e577c9f22c8f8b8a1a95a"
+    },
+    {
+      "file": "simde/arm/neon/mlsl_n.h",
+      "sha256": "420fcd0274100a671012dacd83a5d5b07bcf855047be4bff2e82041859229773"
+    },
+    {
+      "file": "simde/arm/neon/mmlaq.h",
+      "sha256": "cf78a0675575e47ac15ad091904e9555e647d0140f589a8af385aa09220f6a65"
+    },
+    {
+      "file": "simde/arm/neon/movl.h",
+      "sha256": "fbb6e7484eef9a511cdb5846d4b57355d2bc3b78c48d96047f4a988fc8a65647"
+    },
+    {
+      "file": "simde/arm/neon/movl_high.h",
+      "sha256": "62f56dab298ad35979a3810bbf36abf1e735bd8071947d49a20cbe2bb0f9be89"
+    },
+    {
+      "file": "simde/arm/neon/movn.h",
+      "sha256": "d194e7d35e70c02ab07609d5cd297d8c9c2bc366c710d3899e2b31b0729af429"
+    },
+    {
+      "file": "simde/arm/neon/movn_high.h",
+      "sha256": "5958f7572475f20014dad524a24a6961509d29272ea9f77ac3167076a33c0c45"
+    },
+    {
+      "file": "simde/arm/neon/mul.h",
+      "sha256": "da2df0930eb52e0fe22180d3d709ad6159823fdca1674fbe972fbb8e779dcb51"
+    },
+    {
+      "file": "simde/arm/neon/mul_lane.h",
+      "sha256": "62ecd57eb08cb691b9e1a28da947384ab312b5169e3496b2f98fc9301efc915d"
+    },
+    {
+      "file": "simde/arm/neon/mul_n.h",
+      "sha256": "55f1e7a571c0e92811c3b7c1a14cb7ad9c16659bf2f2379da9c1d172b817e1a2"
+    },
+    {
+      "file": "simde/arm/neon/mull.h",
+      "sha256": "c25fde4a90a85f6144a03d9c7025192570789a834d375cf6ff2169f599e7987c"
+    },
+    {
+      "file": "simde/arm/neon/mull_high.h",
+      "sha256": "c2cf9c64d353ad0ac32424cda363ab070c92f94232654ff2821b7b18c12253d8"
+    },
+    {
+      "file": "simde/arm/neon/mull_high_lane.h",
+      "sha256": "d415fc9635b210d90748b360a9d0815c293fd33ea9fab9a8825b9fade2fec6d8"
+    },
+    {
+      "file": "simde/arm/neon/mull_high_n.h",
+      "sha256": "eb55e11eae0dad64fda9634cc8ecb02e3397b50302ecd1e709a9c5fd5a8eb5a6"
+    },
+    {
+      "file": "simde/arm/neon/mull_lane.h",
+      "sha256": "353356c7c2b33d2f85c93f03efcbb111e484e8fa625aa77e4f114c57f8a93e02"
+    },
+    {
+      "file": "simde/arm/neon/mull_n.h",
+      "sha256": "656aeb03f2cd2f64e65d001d7388d87c7a819b22ed0fa94e8a5462186a9783b5"
+    },
+    {
+      "file": "simde/arm/neon/mulx.h",
+      "sha256": "bbc86b5d9f24d6e3bfd923974935556e233eb211811a7f013e6c9b0c9de32cd5"
+    },
+    {
+      "file": "simde/arm/neon/mulx_lane.h",
+      "sha256": "c2cdc9150e47f880fc1baf8534d9b1170c5061ed58b03a0a9937ba4531ce87f5"
+    },
+    {
+      "file": "simde/arm/neon/mulx_n.h",
+      "sha256": "d9e5dbac6d3bf882afaaf2df34f4e049cf9bd863686782f46a38248331def2be"
+    },
+    {
+      "file": "simde/arm/neon/mvn.h",
+      "sha256": "7c7dee0e33d96075f82a1bc45eaf6edf33cc14d1125265f83381a868c59c8da3"
+    },
+    {
+      "file": "simde/arm/neon/neg.h",
+      "sha256": "48ffe9d94e6eb6efbc452efdbfb4ad507b3b802090d081e975effc9884268ee9"
+    },
+    {
+      "file": "simde/arm/neon/orn.h",
+      "sha256": "0ace5b073aeb23706f7b699ca4682b2d28dee51bcfa43038bdffad3964537f0d"
+    },
+    {
+      "file": "simde/arm/neon/orr.h",
+      "sha256": "aefb22d2ab80024aea50fe5f8e1e62c85d5198a7db464164d3e27635c0a76025"
+    },
+    {
+      "file": "simde/arm/neon/padal.h",
+      "sha256": "43bf0514f8be727540565e29f6853b4207613f226390b803ff98e42b60faf70c"
+    },
+    {
+      "file": "simde/arm/neon/padd.h",
+      "sha256": "1da721e80ed0174212def9e05fcb87d0befac748cd075f266abf392a51b36cd7"
+    },
+    {
+      "file": "simde/arm/neon/paddl.h",
+      "sha256": "f94a2f9bccabebc433acdda31c35ecca9ef063d858f7ab52d79f9788f45d8ed8"
+    },
+    {
+      "file": "simde/arm/neon/pmax.h",
+      "sha256": "593c53b67a08a3cb4ceda169eca3bffbdbceb30b100e095ae5f725aa2fbe0a7a"
+    },
+    {
+      "file": "simde/arm/neon/pmaxnm.h",
+      "sha256": "5bc84f3488393583eccb7d34e21418a0a9bb76857ab5cf659d47f43d13aedcd2"
+    },
+    {
+      "file": "simde/arm/neon/pmin.h",
+      "sha256": "db586e25d55be28601c8297fbeb094588b854c72b1d5b72ee9550d0f7a0f53eb"
+    },
+    {
+      "file": "simde/arm/neon/pminnm.h",
+      "sha256": "aa64fb86a77b370b7ffd782ee280a9ab49ef3e349b8efdcc322f91011906046e"
+    },
+    {
+      "file": "simde/arm/neon/qabs.h",
+      "sha256": "c4e7732d1e5de69d8ee51713760e19dd84beeedd3c84b2a16dc41205879c329f"
+    },
+    {
+      "file": "simde/arm/neon/qadd.h",
+      "sha256": "bc3d1ce8d7744056ae6fbaaa8c672d1e23e8999555d85f7b0aa0fc52d4b689fb"
+    },
+    {
+      "file": "simde/arm/neon/qdmlal.h",
+      "sha256": "2c157e0c5941777e05e1f6f18d2382f4b98793a257fe9ab82c7feb9712520233"
+    },
+    {
+      "file": "simde/arm/neon/qdmlal_high.h",
+      "sha256": "3fd8dbd1b3789d808869b6048724894941b5fdefd87504c70d7211cc4b40142b"
+    },
+    {
+      "file": "simde/arm/neon/qdmlal_high_lane.h",
+      "sha256": "fa0052e6e9a1eacb5ad3567e8d1eba735e707deb9c71da57630625c5f015c9d9"
+    },
+    {
+      "file": "simde/arm/neon/qdmlal_high_n.h",
+      "sha256": "a966e5a42fcf6e8757198fdc416b52a4016e1d31518d117c6d696e846b6f35af"
+    },
+    {
+      "file": "simde/arm/neon/qdmlal_lane.h",
+      "sha256": "59faa7a75d6f69627411d545a531046a3142c3c1a42e9d0de9bd7350eda7389c"
+    },
+    {
+      "file": "simde/arm/neon/qdmlal_n.h",
+      "sha256": "78269683918bd45a81ed3741e4832516f5312c00034f451d66ec0da0c6a16876"
+    },
+    {
+      "file": "simde/arm/neon/qdmlsl.h",
+      "sha256": "5fda6800d214b7cfc31aa4a32c6c75ef41577980b11bebf26bb77588f3e329a5"
+    },
+    {
+      "file": "simde/arm/neon/qdmlsl_high.h",
+      "sha256": "00e4fb3dd587a74668d8104c9e31bbea92931519051711d760f0ed16d361dea3"
+    },
+    {
+      "file": "simde/arm/neon/qdmlsl_high_lane.h",
+      "sha256": "441221629ba3f53aaabab215ecfdc533bb67d0397f3fab102911f7d429a40953"
+    },
+    {
+      "file": "simde/arm/neon/qdmlsl_high_n.h",
+      "sha256": "de84f19d4b3be58f6e50d204aa313654c88ee2b4475fbccc83591279b25b32f3"
+    },
+    {
+      "file": "simde/arm/neon/qdmlsl_lane.h",
+      "sha256": "2839d711fddffd8c202c426fda0d37966168d450722b1c00f91064dc2c2941f7"
+    },
+    {
+      "file": "simde/arm/neon/qdmlsl_n.h",
+      "sha256": "f114a43927c89b898aa4414b38b497f7fc6443c665103475d530a738e6b6d8f9"
+    },
+    {
+      "file": "simde/arm/neon/qdmulh.h",
+      "sha256": "5f6caf24fd9fe4d13538e872c8a08dccd8bff429732834b657c6f1914e7085d4"
+    },
+    {
+      "file": "simde/arm/neon/qdmulh_lane.h",
+      "sha256": "d31252f5e3c1681636fce0c15a8d4fa78df49d5ec0317e4e989d48e025b589b4"
+    },
+    {
+      "file": "simde/arm/neon/qdmulh_n.h",
+      "sha256": "8e51776820958e864ef1c531eadd9dad880311969d13b6a99b4107b3b2571077"
+    },
+    {
+      "file": "simde/arm/neon/qdmull.h",
+      "sha256": "5dd4a800fd26b997bbf0aa835f1e70686649a5fffe1e47441e92ecb5b783638f"
+    },
+    {
+      "file": "simde/arm/neon/qdmull_high.h",
+      "sha256": "d2a3275d206cc8bfeec35ca95cf1257443824703ba115a9749f62b7c730733e8"
+    },
+    {
+      "file": "simde/arm/neon/qdmull_high_lane.h",
+      "sha256": "5dd292d71bd7ad8ea322b5ac8477c78844c6ecfb4a23edc18fa84fe64cf0edba"
+    },
+    {
+      "file": "simde/arm/neon/qdmull_high_n.h",
+      "sha256": "67477efb9c9150f99b641dfe1c55f0187f6b57ed0e8a1045043626f2ca29b613"
+    },
+    {
+      "file": "simde/arm/neon/qdmull_lane.h",
+      "sha256": "e95960614dff9820858ad7fce9e07e36def7161a295c63c795e25db50e1b00ab"
+    },
+    {
+      "file": "simde/arm/neon/qdmull_n.h",
+      "sha256": "a452caeb13f9a5509566a55a2655baf5f8a1c536de5336a7be24e0124e5d3083"
+    },
+    {
+      "file": "simde/arm/neon/qmovn.h",
+      "sha256": "1ce094b194c0787af838c6fdde1fd75eec9572c295822ab2d5f4f66b32332d1f"
+    },
+    {
+      "file": "simde/arm/neon/qmovn_high.h",
+      "sha256": "a482e22a339fab33729b6790b5dc8c4ef22c96fcc3335ab606b9acd43e83b52d"
+    },
+    {
+      "file": "simde/arm/neon/qmovun.h",
+      "sha256": "4d4f06de25ff2beb912d76d86ef863db77a00a8c34079f78cf12789b4963c81c"
+    },
+    {
+      "file": "simde/arm/neon/qmovun_high.h",
+      "sha256": "e250faa7c3f624ee31adf66f7bd73ea66c54b8629e36829d066ef0822dae9c67"
+    },
+    {
+      "file": "simde/arm/neon/qneg.h",
+      "sha256": "a55a8fba602c2a6d436b2a0172b5c1ed6d7c95c3d2f1c1cc273329c3a83205f3"
+    },
+    {
+      "file": "simde/arm/neon/qrdmlah.h",
+      "sha256": "a55a58582d0d8d27de266009c16fcc078727d778a5934e7cd8d38846b593ec16"
+    },
+    {
+      "file": "simde/arm/neon/qrdmlah_lane.h",
+      "sha256": "2cbf913c585d32a5b25e461eaa2d92540b0ca23a783823c2e037e0f89d8a3771"
+    },
+    {
+      "file": "simde/arm/neon/qrdmlsh.h",
+      "sha256": "d177f739db5a2a07afd866e0b637691f9136731023e7a6c62e9012bf52b983aa"
+    },
+    {
+      "file": "simde/arm/neon/qrdmlsh_lane.h",
+      "sha256": "4efce0a5429243732dea30ca01118505d476e916bc3e8310868c9bb1cad8270d"
+    },
+    {
+      "file": "simde/arm/neon/qrdmulh.h",
+      "sha256": "be3063c5fc2b4efc0fb31122b6c2df09ee9a5cb6b4eeeaf6c9c5d64c07e46851"
+    },
+    {
+      "file": "simde/arm/neon/qrdmulh_lane.h",
+      "sha256": "0f2e7d3591d5091b88def17373862db5abbf9986b6b81ef693689a6459a818c0"
+    },
+    {
+      "file": "simde/arm/neon/qrdmulh_n.h",
+      "sha256": "eb657dd9ceddb05671db06523e5e5efb8ae1321e351531de9afaec9303c717e0"
+    },
+    {
+      "file": "simde/arm/neon/qrshl.h",
+      "sha256": "5b43f9506e80871735bed1df561cfc3c25213cc718ba03c83a65494d5cfabd82"
+    },
+    {
+      "file": "simde/arm/neon/qrshrn_high_n.h",
+      "sha256": "356779d20ec9d19caadf1277fc0f3bb1e52a8cb71bdd61ac347a2a4ec98f10f5"
+    },
+    {
+      "file": "simde/arm/neon/qrshrn_n.h",
+      "sha256": "0ae9f93fb83bc1d61ed0c897c7c228d019baaad52356e6ffd95a0e63f0cb605c"
+    },
+    {
+      "file": "simde/arm/neon/qrshrun_high_n.h",
+      "sha256": "f8e6a45c7ea080372ee61c6c47b1a92d03390e267431f6b5e7941a5e9f8c6617"
+    },
+    {
+      "file": "simde/arm/neon/qrshrun_n.h",
+      "sha256": "5adc998bc3fe3ba4dbf8758971e50efbc887783287bcd9ffe4011c1b5116f166"
+    },
+    {
+      "file": "simde/arm/neon/qshl.h",
+      "sha256": "ae1e0b57c543fc42b89ede26c81a3948c94444ad7a6d4c14ffc44b89c89eb12f"
+    },
+    {
+      "file": "simde/arm/neon/qshl_n.h",
+      "sha256": "4ee3285efd9d5dde45d3690a300d52e83a7e4a5f9d690ead616b8361b15908a6"
+    },
+    {
+      "file": "simde/arm/neon/qshlu_n.h",
+      "sha256": "7cdec3a2932fff138d4a41abec94a293e18e1728d6d4cfce5b72442b1036db58"
+    },
+    {
+      "file": "simde/arm/neon/qshrn_high_n.h",
+      "sha256": "b96078faf055db9391f4218a74115388c4a9f2c9e937e097be724a04b420270f"
+    },
+    {
+      "file": "simde/arm/neon/qshrn_n.h",
+      "sha256": "37e9947f63638db8991bf840491338128f34c661bab572fdcdd18bd74db0bd53"
+    },
+    {
+      "file": "simde/arm/neon/qshrun_high_n.h",
+      "sha256": "fa793ce0f4fafa0bf36b2580ff3be5f1debf290658425c2f15d04a41bb3bf66e"
+    },
+    {
+      "file": "simde/arm/neon/qshrun_n.h",
+      "sha256": "79240b0c5e5f0d3a998a8106d2f9fb528cee738514a077a38b7754de75734aea"
+    },
+    {
+      "file": "simde/arm/neon/qsub.h",
+      "sha256": "81fdd6dc616ca0d5ad35440f82cf34104b6e71c97f2e565bb035c56054dc4c33"
+    },
+    {
+      "file": "simde/arm/neon/qtbl.h",
+      "sha256": "be1646d130acb6668edf11dfb1f02d8dd73dc178d82da40b15e318a376acf679"
+    },
+    {
+      "file": "simde/arm/neon/qtbx.h",
+      "sha256": "b54d5ba1aaac4ead242ce2a46e0bc8bd000e750ab3571541c6cbfa7d66f7b485"
+    },
+    {
+      "file": "simde/arm/neon/raddhn.h",
+      "sha256": "a9998d66267a1a22783a44d188a0f1eae1668d34cbbe560683d537955263af82"
+    },
+    {
+      "file": "simde/arm/neon/raddhn_high.h",
+      "sha256": "68ecf2ba310f2dadffe752aa43722792f52d118fb83d3fafdd8d537594a8621f"
+    },
+    {
+      "file": "simde/arm/neon/rax.h",
+      "sha256": "1063d3cf77dc52e5dd28d874e3fce1f804157ebe0143a0137046dc24d0cc1bfd"
+    },
+    {
+      "file": "simde/arm/neon/rbit.h",
+      "sha256": "cf5ed59177486e023ec922f6919a3048752fe4e5a216daabe2e82cb4614b273c"
+    },
+    {
+      "file": "simde/arm/neon/recpe.h",
+      "sha256": "562fd9e32ddd9b2811cbe1cba56cafc0061573474517c5882cee11b99f3a76c9"
+    },
+    {
+      "file": "simde/arm/neon/recps.h",
+      "sha256": "a9cf3a0f565a7a11317a9153ffe4a9b64e0a823b7bb133f0858620658bbcb054"
+    },
+    {
+      "file": "simde/arm/neon/recpx.h",
+      "sha256": "d0406957588c2a345b98c06e7f953316624f70cc28f41af5525a3f0425e54b94"
+    },
+    {
+      "file": "simde/arm/neon/reinterpret.h",
+      "sha256": "1a9699a940b637374f5aa0de104cc00fd33d7d8b28528bfc6025b2e9e13d3dd8"
+    },
+    {
+      "file": "simde/arm/neon/rev16.h",
+      "sha256": "d9e0ef2968998013dc9a2a433c7932659853968944721e6ea12cd66656caca76"
+    },
+    {
+      "file": "simde/arm/neon/rev32.h",
+      "sha256": "388d1dcb20376ccfdbdb1edc0ca06497ca5be2c1dfc71e5900ae55347ac3b066"
+    },
+    {
+      "file": "simde/arm/neon/rev64.h",
+      "sha256": "d4e718809a0268f50f6558868b4cfc05fff4dd671caf6037dad222d1e759d2fe"
+    },
+    {
+      "file": "simde/arm/neon/rhadd.h",
+      "sha256": "c73ac6ff892f1105b5a6795a48fc966edcbcdc933d15698ab535d41e8e6405d2"
+    },
+    {
+      "file": "simde/arm/neon/rnd.h",
+      "sha256": "d2c47ac331c340bb45195e8b6f9497853139ececbb1815bf9b7e01b8ae0671dd"
+    },
+    {
+      "file": "simde/arm/neon/rnd32x.h",
+      "sha256": "66e187fe4a8a4454f0afd8a611a5c317f0e5faf6bdf5f7861c012d8c83f5671d"
+    },
+    {
+      "file": "simde/arm/neon/rnd32z.h",
+      "sha256": "f9323e3f1dcc7a8f6f8d22f308ee3ea15e1577f91907f082913f6d579501cda8"
+    },
+    {
+      "file": "simde/arm/neon/rnd64x.h",
+      "sha256": "33fdd9412deec17eedcb185c8eeecbcd95c42ae7cbc1fac9ebf8dfe445cfec76"
+    },
+    {
+      "file": "simde/arm/neon/rnd64z.h",
+      "sha256": "faf7cd0d1531c746c9a2390f26dbcccfb44b0318b1d49e210acca17f613512a6"
+    },
+    {
+      "file": "simde/arm/neon/rnda.h",
+      "sha256": "c6471794dcde7840d0a7f61b0b1eae9dd613c9b188d4cc9561f3fbb27648c113"
+    },
+    {
+      "file": "simde/arm/neon/rndi.h",
+      "sha256": "34a890b2edc6415e1f18543a9d9966bff912560f8ebd7cc1c756b5e2db24f460"
+    },
+    {
+      "file": "simde/arm/neon/rndm.h",
+      "sha256": "f740ea84528ca49f17d825e8eb9503f932e9f9959f458eb2b2a13ece903c7572"
+    },
+    {
+      "file": "simde/arm/neon/rndn.h",
+      "sha256": "650186d671158fc32e40e94bbbb2c6467c96d67fce5472ae43bbb9047958a688"
+    },
+    {
+      "file": "simde/arm/neon/rndp.h",
+      "sha256": "94ec11eb15b4243b3fcb93dd4d8fdd19c6075033eef476d7e82d19fbe29968f0"
+    },
+    {
+      "file": "simde/arm/neon/rndx.h",
+      "sha256": "f50ebe6217d7468ff36a87c87b005750e1577b7c5a8e68123a740604f8235a0f"
+    },
+    {
+      "file": "simde/arm/neon/rshl.h",
+      "sha256": "75fd7e199d4dbff9a612b59fb5c77a18678769b77fb1bc22f083ae1856e729a8"
+    },
+    {
+      "file": "simde/arm/neon/rshr_n.h",
+      "sha256": "c146ad18e0f7aaa8304d1fb7d7260473d129522afd93f49c6c0d8d9d0246c7d4"
+    },
+    {
+      "file": "simde/arm/neon/rshrn_high_n.h",
+      "sha256": "9acae2274ad31d3c816da4c6251b802e8e92eb04ba683bf23a8d2f56f1a99e77"
+    },
+    {
+      "file": "simde/arm/neon/rshrn_n.h",
+      "sha256": "2cd294626a58401ef7b7c7b78dc44a598e3b3b6c4e3ac1c3604080e3fedc05a1"
+    },
+    {
+      "file": "simde/arm/neon/rsqrte.h",
+      "sha256": "b23b578d6e03489341c5a51a3546d6de01c9f9ccb0c0f6aa3b115a92e7ae153b"
+    },
+    {
+      "file": "simde/arm/neon/rsqrts.h",
+      "sha256": "b435b6d833832a6c72371095f95278e72fd9d1809a91b99ad5a98dc514f8a4e9"
+    },
+    {
+      "file": "simde/arm/neon/rsra_n.h",
+      "sha256": "549495488c307d66787d61834020e953d2929f3fb71eaaa051e13b536b01a23d"
+    },
+    {
+      "file": "simde/arm/neon/rsubhn.h",
+      "sha256": "698af3b601d6db628ffffbfe92baf217cd64c05d57a62b9b1da509e2474dd068"
+    },
+    {
+      "file": "simde/arm/neon/rsubhn_high.h",
+      "sha256": "1b4f2a01f3f4f4e01864d80b1c3671b596a56ebbcf934f4a0bac68434e50210c"
+    },
+    {
+      "file": "simde/arm/neon/set_lane.h",
+      "sha256": "5b10df94ecd2e4b6895e44b2f7a93b1aff4064047896542a67c14341b7212710"
+    },
+    {
+      "file": "simde/arm/neon/sha1.h",
+      "sha256": "cb9484285e5c42f71c4d203deacfbc442f887cbe5e057a6e4866e16a1ab7801f"
+    },
+    {
+      "file": "simde/arm/neon/sha256.h",
+      "sha256": "ed43c0c1ab6952c2f72c26db3a70b4120fb7f300173bd8c9becaa03cd02d5b7a"
+    },
+    {
+      "file": "simde/arm/neon/sha512.h",
+      "sha256": "ac175b74783c6269dae8c46128818499d898d99ff4d0452616d5a09eb9f126b7"
+    },
+    {
+      "file": "simde/arm/neon/shl.h",
+      "sha256": "12c63a47ac38ca5960309d2d3c4c1252bde2a36d15f219fd8b7a94718aaba3b1"
+    },
+    {
+      "file": "simde/arm/neon/shl_n.h",
+      "sha256": "daf2de7b9e734b6df08449b32ade7555669178abf482efd2005c48fa2010b4b8"
+    },
+    {
+      "file": "simde/arm/neon/shll_high_n.h",
+      "sha256": "3ab54211b49cbb9bde72c5f9d6b4339458d5a593d1c926733668de58fc1dac7c"
+    },
+    {
+      "file": "simde/arm/neon/shll_n.h",
+      "sha256": "69c11c4a2f8e29c1697709ff25a8d711a8a020d3ef9e422edec9146d6e206bb7"
+    },
+    {
+      "file": "simde/arm/neon/shr_n.h",
+      "sha256": "36853989e6dad4b9402d78d068d368c06490c88e4728e3cf5e8c52ea2025c923"
+    },
+    {
+      "file": "simde/arm/neon/shrn_high_n.h",
+      "sha256": "30bb89e95b40a48fdb2f20fd6f2eaaf00621446a4e8026d982f69ef63c6e9786"
+    },
+    {
+      "file": "simde/arm/neon/shrn_n.h",
+      "sha256": "04e0d94d035b9a48ff8d0c5feeaa8a8792abb4fb1366a89be152aec7edbbf4a5"
+    },
+    {
+      "file": "simde/arm/neon/sli_n.h",
+      "sha256": "7dec11e53008a6bf188bbcc139d520947da52c1b809b2cd7a4269681fa2accbc"
+    },
+    {
+      "file": "simde/arm/neon/sm3.h",
+      "sha256": "bc6c77c5ec953d5b7b70fe5e9c5f70fd7c00b29b788ddd5435d84569500fdbbb"
+    },
+    {
+      "file": "simde/arm/neon/sm4.h",
+      "sha256": "c858aecc486d6b3dd1335380225b749d6de74bd02441b3173d235db925eb7e58"
+    },
+    {
+      "file": "simde/arm/neon/sqadd.h",
+      "sha256": "4e359bc65436dc2420f2713015c26cb5396295a9538c3f53d76a4e911587ca35"
+    },
+    {
+      "file": "simde/arm/neon/sqrt.h",
+      "sha256": "576d1855457f3c9906be624a4964500bfb953902302b21289f2ccd282188aa52"
+    },
+    {
+      "file": "simde/arm/neon/sra_n.h",
+      "sha256": "5f080c7fb6598a42a8248373bb398c5ff16052a87071f41ab89d10b958443ae3"
+    },
+    {
+      "file": "simde/arm/neon/sri_n.h",
+      "sha256": "835b90ee5c7d65aad78b033f4395063c393be90065f1e8422f75fae9f8ef29b0"
+    },
+    {
+      "file": "simde/arm/neon/st1.h",
+      "sha256": "c09a04092820c08bc79f49e2e1de0bc878a744037c8ddf66f73ab01a69d0d871"
+    },
+    {
+      "file": "simde/arm/neon/st1_lane.h",
+      "sha256": "2e1f76a9b944832a6b4fa35bb5d42917bb50e4859bf658932803d0bb546a53d9"
+    },
+    {
+      "file": "simde/arm/neon/st1_x2.h",
+      "sha256": "c511ecbbdb8573169ef4ca3e15e0ea6d2c84022140fd8f39af38d447dc3add18"
+    },
+    {
+      "file": "simde/arm/neon/st1_x3.h",
+      "sha256": "d216e8f0e0efbfaaaa4a0eadb59bc3296f4dd3edfad324c0fc6e667d5e55532f"
+    },
+    {
+      "file": "simde/arm/neon/st1_x4.h",
+      "sha256": "2f52d469be42d6c61b7dca760da88375b081258d78e9dd7f4a1a8857e39da908"
+    },
+    {
+      "file": "simde/arm/neon/st1q_x2.h",
+      "sha256": "95d0c0c0b0f02c731866865cc845bd62b97481a2e8f7aea4fbe1d35eacb957c8"
+    },
+    {
+      "file": "simde/arm/neon/st1q_x3.h",
+      "sha256": "ce071a9b9204bbbced4dd7f17ade4d491a2cb8fa6ac7332b04e9358b785f769f"
+    },
+    {
+      "file": "simde/arm/neon/st1q_x4.h",
+      "sha256": "5609f1609573fdb0afb761762d4afe4e1f517e4a3b233283a444b1093f48c0eb"
+    },
+    {
+      "file": "simde/arm/neon/st2.h",
+      "sha256": "3841414ac57392686560a20a6ef019ebbfa4d375060b2e2bb0d0a759d6d7c64d"
+    },
+    {
+      "file": "simde/arm/neon/st2_lane.h",
+      "sha256": "174040cf9dab29b6df7c8a368d07b0c69979d8905f692e653e5fa5924295d074"
+    },
+    {
+      "file": "simde/arm/neon/st3.h",
+      "sha256": "2285be1888c0e30396560a4890249f5c67d502328dc732522aecfdf8512c36d8"
+    },
+    {
+      "file": "simde/arm/neon/st3_lane.h",
+      "sha256": "bba7c42c77114da5bbb06163d3b7959304cdc9cb570237e2b976004a5c56a978"
+    },
+    {
+      "file": "simde/arm/neon/st4.h",
+      "sha256": "66da26ea11244aa00ee91dfb87e2dc5b3a4c671740d2046abb84fea406484807"
+    },
+    {
+      "file": "simde/arm/neon/st4_lane.h",
+      "sha256": "3d66a05cc2eea8298844f9e63f31de49c1b264977382d9cbbf5613215b68b00e"
+    },
+    {
+      "file": "simde/arm/neon/sub.h",
+      "sha256": "167bb7fc5ff4ccab38ad0a6c0282647351b8c85000f37ed4221b889295eebf7c"
+    },
+    {
+      "file": "simde/arm/neon/subhn.h",
+      "sha256": "0e454977618ec25ea190efce34eaba2db23354d3ce6dd964aa64c80490f3f078"
+    },
+    {
+      "file": "simde/arm/neon/subhn_high.h",
+      "sha256": "2524e37db8d4a035af48e38d5651f36dcdad2eb53978c71302c506e068e1191c"
+    },
+    {
+      "file": "simde/arm/neon/subl.h",
+      "sha256": "118d65a9abdac8e7ae5e8cca9dfdb90338a3e68fee3061b6e37a53a9ea3f02d3"
+    },
+    {
+      "file": "simde/arm/neon/subl_high.h",
+      "sha256": "aabe2bd711dec7d00a0f14a871c2b35a71854af8e0213399e16fb5b32495fe6e"
+    },
+    {
+      "file": "simde/arm/neon/subw.h",
+      "sha256": "ccfaf9386e8ea5d7c5c1b726d4399c46cad3940f7211f354c77faf06fd34b299"
+    },
+    {
+      "file": "simde/arm/neon/subw_high.h",
+      "sha256": "bd6f98b36e5803782226060377acf1eef129b1115284e1e11d708580b3d47efc"
+    },
+    {
+      "file": "simde/arm/neon/sudot_lane.h",
+      "sha256": "23fb4a7b1e28d7fc5f6606ce5dc5428a1724d4faaeaf9644d60670be0ebe7eaa"
+    },
+    {
+      "file": "simde/arm/neon/tbl.h",
+      "sha256": "0e1e2cebb64d95e76e50b5e142fa9381796e51139f636ff5346d67700c9621fe"
+    },
+    {
+      "file": "simde/arm/neon/tbx.h",
+      "sha256": "2f00843bc6b578441002777635b538def013a626c181d3fe4a57e0c762de7ca2"
+    },
+    {
+      "file": "simde/arm/neon/trn.h",
+      "sha256": "91240c4e02c94b2ab86e0d9b6c7a69a46455b3010975504ca8d438d2307956d6"
+    },
+    {
+      "file": "simde/arm/neon/trn1.h",
+      "sha256": "af926812d115ac5526e50c8fd55eb283e78a4307fed5e1046f992d44f5534a49"
+    },
+    {
+      "file": "simde/arm/neon/trn2.h",
+      "sha256": "6cd8c5fff00e5dd6e0b227b5c6831ccd66df7f564e1ebb7b9a8645ad0bed237f"
+    },
+    {
+      "file": "simde/arm/neon/tst.h",
+      "sha256": "47b0e8dbabd7b5f00a165c62ec77ade90c84d3c63d3b2bdae86b22c1f5d3bccc"
+    },
+    {
+      "file": "simde/arm/neon/types.h",
+      "sha256": "078197bdeff945cbb8f169872e421524671ba6f05343d844bfa5c2cf1fbbc7b8"
+    },
+    {
+      "file": "simde/arm/neon/uqadd.h",
+      "sha256": "8861912b5346f3333f554e07c4717f425d46d37e3fb61be9a89625ec2370cf3f"
+    },
+    {
+      "file": "simde/arm/neon/usdot.h",
+      "sha256": "c44032941b1ee0ab62bd4f11417c2723d1546f6e7ba118ce068b3a3783fdb63c"
+    },
+    {
+      "file": "simde/arm/neon/usdot_lane.h",
+      "sha256": "545618f4b841bc58d17f80efa9b9be807ac7005b27ec0371298c286031581c3f"
+    },
+    {
+      "file": "simde/arm/neon/uzp.h",
+      "sha256": "14d663a893d5b0abb74192a636ff755df730569298f94689e307c72328d553cc"
+    },
+    {
+      "file": "simde/arm/neon/uzp1.h",
+      "sha256": "e4532b5b77456fd66c65f9e6757dfc67ab8ed1856aaea246d76fb12a1ad464fa"
+    },
+    {
+      "file": "simde/arm/neon/uzp2.h",
+      "sha256": "aa62e00a7edacbe4e9234e6da4d2d38927d096f74ebbb49951e6c7344bd4cfab"
+    },
+    {
+      "file": "simde/arm/neon/xar.h",
+      "sha256": "7c8e3b09b34326ee84fe66e119d4c7f731d3f8ff7cb987e46583b7200642d3f2"
+    },
+    {
+      "file": "simde/arm/neon/zip.h",
+      "sha256": "38c5ab4832968b1adf73b90a3c6567f49f7554502a165a2a73a2e6ef710ab6ae"
+    },
+    {
+      "file": "simde/arm/neon/zip1.h",
+      "sha256": "fbf4faa557caf2709195148c7ef8090331b4ae872cf20f21eb28a8a8f316ac8b"
+    },
+    {
+      "file": "simde/arm/neon/zip2.h",
+      "sha256": "0d735cf7533507d882db4f9b9ec8ad16b2958e6071030f675ef4c07951c4121d"
+    },
+    {
+      "file": "simde/arm/neon.h",
+      "sha256": "3451e150c697917b51ffc9cda66d444137c7f21fc78d9dba02b4bd7c4484157f"
+    },
+    {
+      "file": "simde/arm/sve/add.h",
+      "sha256": "8f3a8bdce682765992709eaa53465c5565f449c2b0215189e2f7779be08da45e"
+    },
+    {
+      "file": "simde/arm/sve/and.h",
+      "sha256": "666e71c090cabbe5fe2a0725183a84d5f4d0ccba01808213e65bb3e9cd073b85"
+    },
+    {
+      "file": "simde/arm/sve/cmplt.h",
+      "sha256": "1176180ba5c08743fb2b364bc81cce1b21e1bf2f151f8ecfe5a8dd6be2b32385"
+    },
+    {
+      "file": "simde/arm/sve/cnt.h",
+      "sha256": "3f38254be171bbc5e27bb59cb462dd8ba84b1b4cffbc735cee92a5fed078860c"
+    },
+    {
+      "file": "simde/arm/sve/dup.h",
+      "sha256": "73bc4fc759d4f457ca9e3f7ec73df5be78ab447ff3afcd7a61f90db59fa50ae0"
+    },
+    {
+      "file": "simde/arm/sve/ld1.h",
+      "sha256": "1bea884cc71e1f53628ea4dacf5f4839b19298c4305cf6f697d65a41c68d535a"
+    },
+    {
+      "file": "simde/arm/sve/ptest.h",
+      "sha256": "84684fe37f8f1e8caa9649d454e290dcc235d557629865b9ed2c11f3060e15d1"
+    },
+    {
+      "file": "simde/arm/sve/ptrue.h",
+      "sha256": "739eb0e106ebc12b65688ea112a8a9cdaf43042aff45b33ab675adb8267b6023"
+    },
+    {
+      "file": "simde/arm/sve/qadd.h",
+      "sha256": "d41f6fcaf4ece845c3e4e156634e9984a85847f834804c21af805466c94d39ed"
+    },
+    {
+      "file": "simde/arm/sve/reinterpret.h",
+      "sha256": "0fc1c325518e056c58da5b7935d07be57a2d2322075c7835674a83a0effd8f20"
+    },
+    {
+      "file": "simde/arm/sve/sel.h",
+      "sha256": "7a0b813461efa66c1e80108b5db9ddde2daedd8ae71e949ceed091b2bca19539"
+    },
+    {
+      "file": "simde/arm/sve/st1.h",
+      "sha256": "baf693708251f08dcda6bde3a02631e873ac5977fbb41238ad9e22e9732bb17b"
+    },
+    {
+      "file": "simde/arm/sve/sub.h",
+      "sha256": "238e656fa3b1949e65f8bc155941e919dc07f96427648e64f868c4a81845cec9"
+    },
+    {
+      "file": "simde/arm/sve/types.h",
+      "sha256": "e335a8dbe2b70c04ada0af99afc29a7cae71283f9db9d65401c575afdf77ceaa"
+    },
+    {
+      "file": "simde/arm/sve/whilelt.h",
+      "sha256": "3409fe6e3043e0135ccedf1570f6d61eaf91200c9e9e7f860192be0863cc0484"
+    },
+    {
+      "file": "simde/arm/sve.h",
+      "sha256": "e17af7b90a4253e5d0a388dba8459755258bdaf299fbb7d17ce89740f835783a"
+    },
+    {
+      "file": "simde/check.h",
+      "sha256": "5fb278f5294101ce081f32ed0a931f994bf7dbd83ed69357703a2240a93151c6"
+    },
+    {
+      "file": "simde/debug-trap.h",
+      "sha256": "ac2841ade8b99dd6d38bdebc59c1d1444f901baa1bd7b6b60f50317472d77c01"
+    },
+    {
+      "file": "simde/hedley.h",
+      "sha256": "8b325e7b78db665c5400c8d596d64e7f29b322b700469aeacbc1f5849f8344d0"
+    },
+    {
+      "file": "simde/mips/msa/add_a.h",
+      "sha256": "32d2202dad5327af5e0940fef5c9431e5dac9e1d6ad5296ac0e47018be184e18"
+    },
+    {
+      "file": "simde/mips/msa/adds.h",
+      "sha256": "63c712a6eea510d08798f0ebd065c6d3d26b0d2ecbfac7eb97a13f8350620dc2"
+    },
+    {
+      "file": "simde/mips/msa/adds_a.h",
+      "sha256": "d319b0bc27dd4ad38af3ced6ab0e8b9d4ba586926c062152e964f7fd2abc6d93"
+    },
+    {
+      "file": "simde/mips/msa/addv.h",
+      "sha256": "eae816e56e08dfb0ab550ce78355f5e7153f19269fa9b046b2cc959fb401b181"
+    },
+    {
+      "file": "simde/mips/msa/addvi.h",
+      "sha256": "a00b443e7f06b0a4a59e66ad3feb7fc76ec052f4548a8fa9302a4c57aa25f015"
+    },
+    {
+      "file": "simde/mips/msa/and.h",
+      "sha256": "9b5c330b4038966d23273d16bc7f784ed6ce47a125201f54cb54ae90a9b54ce8"
+    },
+    {
+      "file": "simde/mips/msa/andi.h",
+      "sha256": "ecb83dbca2f037772a78e33416494b205db01d09970009a6ee47bca3b628c959"
+    },
+    {
+      "file": "simde/mips/msa/ld.h",
+      "sha256": "6010c68e9c59550ede8d9fd51330dd694ef84811783bab88ac166bd148473330"
+    },
+    {
+      "file": "simde/mips/msa/madd.h",
+      "sha256": "abfaaf30b08b843191774239f52fbb752b21e43224d060b4a035ca59450f5fdc"
+    },
+    {
+      "file": "simde/mips/msa/st.h",
+      "sha256": "13a0b639c6951266c50d5e22b7c30590ea1fb9ce7c526362f48402b71eee0628"
+    },
+    {
+      "file": "simde/mips/msa/subv.h",
+      "sha256": "e3f56a4e4af7c06a92833eca3b253b5771ba965a63e0d71b72d78a922412b387"
+    },
+    {
+      "file": "simde/mips/msa/types.h",
+      "sha256": "3596fe3c0d1e0e0b2ba0461bcf5caa44704ab6658101b9697ce49ba0d3368e3f"
+    },
+    {
+      "file": "simde/mips/msa.h",
+      "sha256": "f7ead7d5845b3b48a4ef1766374d6f8b441788e44f4696ed50e2d32bcff5b0bb"
+    },
+    {
+      "file": "simde/simde-aes.h",
+      "sha256": "91773c1b726823026ec788562222e08ca686e548e7ff4212d6495c9ee9d59287"
+    },
+    {
+      "file": "simde/simde-align.h",
+      "sha256": "948d91b0f12f49440cb2e73c09cee27d71679a7b8be4e55f174af0d3a88fcb2d"
+    },
+    {
+      "file": "simde/simde-arch.h",
+      "sha256": "29e720379ce8a2ed39f464287aa75e4c5dabef614c0996bb602b42e926efd676"
+    },
+    {
+      "file": "simde/simde-bf16.h",
+      "sha256": "beb490f2e29a97d7257bc823758e59c739269b467fe1525d3925c9bdf44d63a1"
+    },
+    {
+      "file": "simde/simde-common.h",
+      "sha256": "423f433ecf22e69ad0aa5842b021435f1eccfb19273b6e14e00f2e78428778b4"
+    },
+    {
+      "file": "simde/simde-complex.h",
+      "sha256": "76427745a4368e462bf7c7c11f48b277c35dbce4d4f8881b0779862c0f65e0ae"
+    },
+    {
+      "file": "simde/simde-constify.h",
+      "sha256": "08e029bce27502966e7ba0a0886e17aea3ee997f9ec25f962529364d7c7d711d"
+    },
+    {
+      "file": "simde/simde-detect-clang.h",
+      "sha256": "bf0613d16c8f503faf07975873a97c2605183c848b41da815c7291af1fd728b8"
+    },
+    {
+      "file": "simde/simde-diagnostic.h",
+      "sha256": "4f92f558ddf6ae57ad38ad0e279d88d0b582df2bd77fd616e9b0f51cbc78ee2b"
+    },
+    {
+      "file": "simde/simde-f16.h",
+      "sha256": "1a1367f5504ead194a3d91bcdc7bbc04604e31c65842f198b8ca3229c5012237"
+    },
+    {
+      "file": "simde/simde-features.h",
+      "sha256": "130f1a8c34425d3141dbdb88b983f71aa99ccba95d5e902e5ba1e40b7457654a"
+    },
+    {
+      "file": "simde/simde-math.h",
+      "sha256": "2a1ed690aa22c9019110d4e3255899b741e192267a0dbc5595eab24cfd5616f6"
+    },
+    {
+      "file": "simde/wasm/relaxed-simd.h",
+      "sha256": "04b7c8479cba1fbc1a5e194cb8649e71d0976b2f97c0b20b87b6b3132ada758b"
+    },
+    {
+      "file": "simde/wasm/simd128.h",
+      "sha256": "ef5ca2024b80b45e6060d810713b58250a3be611ec4f8843da78f5cc78923ac4"
+    },
+    {
+      "file": "simde/x86/aes.h",
+      "sha256": "9d514d632a3292bf31a769662cd2ffe37e61a7164b7fb56450c79d4b77fa4e6b"
+    },
+    {
+      "file": "simde/x86/avx.h",
+      "sha256": "751ed8d3f359355b345e82b3c0634d753c0eeee5d1ffaae58d8f03aa285b9900"
+    },
+    {
+      "file": "simde/x86/avx2.h",
+      "sha256": "5436fcc069479b859794d1fe9f5bb4c62c63ec33839dea5172bdd1a6c37f89c7"
+    },
+    {
+      "file": "simde/x86/avx512/2intersect.h",
+      "sha256": "cfeb7483ff1ccc5a4fb9c12d2023ba8251a1a6942e946e370db3765061ca2ad5"
+    },
+    {
+      "file": "simde/x86/avx512/4dpwssd.h",
+      "sha256": "841741c92965d4dade4c7d5fce28388e291272db1be06eb675416c932da98ce5"
+    },
+    {
+      "file": "simde/x86/avx512/4dpwssds.h",
+      "sha256": "0ab46a8c4ab4e38f6490cb89ca9345ae50109d5490b80693cc17950f705dcd2f"
+    },
+    {
+      "file": "simde/x86/avx512/abs.h",
+      "sha256": "fef7a44f8f28240d4e8dac04992b58e4320d9a526ecb79d9702b98ae0fb8b454"
+    },
+    {
+      "file": "simde/x86/avx512/add.h",
+      "sha256": "39d33e19e1d2f9317c733570345d67497a900962227bfad6f0dd3a389d1bcc98"
+    },
+    {
+      "file": "simde/x86/avx512/adds.h",
+      "sha256": "d4ed197e05b64481594b776650db1d22023065cbe92d555f82e773f1247bfda5"
+    },
+    {
+      "file": "simde/x86/avx512/and.h",
+      "sha256": "674f130c6aee5b118b043d34106fea5cb860c11ee26cdff5a3f28e49f6a02708"
+    },
+    {
+      "file": "simde/x86/avx512/andnot.h",
+      "sha256": "fe6b7ed5bc5ea3eac4f385b3e39ea0f754dbdf275eef4ce4120ba2d5948ea83e"
+    },
+    {
+      "file": "simde/x86/avx512/avg.h",
+      "sha256": "c66d95cad50751abc4d675e6b77162a5942b1bc3e075cf7bc64d595857daf13d"
+    },
+    {
+      "file": "simde/x86/avx512/bitshuffle.h",
+      "sha256": "092688cc0ab2e3ca697856e9da1a790afb17a5c6eb0e14a918036ff303adf239"
+    },
+    {
+      "file": "simde/x86/avx512/blend.h",
+      "sha256": "ac36947e4669fc18179dad44969d02ca0c38787360400c700327d6d4161fb974"
+    },
+    {
+      "file": "simde/x86/avx512/broadcast.h",
+      "sha256": "00754f34f26ecc916b195cce5656b3c5324f419ae9a181cf1e4bd6a7386ea9f3"
+    },
+    {
+      "file": "simde/x86/avx512/cast.h",
+      "sha256": "4954bddf36826fe6fef1b997a222f96f96d99b11c5f999c20991eea4b6249719"
+    },
+    {
+      "file": "simde/x86/avx512/cmp.h",
+      "sha256": "67f6b7cce95e2f93cdf448b832c4cb3f2fecec12ffa5abbebd78e98bc613c7cb"
+    },
+    {
+      "file": "simde/x86/avx512/cmpeq.h",
+      "sha256": "20b402053c42182ce95905c26f3740cfa7d593e03938eeebcf5161a8a7298e2c"
+    },
+    {
+      "file": "simde/x86/avx512/cmpge.h",
+      "sha256": "dd968d1555cd89122168fa2e6f251a75f476a1e6aced9e274eae6a30ad6bc145"
+    },
+    {
+      "file": "simde/x86/avx512/cmpgt.h",
+      "sha256": "b74be9548e3066ff4f699184c785f406eed74b841113017c2c3948b46f4e48db"
+    },
+    {
+      "file": "simde/x86/avx512/cmple.h",
+      "sha256": "a4575dc91e301c890cb7377a3393ff97b0f0aca07767607c383e04ba0a4e88e8"
+    },
+    {
+      "file": "simde/x86/avx512/cmplt.h",
+      "sha256": "1b6b5bd23fa26da4cf1ea0ae4d070991dcc5a997d36860f9e546617cac178ee7"
+    },
+    {
+      "file": "simde/x86/avx512/cmpneq.h",
+      "sha256": "7d96a6409e3eb7c398e62c0c03d08224706bf22f36475830ddddb08c8d6bb05a"
+    },
+    {
+      "file": "simde/x86/avx512/compress.h",
+      "sha256": "fd248ccb8adb0d03084649aa4dd8c94e79d6676f5068169e31a1dac29f058274"
+    },
+    {
+      "file": "simde/x86/avx512/conflict.h",
+      "sha256": "cb9aa0cc2e249fa4126e3051004f5bf590cf6d2494e1a22c9b2da25f3dcdaf10"
+    },
+    {
+      "file": "simde/x86/avx512/copysign.h",
+      "sha256": "3c91ea4558c560094fd91684f4d7401c3a67c57c6754d5ca64728df62df6aa43"
+    },
+    {
+      "file": "simde/x86/avx512/cvt.h",
+      "sha256": "5db04df4a5ae73055bd051eccb11d465d746c842bd3982aaf465edd7122266b1"
+    },
+    {
+      "file": "simde/x86/avx512/cvts.h",
+      "sha256": "09f20f1f267a3be278dbca1ce9a7d807496e1e156d8ea0bd5f4911df5ee109e6"
+    },
+    {
+      "file": "simde/x86/avx512/cvtt.h",
+      "sha256": "c31d35c052c7586f6d9971a97f725efd32be0b49cc409e711aad07bcecd20096"
+    },
+    {
+      "file": "simde/x86/avx512/cvtus.h",
+      "sha256": "00e36b5e6a2ea746dccafa138f147bc49a3446c2cf6299a25b7960ab85c9f927"
+    },
+    {
+      "file": "simde/x86/avx512/dbsad.h",
+      "sha256": "f7ae24ea1843b92bddbfcc421c5c550ccc33b6e1efd196da1e3d8f6b1dfde79a"
+    },
+    {
+      "file": "simde/x86/avx512/div.h",
+      "sha256": "8ec0315ae3bfb216cdb9fef78ffbe5989659c4ccf009e6414320a2f2189377cf"
+    },
+    {
+      "file": "simde/x86/avx512/dpbf16.h",
+      "sha256": "8ac291436834383d91716821d51bbcf45538683cefbe42813eb96a1f5915a450"
+    },
+    {
+      "file": "simde/x86/avx512/dpbusd.h",
+      "sha256": "0b0098d5a6926b0c1cb19c463afca74b19a80007ed9e0136ccd24bb380c60e09"
+    },
+    {
+      "file": "simde/x86/avx512/dpbusds.h",
+      "sha256": "6a23ccd5ec2ad25d077c23fa339030b858eeb29d0729d162ae34e3381e31cc10"
+    },
+    {
+      "file": "simde/x86/avx512/dpwssd.h",
+      "sha256": "bd91487f92eff508a61c877a2578deca28999c1c5a3ac73058378abb1b016219"
+    },
+    {
+      "file": "simde/x86/avx512/dpwssds.h",
+      "sha256": "2e1a0a95e45eb51af208ab58838ad4a5d55106e9208fcba5b5018cf11d7b016f"
+    },
+    {
+      "file": "simde/x86/avx512/expand.h",
+      "sha256": "340165b98242db51e7e8b7eeaa2379d37cb96c2b879b0771104d96b826efa1a3"
+    },
+    {
+      "file": "simde/x86/avx512/expandloadu.h",
+      "sha256": "198f6853e588415c4a36d4abd64cb86c3e13e0b66f3b566fb2966338271c6975"
+    },
+    {
+      "file": "simde/x86/avx512/extract.h",
+      "sha256": "0c3e67aaed7b8ebe5165900115955858ac1609430c8282cb0ca179b9c92e8fc2"
+    },
+    {
+      "file": "simde/x86/avx512/fixupimm.h",
+      "sha256": "d418f984a6d332a382d5b3acb83b188151bea3a93928408ac1f4c68a15b7ce6a"
+    },
+    {
+      "file": "simde/x86/avx512/fixupimm_round.h",
+      "sha256": "5887422cd7c4d8cd280c74b08c84c797c6669944b1d11a74efd7694463634bf9"
+    },
+    {
+      "file": "simde/x86/avx512/flushsubnormal.h",
+      "sha256": "14b743051649d301446672f284084c45d2339f4a6635dfffda421dfe7840fd86"
+    },
+    {
+      "file": "simde/x86/avx512/fmadd.h",
+      "sha256": "4206967251e2e390a1995036fc68ca74a2707c881f687a7fdffd0585b7974503"
+    },
+    {
+      "file": "simde/x86/avx512/fmaddsub.h",
+      "sha256": "f80225caea04033e3500e5ca8f83a0373da27243369fec3c3bd12908454c00e5"
+    },
+    {
+      "file": "simde/x86/avx512/fmsub.h",
+      "sha256": "35a4ff5a701d11e800840dcbd0930558d7588d1ab2c695df10c1cdc760d5e68a"
+    },
+    {
+      "file": "simde/x86/avx512/fnmadd.h",
+      "sha256": "a0914b030e556d93b8e9731a5033553d8a001860729f712264fdfb44f09dc1e3"
+    },
+    {
+      "file": "simde/x86/avx512/fnmsub.h",
+      "sha256": "d42b28abc9be47a64e3a45f075ff5979a2fe880c3b5ab2692a8ad33e408e8af5"
+    },
+    {
+      "file": "simde/x86/avx512/fpclass.h",
+      "sha256": "a9ebdfdbef37e5f7df60dfd2007158d167b12ffeffd414c3213fd5fe5334da52"
+    },
+    {
+      "file": "simde/x86/avx512/gather.h",
+      "sha256": "f38b8c69be7a2d467ebaa4189d50e9da5d1d7d3c437c5779a33e866454efbfe6"
+    },
+    {
+      "file": "simde/x86/avx512/insert.h",
+      "sha256": "9b0fa159bcb042ce7d318f3e1231e5a6247db503d6410c2c19b19826e0994203"
+    },
+    {
+      "file": "simde/x86/avx512/kand.h",
+      "sha256": "ea5802fa617f95a5a604c1a1651164a00a70e3fa876f1d8bfea0ca60fb322dd7"
+    },
+    {
+      "file": "simde/x86/avx512/knot.h",
+      "sha256": "a27f041c22c8457c3bcc7adb9b7f92f16c44af17826457ecb1d184f83e78970e"
+    },
+    {
+      "file": "simde/x86/avx512/kshift.h",
+      "sha256": "b14df961abb2a98615a6542761d87f9f48d7324718fac36458afce0ff5641f33"
+    },
+    {
+      "file": "simde/x86/avx512/kxor.h",
+      "sha256": "cb59bffb03c614d99d8677a11b077f594e30399d8d0bf84f9e8420fbafb7a2c5"
+    },
+    {
+      "file": "simde/x86/avx512/load.h",
+      "sha256": "0041af45b0b5c1beacfcca63ea291277574bf13bcb332b906920ca914d1239ac"
+    },
+    {
+      "file": "simde/x86/avx512/loadu.h",
+      "sha256": "f12fe5163ae028f57496b011fa94d83dc3054a0fc4164fdbe415fdf4e0d378b8"
+    },
+    {
+      "file": "simde/x86/avx512/lzcnt.h",
+      "sha256": "dd8bbaece81bd7ffc6246e977571571ff9f7384842d46b018a534035205553fe"
+    },
+    {
+      "file": "simde/x86/avx512/madd.h",
+      "sha256": "2f6f1aaa3d8370d8bbf4aaa2c37ae2819c0dac9b8c60b8d643769c9b64c48bd4"
+    },
+    {
+      "file": "simde/x86/avx512/maddubs.h",
+      "sha256": "30062133f93b2eb05c24ed9b1abd5f2ee4c9879752c370c3f372edb32887d3e7"
+    },
+    {
+      "file": "simde/x86/avx512/max.h",
+      "sha256": "d0da06829e26c2302e530a4a5e46fdd8abfbca0a8e32b535fe03f08d20024a60"
+    },
+    {
+      "file": "simde/x86/avx512/min.h",
+      "sha256": "1cd43c0cd05c15eae1a115473018e21b3995eecf741c6557deeeaa1fb4ab2abf"
+    },
+    {
+      "file": "simde/x86/avx512/mov.h",
+      "sha256": "4281a9a4281d1b3f17b3f7d14121cd7a0520996f122630ba193bbd612e9518c5"
+    },
+    {
+      "file": "simde/x86/avx512/mov_mask.h",
+      "sha256": "65e494f74f2a03d601e0c1d16663bfe5c393388affefcf0acb651eb2873ed095"
+    },
+    {
+      "file": "simde/x86/avx512/movm.h",
+      "sha256": "8155bbb950472acf8c336430c52128cf3b8a9010a418caaf9ee4d9ce34463565"
+    },
+    {
+      "file": "simde/x86/avx512/mul.h",
+      "sha256": "f37ef50a5ba6bd2c2f7da279eee499927843ab5cf10610155ce00272d1c85408"
+    },
+    {
+      "file": "simde/x86/avx512/mulhi.h",
+      "sha256": "f8c795082977366bfdd6aca7f5dd4c27bf9bdc1cead49b77887080b7cb666789"
+    },
+    {
+      "file": "simde/x86/avx512/mulhrs.h",
+      "sha256": "2d4c54ae59dfaa109a2355f4ee6f79702c836c5c4b10cb73a3c970dacf6fd65b"
+    },
+    {
+      "file": "simde/x86/avx512/mullo.h",
+      "sha256": "288737a70c231a40eb739ae4e6815aee6ee0738b392720d4bdbe8c4602de0035"
+    },
+    {
+      "file": "simde/x86/avx512/multishift.h",
+      "sha256": "2926822ccf041364c9a182cf93214807683f06ba8641b9ee4c37e39ea4af80ca"
+    },
+    {
+      "file": "simde/x86/avx512/negate.h",
+      "sha256": "4d620464d030b547ec3a43795657e60220d37cc491be6eb6f0f94745be66a6c2"
+    },
+    {
+      "file": "simde/x86/avx512/or.h",
+      "sha256": "c98880b1857cfe18f8f1f670a0afafa50172003d50ab2ef92677c913cb5816b8"
+    },
+    {
+      "file": "simde/x86/avx512/packs.h",
+      "sha256": "182421d52a0f754f1e7caa1768a63261ee3747edee90d95469d201c7aec203b6"
+    },
+    {
+      "file": "simde/x86/avx512/packus.h",
+      "sha256": "4c11597ff6c06aba93c3e9a8f63cc498da0d70f846e10389f0b50d123443e5dc"
+    },
+    {
+      "file": "simde/x86/avx512/permutex.h",
+      "sha256": "a8a0623c8bdf39c9ad875539a6ee2a07b265b1f701242e4415dc44625380eb59"
+    },
+    {
+      "file": "simde/x86/avx512/permutex2var.h",
+      "sha256": "0cf9489116b1d0c830b78b42c2dc84688f637b7c7c495c43d5c7cffaf9b4ec68"
+    },
+    {
+      "file": "simde/x86/avx512/permutexvar.h",
+      "sha256": "18192c18b30b0a0685aac7b46cff13e143e4118797bd874a0db60b480dd9bbee"
+    },
+    {
+      "file": "simde/x86/avx512/popcnt.h",
+      "sha256": "52fc5c3fd49620b13c48731719315b1f51ebfec79e4526fa6b40503bcf253507"
+    },
+    {
+      "file": "simde/x86/avx512/range.h",
+      "sha256": "5f65a362acc484bc01b3ef608e1c55337c18de026d941aa299eaab73ec47f2cd"
+    },
+    {
+      "file": "simde/x86/avx512/range_round.h",
+      "sha256": "04cee32f9e0508faacf9ccf0a2bc3fccacb929a7d308882f01ae80c6b72f7394"
+    },
+    {
+      "file": "simde/x86/avx512/rcp.h",
+      "sha256": "90738ef51e6172a9bdb1eb95e9e9cc3d7fd6ec878c11b2760bb6129c1efcad7f"
+    },
+    {
+      "file": "simde/x86/avx512/reduce.h",
+      "sha256": "182737c4866f65faa8ee3fe05c9f9b06c95e44688ca5068e5cb6e88cf00f1cf8"
+    },
+    {
+      "file": "simde/x86/avx512/rol.h",
+      "sha256": "a3c9b504dd0b97a8908c1e8af96bd531413e34e5bf6cafac363d34ef824243cd"
+    },
+    {
+      "file": "simde/x86/avx512/rolv.h",
+      "sha256": "a82af52dd8972dadcef75052c936af85304953239623f964b3b8b9e61f0c72a9"
+    },
+    {
+      "file": "simde/x86/avx512/ror.h",
+      "sha256": "5f489405b9b95f25937b48e53ee96aa8158d7a4ef22eaf03d0b9f146296a46ee"
+    },
+    {
+      "file": "simde/x86/avx512/rorv.h",
+      "sha256": "c35122e8ff64c9ab549ac0428d83dd842cb4bb401b10eda08538eae5c75975fa"
+    },
+    {
+      "file": "simde/x86/avx512/round.h",
+      "sha256": "c047df5fd6cf99c4f0603790d300c985b3f639dd26507c5b0da5ea004c05ac2a"
+    },
+    {
+      "file": "simde/x86/avx512/roundscale.h",
+      "sha256": "35cebdfa01df5f93995e80c1783db62b12ed94091898425c56aa4d29d359cbef"
+    },
+    {
+      "file": "simde/x86/avx512/roundscale_round.h",
+      "sha256": "e3eee57980b9735256b94987a32399e79d008db37e4516a983ff4be59380c612"
+    },
+    {
+      "file": "simde/x86/avx512/sad.h",
+      "sha256": "c1fdb5b7be12d267e59d7950162acbb47ef087a24109c416bd6380a91fe1bc4e"
+    },
+    {
+      "file": "simde/x86/avx512/scalef.h",
+      "sha256": "eac86eb3c128e6d62483fcfa3e2f090a311fab760f529f4c73a80342ac5302bf"
+    },
+    {
+      "file": "simde/x86/avx512/set.h",
+      "sha256": "47175aa7ffda3b7901e9855d594055b38b38c2dfab8fc0ba275fbca426604665"
+    },
+    {
+      "file": "simde/x86/avx512/set1.h",
+      "sha256": "abee4f2cea42bc85f601e0cc85d72df8fccc41670a21de3d686ab76d1e4aa55d"
+    },
+    {
+      "file": "simde/x86/avx512/set4.h",
+      "sha256": "a03267e050b465c4e02daf709e4baaff063b72dd52db8d96dd7d4fe1615f27f5"
+    },
+    {
+      "file": "simde/x86/avx512/setone.h",
+      "sha256": "9cf60b236cfbbd6e03cd70a2e8f5db34d2f730ab272c2bacaec3d3198f5a9b85"
+    },
+    {
+      "file": "simde/x86/avx512/setr.h",
+      "sha256": "fec4aa401eab261c539f7ae2ed71403402f3e15fec90d996b64b17c214ef0fc0"
+    },
+    {
+      "file": "simde/x86/avx512/setr4.h",
+      "sha256": "c6ff48c15067dadd3af02d2d977d4537fb4b686578f449a473a418d99099a865"
+    },
+    {
+      "file": "simde/x86/avx512/setzero.h",
+      "sha256": "14319f78fd1071603b130824229d988070091f53011d9705a0f6ec95b05487bf"
+    },
+    {
+      "file": "simde/x86/avx512/shldv.h",
+      "sha256": "f25ad76042e1a825708f56b080078732e332a6838a138ad68e618daf0a072d0f"
+    },
+    {
+      "file": "simde/x86/avx512/shuffle.h",
+      "sha256": "0f181c0c00ea9408ab1d430cc9bc1ac1e543bbabed7066e857e7b9a42f4a79d1"
+    },
+    {
+      "file": "simde/x86/avx512/sll.h",
+      "sha256": "de2c6a91038e09a3182feae643359811b7bfa5b2429dbc4a3ce5e254f6b61fb8"
+    },
+    {
+      "file": "simde/x86/avx512/slli.h",
+      "sha256": "3160b4d2a300bbb6c9399fad63a63c3d0962fe6faef9a268068ab76776c320ba"
+    },
+    {
+      "file": "simde/x86/avx512/sllv.h",
+      "sha256": "60899f73a3fe5dd79896c8d66de0e6cb91aa96b1c344d169d689cf7c9c3faa8a"
+    },
+    {
+      "file": "simde/x86/avx512/sqrt.h",
+      "sha256": "978367b984e66fd90960f528252007cb58b1aca64a9f12a6d5779ba9c7d8666a"
+    },
+    {
+      "file": "simde/x86/avx512/sra.h",
+      "sha256": "04cd7985602b21644c91c45c8e9daf09c47ea1da38152ebe6174dd88e4f9cce4"
+    },
+    {
+      "file": "simde/x86/avx512/srai.h",
+      "sha256": "95a56cbcc68dad77fd8d3441ce787c6c94dfc52b347f381bc455ea6d7cfcbf90"
+    },
+    {
+      "file": "simde/x86/avx512/srav.h",
+      "sha256": "3685e91e68a7ffaecd4b2698b07616b2eb726c005fefefbf46956fcb327f2fe8"
+    },
+    {
+      "file": "simde/x86/avx512/srl.h",
+      "sha256": "a3a03500b5b1a048601538434cb848474cc9fd5505f622bd471dcf73a28b86a3"
+    },
+    {
+      "file": "simde/x86/avx512/srli.h",
+      "sha256": "374a6df63517063736e8d92d90a2361fd8f5f8ed9938dba29ad3395ead8a437c"
+    },
+    {
+      "file": "simde/x86/avx512/srlv.h",
+      "sha256": "dd124b5bdeecc7c4830906017811d5822fefa6de590b82675f322fe333bc8512"
+    },
+    {
+      "file": "simde/x86/avx512/store.h",
+      "sha256": "03b19778a382e438cadfebf59eaf95c5acca1394e3861f0c4d23e38394779fae"
+    },
+    {
+      "file": "simde/x86/avx512/storeu.h",
+      "sha256": "4efd8d7bf4aae74f6cbc73479fa101c1c4c1d439e99183d15f7f14314dea679c"
+    },
+    {
+      "file": "simde/x86/avx512/sub.h",
+      "sha256": "4333c01f30610d203b61c3a39affac6f7fa5bb0c2502d4d8e25a1b6c619e9cff"
+    },
+    {
+      "file": "simde/x86/avx512/subs.h",
+      "sha256": "c2510817ead7ff553321953da71d2cdc55aee01c71bad0c23430f752d6327fb8"
+    },
+    {
+      "file": "simde/x86/avx512/ternarylogic.h",
+      "sha256": "35dfc3915387d4951137068dc5ec8f11877a047c285af08f18b07d6eb541dfa9"
+    },
+    {
+      "file": "simde/x86/avx512/test.h",
+      "sha256": "4c7ab52ee01e626dc2e141353f0a28a39ee058a35de288a38d5a34c09fde8e64"
+    },
+    {
+      "file": "simde/x86/avx512/testn.h",
+      "sha256": "c99d0345128e37bb871216a540c52fec106ff9bf83256769b2cddc199d4e9ed7"
+    },
+    {
+      "file": "simde/x86/avx512/types.h",
+      "sha256": "06f82d389086977a6a9b3171d311dff6732a3de79907b73a1c1bbaa3b5a839b1"
+    },
+    {
+      "file": "simde/x86/avx512/unpackhi.h",
+      "sha256": "9218564390d134e4c7693f6a8128d539ff12dea1139ca10231e6aabb48093d96"
+    },
+    {
+      "file": "simde/x86/avx512/unpacklo.h",
+      "sha256": "785ac55eaa86fbfef4762abe4d28dff1c7d137058e105886866c8254464d479e"
+    },
+    {
+      "file": "simde/x86/avx512/xor.h",
+      "sha256": "7d29456f531d1633da67b6e5c6ff2fa1bc5204380cd3f4bbe924307dfda5a572"
+    },
+    {
+      "file": "simde/x86/avx512/xorsign.h",
+      "sha256": "f675cc4bc39aab2eeab03befdaa69b43d755f5c0d0c49241326b9f4c2da36709"
+    },
+    {
+      "file": "simde/x86/avx512.h",
+      "sha256": "41946b815bad884af2daf92d6a24eae3208a6bf62c2366244502ca22bbaa9d6e"
+    },
+    {
+      "file": "simde/x86/bmi.h",
+      "sha256": "ac433db02579c1ebac8d1c858f367886520291a8e78c9ae3cd43641dc61baff3"
+    },
+    {
+      "file": "simde/x86/clmul.h",
+      "sha256": "7965b169fadac3be83029d092d3654ba2f69dda43e85434b65111e9fc7b986ed"
+    },
+    {
+      "file": "simde/x86/f16c.h",
+      "sha256": "5e8e5c7c2acb80b5ece8e35b3f574e7d8e3043a43cb9785a6e429fbfe7ca752e"
+    },
+    {
+      "file": "simde/x86/fma.h",
+      "sha256": "80821ce5e20413cf95e2cb5d7d83c31d4f2e1be51746dd83705736849c63ba49"
+    },
+    {
+      "file": "simde/x86/gfni.h",
+      "sha256": "39170c45c2ed2b944783f22dea5513bbd86c9eba2658a190412c241e6fcf7282"
+    },
+    {
+      "file": "simde/x86/mmx.h",
+      "sha256": "c7a07105b3fc5b951faaba3c4fd75c7d7e0e800cadb259adf692343d73150bd5"
+    },
+    {
+      "file": "simde/x86/sse.h",
+      "sha256": "bd54d513f8035c0c33fdf3b633e9a3f41ad2032e3677a172c5e78c11a3f77fd1"
+    },
+    {
+      "file": "simde/x86/sse2.h",
+      "sha256": "b97f0fa4b562b172522a0e29e6ec98ebe008e46727d39425f12ae8745587a235"
+    },
+    {
+      "file": "simde/x86/sse3.h",
+      "sha256": "10190da2e74805167b8629dc78a6fc0e0b66b6ba3d38a6b242c78288a79270c5"
+    },
+    {
+      "file": "simde/x86/sse4.1.h",
+      "sha256": "3abb42429007289370f61e041dd598d0d44c1b7d61c37b8bcaa445fa0af91479"
+    },
+    {
+      "file": "simde/x86/sse4.2.h",
+      "sha256": "5128cf79ffdca2cb1db266f04f8b0a4441f29b742d3d82629beefb566aa50aa1"
+    },
+    {
+      "file": "simde/x86/ssse3.h",
+      "sha256": "97a8bb69ae72ed2e1efcd0391eaa8627d16f4ca1e703b6a28e0339dd8d6f96eb"
+    },
+    {
+      "file": "simde/x86/svml.h",
+      "sha256": "eb01631e9899cb67369e51de9d9c4f68612612c7df3aedee8e6c1805d4aab248"
+    },
+    {
+      "file": "simde/x86/xop.h",
+      "sha256": "9cbd03a5fc031afa8f095665b4eb3170334085d979e465d138c68e444d400b4d"
+    }
+  ]
+}

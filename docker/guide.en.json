@@ -1,0 +1,379 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.docker-guide",
+  "language": "en",
+  "title": "Verification on Ubuntu 26.04 LTS",
+  "sections": [
+    {
+      "id": "ubuntu-26-04-ltsでの検証",
+      "level": 1,
+      "title": "Verification on Ubuntu 26.04 LTS",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "EquiLane verifies that Intel Intrinsics have been ported correctly to other CPUs. Ubuntu 26.04 LTS in Docker provides the shared reference environment. The output of the Intel C implementation for the same input is the reference used to check whether OpenPOWER, ARM64 NEON, and RISC-V64 RVV satisfy each case contract. Architectures that differ from the host run through an emulator."
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Command target",
+            "Docker platform",
+            "Ubuntu image",
+            "Wrapper instruction set"
+          ],
+          "rows": [
+            [
+              "`intel`",
+              "`linux/amd64`",
+              "[`ubuntu:26.04`](https://hub.docker.com/_/ubuntu)",
+              "SSE2"
+            ],
+            [
+              "`openpower`",
+              "`linux/ppc64le`",
+              "[`ppc64le/ubuntu:26.04`](https://hub.docker.com/r/ppc64le/ubuntu/)",
+              "POWER8 / VSX"
+            ],
+            [
+              "`arm`",
+              "`linux/arm64`",
+              "[`arm64v8/ubuntu:26.04`](https://hub.docker.com/r/arm64v8/ubuntu/)",
+              "ARMv8-A / NEON"
+            ],
+            [
+              "`riscv`",
+              "`linux/riscv64`",
+              "[`riscv64/ubuntu:26.04`](https://hub.docker.com/r/riscv64/ubuntu/)",
+              "RV64GCV / RVV 1.0"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "The architecture-specific repositories in the table are builds of the official Ubuntu image.\nThe Dockerfile uses the same official multi-architecture image and selects its target with `--platform`.\nThe base image is pinned to the 26.04 manifest digest."
+        }
+      ]
+    },
+    {
+      "id": "前提",
+      "level": 2,
+      "title": "Prerequisites",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Docker Engine and Buildx are required. Docker Desktop includes emulation for building and running other architectures.\nThe available targets depend on the Docker installation; check emulator support if execution fails."
+        },
+        {
+          "type": "paragraph",
+          "text": "On Linux, register binfmt once on the Docker host if needed.\nThis administrative command updates the host binfmt configuration."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "docker run --privileged --rm tonistiigi/binfmt --install amd64,arm64,ppc64le,riscv64"
+        },
+        {
+          "type": "paragraph",
+          "text": "See the [Docker multi-platform guide](https://docs.docker.com/build/building/multi-platform/) for details.\nThe script does not run this administrative command automatically."
+        },
+        {
+          "type": "paragraph",
+          "text": "The CPU baseline required by Ubuntu and the compilation target of the wrappers are configured separately."
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "Ubuntu 26.04 on OpenPOWER requires POWER9 or later. QEMU selects `power9`, while the wrappers are built for POWER8.",
+            "Ubuntu 26.04 on RISC-V requires RVA23. Use the `rva23s64` CPU in QEMU 10.1 or later.\nThe wrappers are built with `-march=rv64gcv -mabi=lp64d -mrvv-vector-bits=scalable`."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "These requirements come from the [Ubuntu CPU baseline](https://ubuntu.com/project/docs/how-ubuntu-is-made/concepts/supported-architectures/) and\n[RISC-V QEMU requirements](https://ubuntu.com/hardware/docs/boards/how-to/ubuntu_supported/qemu-riscv/).\nOlder QEMU versions may fail before the container shell or Python starts."
+        }
+      ]
+    },
+    {
+      "id": "4環境をまとめて比較する",
+      "level": 2,
+      "title": "Compare all four environments",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Run this from the repository root."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./docker/run.sh all"
+        },
+        {
+          "type": "paragraph",
+          "text": "`all` builds the image for each environment, captures raw C wrapper and shared C ABI results, and compares them with Intel. `verify` also runs CMake/CTest in each environment and Python, browser, sanitizer, and cross-build checks in the host-CPU container. The default output directory is artifacts/docker/."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./docker/run.sh all artifacts/docker/run-001"
+        },
+        {
+          "type": "paragraph",
+          "text": "The comparison checks return values and memory output according to the case contract. A bit_exact contract also requires matching NaN signs and payloads and signed zero. A result that violates the contract remains an unresolved port mismatch even when CPU-specific behavior explains the difference. Mismatches return exit code 1; build and execution failures are recorded separately as errors."
+        }
+      ]
+    },
+    {
+      "id": "adversarial-大量入力",
+      "level": 2,
+      "title": "Compare a larger set of boundary inputs",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "EQUILANE_PROFILE=adversarial ./docker/run.sh all artifacts/adversarial\nEQUILANE_PROFILE=adversarial ./docker/run.sh verify artifacts/adversarial-verified"
+        },
+        {
+          "type": "paragraph",
+          "text": "The adversarial input profile searches for mistakes in Intel Intrinsics ports. By default it generates 512 inputs for each of 253 operations and all 256 possible inputs for _mm_set1_epi8, for a total of 129,792 inputs per target. This is about 63.9 times the 2,032-input smoke run. The 762 raw-wrapper samples remain a separate execution path."
+        },
+        {
+          "type": "paragraph",
+          "text": "Inputs cover integer minima and maxima, saturation and conversion boundaries, bit and lane permutations, ±0, subnormals, infinity, NaN signs and payloads, rounding boundaries, every immediate declared by the case, shift-width boundaries, and valid memory offsets with guards and exact-fit buffers. The generator does not extend the contract to undeclared immediates, alignments, or rounding modes."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "EQUILANE_PROFILE=adversarial EQUILANE_COUNT_PER_CASE=2048 ./docker/run.sh all artifacts/adversarial-large"
+        },
+        {
+          "type": "paragraph",
+          "text": "Increasing the count includes remaining structured inputs before adding seeded raw-bit inputs. _mm_set1_epi8 is limited to 256 inputs regardless of the requested count. All CPUs use the same test-vectors.jsonl so the comparison conditions stay identical."
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Output",
+            "What it records"
+          ],
+          "rows": [
+            [
+              "vectors/adversarial-coverage.json",
+              "SHA-256 of the actual input file, unique input counts per case, counts per test category, missing boundary bits, immediates, and memory offsets"
+            ],
+            [
+              "canonical/compare-<role>/differences.jsonl",
+              "Every mismatch and non-comparable result found while checking the full input set"
+            ],
+            [
+              "canonical/compare-<role>/failures/",
+              "Individual replay bundles; adversarial retains the first 128 by default"
+            ],
+            [
+              "pipeline-report.html",
+              "Full counts per target and links to reports; detailed HTML displays the first 128 entries by default"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Input coverage describes which inputs were generated, not the C execution success rate or agreement with Intel. A 512-input run is not treated as exhaustive; uncovered scenarios are explicit in the coverage JSON. Limiting detailed display to 128 entries does not skip comparison or counting of any input."
+        }
+      ]
+    },
+    {
+      "id": "個別採取と再比較",
+      "level": 2,
+      "title": "Capture targets individually and compare again",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./docker/run.sh intel\n./docker/run.sh openpower\n./docker/run.sh arm\n./docker/run.sh riscv\n./docker/run.sh compare"
+        },
+        {
+          "type": "paragraph",
+          "text": "Selecting one target captures its output. `compare` compares saved Intel output with each target.\nUse the same output directory for captures that belong to one comparison."
+        },
+        {
+          "type": "paragraph",
+          "text": "Environment variables control the following settings."
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Variable",
+            "Default",
+            "Purpose"
+          ],
+          "rows": [
+            [
+              "`EQUILANE_IMAGE_PREFIX`",
+              "`equilane/ubuntu26.04`",
+              "Local Docker image name prefix"
+            ],
+            [
+              "`EQUILANE_BUILD`",
+              "`1`",
+              "Set to `0` to use existing images"
+            ],
+            [
+              "`EQUILANE_RISCV_CPU`",
+              "`rva23s64,vlen=128`",
+              "CPU configuration for the RISC-V emulator"
+            ],
+            [
+              "EQUILANE_JOBS",
+              "2",
+              "Parallelism for native workers and builds"
+            ],
+            [
+              "EQUILANE_PROFILE",
+              "smoke",
+              "Input profile for the shared C ABI; choose adversarial for a larger boundary-input set"
+            ],
+            [
+              "EQUILANE_COUNT_PER_CASE",
+              "8 (512 for adversarial)",
+              "Input count per shared C ABI case, capped at the number of unique inputs in a finite input domain"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "After building the images once, recapture results without rebuilding unchanged code:"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "EQUILANE_BUILD=0 ./docker/run.sh all artifacts/docker/repeat"
+        },
+        {
+          "type": "paragraph",
+          "text": "On Docker hosts other than RISC-V, all / verify / wrappers automatically capture VLEN 256 as well as VLEN 128. A run on a RISC-V host cannot change the physical CPU VLEN through configuration. Use EQUILANE_RISCV_CPU to change the emulator baseline."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "EQUILANE_RISCV_CPU=rva23s64,vlen=256 ./docker/run.sh all artifacts/docker/vlen256"
+        },
+        {
+          "type": "paragraph",
+          "text": "QEMU selects its CPU through `QEMU_CPU`. The [QEMU implementation](https://github.com/qemu/qemu/blob/master/linux-user/main.c) confirms that this variable corresponds to `-cpu`.\nThis configures QEMU running under Docker; it does not add features to a physical CPU."
+        }
+      ]
+    },
+    {
+      "id": "結果の範囲",
+      "level": 2,
+      "title": "Scope of the results",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The raw-wrapper comparison has 254 operations × 3 inputs, or 762 samples per target. The shared C ABI comparison defaults to the smoke profile with 8 inputs per case, or 2,032 inputs. Raw-wrapper results are saved under intel/, openpower/, arm/, and riscv/; shared C ABI results are saved under native/<role>/."
+        },
+        {
+          "type": "table",
+          "columns": [
+            "File",
+            "Contents"
+          ],
+          "rows": [
+            [
+              "`<role>/manifest.json`",
+              "Capture metadata, including compiler, execution type, and image"
+            ],
+            [
+              "`<role>/outputs.jsonl`",
+              "Output bytes for each sample"
+            ],
+            [
+              "`<role>/corpus.json`",
+              "Definition of deterministic inputs"
+            ],
+            [
+              "`<role>/build.log`",
+              "Build log"
+            ],
+            [
+              "`<role>/build/`",
+              "Generated calling code, executable, and object files"
+            ],
+            [
+              "`compare-<role>.json`",
+              "Comparison results and differences from Intel"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Execution type is recorded as `docker-native` or `docker-emulated` using the Docker daemon CPU.\nThe daemon CPU is used even when it differs from the Mac running the Docker client.\nAn emulated result is an observation of that QEMU implementation. Check each run artifact for completion, match counts, and mismatch counts."
+        },
+        {
+          "type": "paragraph",
+          "text": "The initial baseline on 2026-11-10 captured all 762 samples for all four targets.\nThere were 25 differences from Intel on OpenPOWER, 24 on ARM64, and 23 on RISC-V64 (VLEN 128); the comparison command returned exit code 1.\nThe environment and counts are recorded in [Native status](../documentation/native-status.json)."
+        },
+        {
+          "type": "paragraph",
+          "text": "The raw-wrapper runner calls the official C wrappers directly and runs three nearest-even inputs per operation. The separate run-native path decodes canonical inputs through the shared C ABI and implements contract-requested rounding and FP exception observation, pointer-buffer output, dynamic-symbol auditing, and process isolation. Neither path uses the Python model as its expected result. Shared ABI artifacts use the format accepted by compare-results, failure bundles, and verify-replay."
+        }
+      ]
+    },
+    {
+      "id": "report-studioとpythonの検証",
+      "level": 2,
+      "title": "Report Studio and Python checks",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "docker compose up --build studio"
+        },
+        {
+          "type": "paragraph",
+          "text": "Open [localhost:8765](http://localhost:8765).\nStudio runs in a host-CPU container and saves generated reports under `artifacts/studio/`.\nStop it with `Ctrl+C`; use the same command to restart it."
+        },
+        {
+          "type": "paragraph",
+          "text": "Studio `check` uses the existing Python development fixture.\nTo run the CLI in the same image, select a built target image and output directory."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "mkdir -p artifacts/docker/fixture\ndocker run --rm --platform linux/arm64 \\\n  --mount type=bind,src=\"$(pwd)/artifacts/docker/fixture\",dst=/artifacts \\\n  equilane/ubuntu26.04:arm \\\n  equilane check --target all --output /artifacts/check --showcase-report"
+        },
+        {
+          "type": "paragraph",
+          "text": "This example uses the ARM64 image. For another CPU, select matching platform and image tags.\nIndependent model checks in `check --quality` have known mismatches, which remain test failures in Docker.\nSee the [mismatch report](../MISMATCH_REPORT.md) and [native implementation scope](../documentation/native-status.json)."
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "state": "verified",
+    "completion_contract": "../documentation/native-contract.json",
+    "date": "2026-11-10",
+    "port_conformance": "unresolved",
+    "evidence_method": "Retained native Docker executions plus latest-source quality and separately refreshed, reauthenticated reports; see native-contract.json."
+  },
+  "entry_points": {
+    "complete_verification": "./docker/run.sh verify",
+    "native_comparisons": "./docker/run.sh all",
+    "raw_wrapper_comparisons": "./docker/run.sh wrappers",
+    "existing_results_report": "./docker/run.sh report",
+    "studio": "docker compose up --build studio"
+  },
+  "artifacts": {
+    "summary": "artifacts/docker/pipeline-summary.json",
+    "html_report": "artifacts/docker/pipeline-report.html",
+    "vectors": "artifacts/docker/vectors/test-vectors.manifest.json",
+    "native_results": "artifacts/docker/native/<role>/<role-specific>-results.manifest.json",
+    "native_comparison": "artifacts/docker/canonical/compare-<role>/summary.json",
+    "native_build_evidence": "artifacts/docker/native/<role>/build/build-evidence.json",
+    "native_traceability": "artifacts/docker/native/<role>/native-traceability.json",
+    "legacy_raw_wrapper_capture": "artifacts/docker/<role>/manifest.json",
+    "copied_native_build_evidence": "artifacts/docker/native/<role>/native-build-evidence.json",
+    "preflight_observations": "artifacts/docker/native/<role>/preflight-observations.json"
+  },
+  "purpose": "Verify that Intel Intrinsics have been ported correctly to other CPUs."
+}

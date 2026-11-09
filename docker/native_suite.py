@@ -90,8 +90,8 @@ def declarations(root=ROOT):
                     parameters.append((parameter[2], " ".join(parameter[1].split())))
             functions.append((name, result.strip(), parameters))
     names = [name for name, _, _ in functions]
-    if len(names) != 254 or len(set(names)) != 254:
-        raise ValueError(f"expected 254 unique wrapper operations, found {len(names)}")
+    if not names or len(set(names)) != len(names):
+        raise ValueError("wrapper operations are empty or contain duplicates")
     for name, result, parameters in functions:
         for type_name in [result, *(t for _, t in parameters)]:
             if type_name not in TYPES and type_name not in SCALAR_SIZES and type_name not in (
@@ -352,8 +352,9 @@ def load_capture(directory):
     if digest(inputs_raw) != manifest.get("corpus_sha256") or digest(outputs_raw) != manifest.get("outputs_sha256"):
         raise ValueError(f"native capture file hash mismatch: {directory}")
     inputs = json.loads(inputs_raw)
-    expected = corpus(declarations())
-    if inputs != expected or type(manifest.get("operations")) is not int or manifest.get("operations") != 254 or type(manifest.get("samples")) is not int or manifest.get("samples") != 762:
+    current_declarations = declarations()
+    expected = corpus(current_declarations)
+    if inputs != expected or type(manifest.get("operations")) is not int or manifest.get("operations") != len(current_declarations) or type(manifest.get("samples")) is not int or manifest.get("samples") != len(expected):
         raise ValueError(f"native capture does not contain the complete current corpus: {directory}")
     lines = []
     for raw in outputs_raw.splitlines():
@@ -380,7 +381,7 @@ def comparison_data(reference_directory, observed_directory):
     return {
         "schema_version": 1, "artifact_type": "equilane.native-wrapper-comparison",
         "status": "mismatch" if differences else "pass", "target": observed["target"],
-        "operations": 254, "samples": len(expected), "matched": len(expected) - len(differences),
+        "operations": len(declarations()), "samples": len(expected), "matched": len(expected) - len(differences),
         "mismatch_count": len(differences), "mismatches": differences,
         "reference_manifest": reference, "observed_manifest": observed,
         "corpus_sha256": reference["corpus_sha256"],
@@ -413,6 +414,8 @@ def verify_native(args):
         ["ctest", "--test-dir", str(build), "--output-on-failure", "--output-junit", str(output / "ctest.xml")],
         [sys.executable, "-m", "unittest", "discover", "-s", str(ROOT / "tests"),
          "-p", "test_native_codegen.py", "-v"],
+        [sys.executable, "-m", "unittest", "discover", "-s", str(ROOT / "tests"),
+         "-p", "test_native_adversarial.py", "-v"],
     ]
     report = {"artifact_type": "equilane.docker-native-tests", "schema_version": 1,
               "target": args.target, "created_at": timestamp(), "status": "error", "commands": commands}

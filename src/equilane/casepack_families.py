@@ -1266,7 +1266,9 @@ def loadu_f64_case(case_id: str) -> FactoryResult:
     return case_id, {"standard": len(structured)}, candidates, execute
 
 
-def memory_load_case(case_id: str, shape: str, mode: str) -> FactoryResult:
+def memory_load_case(
+    case_id: str, shape: str, mode: str, *, required_alignment: int | None = None
+) -> FactoryResult:
     """Build scalar, broadcast, preserving, zeroing, and reverse memory loads."""
 
     element, width, lanes, mask = _shape(shape)
@@ -1274,9 +1276,12 @@ def memory_load_case(case_id: str, shape: str, mode: str) -> FactoryResult:
         ("f32x4", "scalar"),
         ("f32x4", "broadcast"),
         ("f32x4", "all"),
+        ("f32x4", "low"),
+        ("f32x4", "high"),
         ("f32x4", "reverse"),
         ("f64x2", "scalar"),
         ("f64x2", "broadcast"),
+        ("f64x2", "all"),
         ("f64x2", "low"),
         ("f64x2", "high"),
         ("f64x2", "reverse"),
@@ -1286,8 +1291,10 @@ def memory_load_case(case_id: str, shape: str, mode: str) -> FactoryResult:
     if (shape, mode) not in supported:
         raise ValueError(f"unsupported memory load: {shape!r} {mode!r}")
     byte_width = width // 8
-    loaded_lanes = lanes if mode in {"all", "reverse"} else 1
-    alignment = 16 if mode == "reverse" else 1
+    loaded_lanes = lanes if mode in {"all", "reverse"} else lanes // 2 if mode in {"low", "high"} else 1
+    alignment = required_alignment if required_alignment is not None else 16 if mode == "reverse" else 1
+    if alignment not in {1, 16} or (mode == "reverse" and alignment != 16):
+        raise ValueError(f"unsupported memory alignment: {alignment!r}")
     boundaries = _boundary_values(element)
     standard = 8
 
@@ -1382,7 +1389,7 @@ def memory_load_case(case_id: str, shape: str, mode: str) -> FactoryResult:
             output = (loaded[0],) * lanes
         elif mode in {"low", "high"}:
             preserved = tuple(int(str(value), 16) for value in _lanes(candidate, "a"))
-            output = (loaded[0], preserved[1]) if mode == "low" else (preserved[0], loaded[0])
+            output = loaded + preserved[loaded_lanes:] if mode == "low" else preserved[:-loaded_lanes] + loaded
         else:
             output = (loaded[0],) + (0,) * (lanes - 1)
         observed = {
@@ -1395,13 +1402,17 @@ def memory_load_case(case_id: str, shape: str, mode: str) -> FactoryResult:
     return case_id, {"standard": standard}, candidates, execute
 
 
-def memory_store_case(case_id: str, shape: str, mode: str) -> FactoryResult:
+def memory_store_case(
+    case_id: str, shape: str, mode: str, *, required_alignment: int | None = None
+) -> FactoryResult:
     """Build low-lane, high-lane, and reverse-order memory stores."""
 
     element, width, lanes, mask = _shape(shape)
     supported = {
         ("f32x4", "low"),
         ("f32x4", "all"),
+        ("f32x4", "low_half"),
+        ("f32x4", "high_half"),
         ("f32x4", "reverse"),
         ("f64x2", "low"),
         ("f64x2", "high"),
@@ -1413,8 +1424,10 @@ def memory_store_case(case_id: str, shape: str, mode: str) -> FactoryResult:
     if (shape, mode) not in supported:
         raise ValueError(f"unsupported memory store: {shape!r} {mode!r}")
     byte_width = width // 8
-    stored_lanes = lanes if mode in {"all", "reverse"} else 1
-    alignment = 16 if mode == "reverse" else 1
+    stored_lanes = lanes if mode in {"all", "reverse"} else lanes // 2 if mode in {"low_half", "high_half"} else 1
+    alignment = required_alignment if required_alignment is not None else 16 if mode == "reverse" else 1
+    if alignment not in {1, 16} or (mode == "reverse" and alignment != 16):
+        raise ValueError(f"unsupported memory alignment: {alignment!r}")
     boundaries = _boundary_values(element)
     standard = 8
 
@@ -1493,6 +1506,10 @@ def memory_store_case(case_id: str, shape: str, mode: str) -> FactoryResult:
             if mode == "reverse"
             else values
             if mode == "all"
+            else values[:stored_lanes]
+            if mode == "low_half"
+            else values[-stored_lanes:]
+            if mode == "high_half"
             else (values[1],)
             if mode == "high"
             else (values[0],)
@@ -1512,6 +1529,23 @@ def memory_store_case(case_id: str, shape: str, mode: str) -> FactoryResult:
         return {"buffers": observed}
 
     return case_id, {"standard": standard}, candidates, execute
+
+
+def zero_vector_case(case_id: str, shape: str) -> FactoryResult:
+    """A zero-argument constructor has exactly one input per declared FP mode."""
+
+    element, _width, lanes, _mask = _shape(shape)
+
+    def candidates(case: CaseDefinition, *, seed_text: str) -> Iterator[Candidate]:
+        for index, _mode in enumerate(rounding_modes(case)):
+            item = _base(case, index, random=False, seed=seed_text)
+            item["operands"] = {}
+            yield item
+
+    def execute(record: Candidate) -> Candidate:
+        return {"return": vector(element, (0,) * lanes)}
+
+    return case_id, {"standard": 1}, candidates, execute
 
 
 def variable_shift_case(

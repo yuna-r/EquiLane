@@ -138,6 +138,7 @@ def render_mismatch_report(
     *,
     observations: Mapping[str, JSONValue] | None = None,
     generated_at: datetime | None = None,
+    language: str = "ja",
 ) -> str:
     """Render a report without attributing portable-model findings to an ISA."""
 
@@ -154,7 +155,7 @@ def render_mismatch_report(
     rows = python["model_output_mismatches"]
     assert isinstance(rows, list)
     guide = catalog_provenance()
-    return f'''<!doctype html>
+    html = f'''<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EquiLane 不一致の詳細レポート</title><style>{_STYLE}</style></head><body><main>
 <header><div class="eyebrow">EquiLane / Mismatch details</div><h1>不一致の詳細レポート</h1>
@@ -162,7 +163,7 @@ def render_mismatch_report(
 件数は不一致の記録行数で、バグの個数ではありません。</p>
 <p>共通Pythonモデルと独立した期待値の照合を、CPU向け実装の観測記録と分けて表示します。
 通常のfixture同士の一致からCPU実機の一致は推定しません。</p>
-<nav aria-label="レポート内の移動"><a href="#model-mismatch-details">Pythonモデルの詳細</a>
+<nav aria-label="レポート内の移動"><a href="mismatch-report.html" lang="ja">Japanese</a> / <a href="mismatch-report.en.html" lang="en">English</a> / <a href="#model-mismatch-details">Pythonモデルの詳細</a>
 <a href="#native-observations">CPU向け実装の観測</a><a href="#report-provenance">記録の出典</a></nav>
 <small>HTML生成：{_text(stamp)}。検証実行日時を表すものではありません。</small></header>
 <h2>Pythonモデルで行った計算と不一致</h2>
@@ -181,6 +182,8 @@ Guideの必要ISA（SSE/SSE2）と、このプロジェクトが全ケースに�
 <p>記録に含まれる期待値の出典・テストID・入力IDは各不一致で確認できます。
 canonical内容のハッシュはファイル末尾改行や空白に依存しません。</p></section>
 </main></body></html>'''
+    from .i18n import translate_html
+    return translate_html(html, language=language, strict=language == 'en')
 
 
 def write_mismatch_report(
@@ -192,5 +195,11 @@ def write_mismatch_report(
 ) -> Path:
     path = Path(output)
     html = render_mismatch_report(summary, observations=observations, generated_at=generated_at)
-    atomic_write(path, html.encode("utf-8"))
+    from .i18n import translate_html
+    english = translate_html(html, language="en", strict=True)
+    english_path = path.with_name(path.stem + ".en" + path.suffix)
+    for output_path, content in ((path, html), (english_path, english)):
+        content = content.replace('href="mismatch-report.html"', f'href="{escape(path.name, quote=True)}"')
+        content = content.replace('href="mismatch-report.en.html"', f'href="{escape(english_path.name, quote=True)}"')
+        atomic_write(output_path, content.encode("utf-8"))
     return path

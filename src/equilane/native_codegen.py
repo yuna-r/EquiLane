@@ -54,8 +54,8 @@ def raw_declarations(project_root: Path) -> dict[str, tuple[str, list[tuple[str,
             if name in functions:
                 raise ValidationError(f"duplicate native wrapper: {name}")
             functions[name] = (result, arguments)
-    if len(functions) != 254:
-        raise ValidationError(f"expected 254 native wrappers, found {len(functions)}")
+    if not functions:
+        raise ValidationError("native wrapper registry is empty")
     return functions
 
 

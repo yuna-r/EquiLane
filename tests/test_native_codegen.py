@@ -45,7 +45,7 @@ class NativeCodegenCatalogTests(unittest.TestCase):
     def test_every_official_operation_has_a_raw_declaration(self):
         names = {path.stem.replace("-", "_") for path in (ROOT / "10_official_suite/cases").glob("*.py")}
         self.assertEqual(set(raw_declarations(ROOT)), names)
-        self.assertEqual(len(names), 254)
+        self.assertGreaterEqual(len(names), 268)
 
     def test_all_architectures_use_strict_floating_point(self):
         for role in ("intel", "openpower", "arm", "riscv"):
@@ -108,11 +108,11 @@ class NativeEncodedExecutionTests(unittest.TestCase):
         return {"operands": record["operands"], "buffers": record.get("buffers", {}),
                 "immediates": record.get("immediates", {})}
 
-    def test_dynamic_registry_audits_all_254_abi_symbols(self):
+    def test_dynamic_registry_audits_all_registered_abi_symbols(self):
         count = self.library.equilane_symbol_count()
         names = [self.library.equilane_symbol_at(index).decode() for index in range(count)]
         self.assertEqual(names, sorted(case.data[self.role]["symbol"] for case in self.cases))
-        self.assertEqual(count, 254)
+        self.assertEqual(count, len(self.cases))
         self.assertIsNone(self.library.equilane_symbol_at(count))
         self.assertIsNone(self.library.equilane_lookup(b"missing_symbol"))
         for name in names:
@@ -129,7 +129,7 @@ class NativeEncodedExecutionTests(unittest.TestCase):
                           "runner": self.role, "status": "ok", "duration_ns": 0, "observed": observed}
                 validate_result_record(result, case, role=self.role, input_record=record)
                 cases_seen.add(case.id)
-        self.assertEqual(len(cases_seen), 254)
+        self.assertEqual(len(cases_seen), len(self.cases))
 
     def test_integer_add_produces_expected_bits_without_a_python_model(self):
         case = self.cases.get("sse2.add.i32x4.default")

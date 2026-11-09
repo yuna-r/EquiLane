@@ -1,5 +1,7 @@
 # Official SSE2 ↔ OpenPOWER cases
 
+[日本語](README.md) | [English](README.en.md)
+
 これはframework本体ではなく、独立したexample suiteです。1ケースはRubyのクラス1個に
 近い単位として、1ファイルへまとめます。
 

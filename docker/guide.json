@@ -124,6 +124,64 @@
       ]
     },
     {
+      "id": "adversarial-大量入力",
+      "level": 2,
+      "title": "境界値を大量に増やして比較する",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "EQUILANE_PROFILE=adversarial ./docker/run.sh all artifacts/adversarial\nEQUILANE_PROFILE=adversarial ./docker/run.sh verify artifacts/adversarial-verified"
+        },
+        {
+          "type": "paragraph",
+          "text": "adversarialはIntel Intrinsicsの移植不備を探すための入力profileです。既定で253操作に512入力ずつ、_mm_set1_epi8に存在する全256入力を作り、合計129,792入力を各対象へ渡します。smokeの2,032入力に対して約63.9倍です。raw wrapperの762サンプルは別の経路として残ります。"
+        },
+        {
+          "type": "paragraph",
+          "text": "整数の最小/最大・飽和/変換の境界・bitとレーンの入れ替わり、±0・subnormal・∞・NaNの符号とpayload、丸めの境界、caseが許可する全即値、シフト幅の境界、全有効メモリoffsetとguard/exact-fitを含めます。契約外の即値・アライメント・丸めモードへ範囲を勝手に広げません。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "EQUILANE_PROFILE=adversarial EQUILANE_COUNT_PER_CASE=2048 ./docker/run.sh all artifacts/adversarial-large"
+        },
+        {
+          "type": "paragraph",
+          "text": "件数を増やすと、まだ収録されていない構造化入力を追加し、その後にseed付きraw-bit入力を増やします。_mm_set1_epi8は何件を指定しても最大256件です。全CPUで同じtest-vectors.jsonlを使うため、比較の条件が揃います。"
+        },
+        {
+          "type": "table",
+          "columns": [
+            "出力先",
+            "確認できること"
+          ],
+          "rows": [
+            [
+              "vectors/adversarial-coverage.json",
+              "実際の入力ファイルのSHA-256、case別の一意入力数、検証軸別の収録数、未収録の境界bit、即値とメモリoffset"
+            ],
+            [
+              "canonical/compare-<role>/differences.jsonl",
+              "全入力を判定した結果の、不一致・比較不能の全件記録"
+            ],
+            [
+              "canonical/compare-<role>/failures/",
+              "個別の再実行用ファイル。adversarialの既定は先頭128件まで"
+            ],
+            [
+              "pipeline-report.html",
+              "各対象の全件集計とレポートへのリンク。詳細HTMLは既定で先頭128件を表示"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "収録率は入力をどこまで用意したかであり、C実装の実行成功率やIntelとの一致率ではありません。512入力で全組合せを網羅したとは扱わず、未収録分はcoverage JSONへ明示します。詳細表示を128件に絞っても全件の一致/不一致判定と集計は省略しません。"
+        }
+      ]
+    },
+    {
       "id": "個別採取と再比較",
       "level": 2,
       "title": "個別採取と再比較",
@@ -172,12 +230,12 @@
             [
               "EQUILANE_PROFILE",
               "smoke",
-              "共通C ABIの入力profile"
+              "共通C ABIの入力profile。大量の境界値を調べる場合はadversarial"
             ],
             [
               "EQUILANE_COUNT_PER_CASE",
-              "8",
-              "共通C ABIのケースごとの入力数"
+              "8（adversarialは512）",
+              "共通C ABIのケースごとの入力数。有限入力空間は存在する一意入力数まで"
             ]
           ]
         },

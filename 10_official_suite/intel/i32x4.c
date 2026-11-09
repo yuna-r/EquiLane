@@ -114,3 +114,19 @@ void intel_storeu_i32x4(void *destination, i32x4 a)
 {
     _mm_storeu_si128((__m128i *)destination, a);
 }
+
+/* Aligned memory and zero constructors added to the encoded case registry. */
+i32x4 intel_setzero_i32x4(void)
+{
+    return _mm_setzero_si128();
+}
+
+i32x4 intel_load_i32x4(const void *source)
+{
+    return _mm_load_si128((const __m128i *)source);
+}
+
+void intel_store_i32x4(void *destination, i32x4 a)
+{
+    _mm_store_si128((__m128i *)destination, a);
+}

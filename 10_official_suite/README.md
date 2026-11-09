@@ -1,5 +1,7 @@
 # Official equivalence suite
 
+[日本語](README.md) | [English](README.en.md)
+
 <p>
   <img alt="Intel SSE2" src="https://img.shields.io/badge/Intel-SSE2-0071c5?style=flat&amp;logo=intel&amp;logoColor=white">
   <img alt="OpenPOWER" src="https://img.shields.io/badge/OpenPOWER-POWER8-cb2027?style=flat">
@@ -54,7 +56,8 @@ openpower/f64x2.o: ELF 64-bit LSB relocatable, OpenPOWER ELF V2 ABI
 
 4アーキテクチャ × 6ブロック = 24個のELF objectを生成します。
 ARMの実機テストとRISC-VのQEMUテストは [Native status](../documentation/native-status.json) を参照してください。
-通常の`check`は共通Pythonモデルによるfixtureで、native runnerによる成果物収集は開発中です。
+通常の`check`は共通Pythonモデルによるfixtureです。native runnerは全254操作を共通C ABIで実行し、
+成果物を収集できます。4環境の実行と比較には `./docker/run.sh all` を使います。
 
 ```sh
 equilane check --target all --profile standard --count-per-case 1000 --showcase-report

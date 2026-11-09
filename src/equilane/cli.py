@@ -226,6 +226,7 @@ def _compare_results(args: argparse.Namespace) -> int:
         output=args.output,
         allow_development_fixtures=args.allow_development_fixtures,
         jobs=args.jobs,
+        failure_limit=args.failure_limit,
     )
     value = result.as_json()
     if args.showcase_report:
@@ -234,6 +235,10 @@ def _compare_results(args: argparse.Namespace) -> int:
         report_summary = dict(read_canonical_json(result.files.summary_path))
         execution_counts = {"execution_errors": 0, "unsupported": 0, "invalid_inputs": 0}
         native_findings = []
+        native_findings_total = 0
+        detail_limit = args.failure_limit
+        if detail_limit is None and inputs.manifest["profile"] == "adversarial":
+            detail_limit = 128
         for record in inputs.records:
             input_id = str(record["input_id"])
             intel = context.intel_artifact.records[input_id]
@@ -246,11 +251,14 @@ def _compare_results(args: argparse.Namespace) -> int:
             elif "invalid_input" in statuses:
                 execution_counts["invalid_inputs"] += 1
             if statuses != {"ok"} or intel.get("observed") != target.get("observed"):
-                native_findings.append({"case_id": record["case_id"], "input_id": input_id,
-                                        "target_role": args.target_role, "input": record,
-                                        "intel": intel, "target": target})
+                native_findings_total += 1
+                if detail_limit is None or len(native_findings) < detail_limit:
+                    native_findings.append({"case_id": record["case_id"], "input_id": input_id,
+                                            "target_role": args.target_role, "input": record,
+                                            "intel": intel, "target": target})
         report_summary["execution_counts"] = execution_counts
         report_summary["native_findings"] = native_findings
+        report_summary["native_findings_total"] = native_findings_total
         report = write_showcase_report(
             args.output / "showcase.html", cases=cases,
             summary=report_summary,
@@ -455,13 +463,13 @@ def _development_check(args: argparse.Namespace) -> int:
             )
 
     requested_count = (
-        PROFILE_COUNTS[args.profile]
+        (PROFILE_COUNTS[args.profile] if args.profile == "adversarial" else 8)
         if args.count_per_case is None
         else args.count_per_case
     )
-    expected_records = (
-        len(cases) * requested_count if requested_count > 0 else None
-    )
+    from .generator import case_record_count
+    expected_records = (sum(case_record_count(case, requested_count) for case in cases)
+                        if requested_count > 0 else None)
     with progress.stage(
         2, "Generate test vectors", total=expected_records
     ) as update:
@@ -470,7 +478,7 @@ def _development_check(args: argparse.Namespace) -> int:
             isa_registry=isa,
             output=output / "vectors",
             profile=args.profile,
-            count_per_case=args.count_per_case,
+            count_per_case=requested_count,
             seed=args.seed,
             jobs=args.jobs,
             progress=update,
@@ -692,12 +700,57 @@ def _mismatch_report(args: argparse.Namespace) -> int:
     return EXIT_MATCH
 
 
+def _extended_generate(args: argparse.Namespace) -> int:
+    from .extended import generate_extended_artifact
+    result = generate_extended_artifact(args.catalog, args.output, names=args.name,
+                                       count_per_case=args.count_per_case, seed=args.seed)
+    _print(result)
+    return int(result.get("exit_code", 0))
+
+
+def _extended_run(args: argparse.Namespace) -> int:
+    from .extended import run_extended_native
+    result = run_extended_native(args.input, args.output, role=args.role,
+                                 compiler=args.compiler, timeout=args.timeout)
+    _print(result)
+    return int(result.get("exit_code", 0))
+
+
+def _extended_compare(args: argparse.Namespace) -> int:
+    from .extended import compare_extended_artifacts
+    result = compare_extended_artifacts(args.intel, args.target, args.output)
+    _print(result)
+    return int(result.get("exit_code", 0))
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog=COMMAND,
         description=f"{NAME} — {DESCRIPTION}",
     )
     subcommands = parser.add_subparsers(dest="command", required=True)
+
+    extended_generate = subcommands.add_parser("extended-generate", help="generate shared inputs for expanded SIMD APIs")
+    extended_generate.add_argument("--catalog", type=Path, default=Path("contracts/simde-pure-values.json"))
+    extended_generate.add_argument("--output", type=Path, required=True)
+    extended_generate.add_argument("--name", action="append")
+    extended_generate.add_argument("--count-per-case", type=int, default=32)
+    extended_generate.add_argument("--seed", default=DEFAULT_SEED)
+    extended_generate.set_defaults(handler=_extended_generate)
+
+    extended_run = subcommands.add_parser("extended-run", help="execute expanded SIMD inputs through real C implementations")
+    extended_run.add_argument("--input", type=Path, required=True)
+    extended_run.add_argument("--output", type=Path, required=True)
+    extended_run.add_argument("--role", choices=tuple(TARGETS), required=True)
+    extended_run.add_argument("--compiler", default="clang")
+    extended_run.add_argument("--timeout", type=float, default=5.0)
+    extended_run.set_defaults(handler=_extended_run)
+
+    extended_compare = subcommands.add_parser("extended-compare", help="compare expanded SIMD results against actual Intel intrinsics")
+    extended_compare.add_argument("--intel", type=Path, required=True)
+    extended_compare.add_argument("--target", type=Path, required=True)
+    extended_compare.add_argument("--output", type=Path, required=True)
+    extended_compare.set_defaults(handler=_extended_compare)
 
     dashboard = subcommands.add_parser("serve", help="serve the local report dashboard")
     dashboard.add_argument("--project", type=Path, help="suite project file")
@@ -725,10 +778,11 @@ def _parser() -> argparse.ArgumentParser:
     )
     check.add_argument(
         "--profile",
-        choices=("smoke", "standard", "exhaustive-small", "stress"),
+        choices=("smoke", "standard", "exhaustive-small", "stress", "adversarial"),
         default="smoke",
     )
-    check.add_argument("--count-per-case", type=int, default=8)
+    check.add_argument("--count-per-case", type=int,
+                       help="inputs per case (default: 8, or 512 for adversarial)")
     check.add_argument("--seed", default=DEFAULT_SEED)
     check.add_argument(
         "-j",
@@ -778,7 +832,7 @@ def _parser() -> argparse.ArgumentParser:
     generate.add_argument("--output", required=True, type=Path)
     generate.add_argument(
         "--profile",
-        choices=("smoke", "standard", "exhaustive-small", "stress"),
+        choices=("smoke", "standard", "exhaustive-small", "stress", "adversarial"),
         default="smoke",
     )
     generate.add_argument("--count-per-case", type=int)
@@ -844,6 +898,8 @@ def _parser() -> argparse.ArgumentParser:
         help="case-level worker processes (positive integer or 'auto')",
     )
     compare.add_argument("--allow-development-fixtures", action="store_true")
+    compare.add_argument("--failure-limit", type=int,
+                         help="maximum standalone replay bundles; all differences remain in JSONL (adversarial default: 128)")
     compare.add_argument("--showcase-report", action="store_true", help="write the searchable HTML report from these validated artifacts")
     compare.set_defaults(handler=_compare_results)
 

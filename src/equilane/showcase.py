@@ -468,6 +468,8 @@ def _run_reading(summary: Mapping[str, JSONValue], *, native_evidence: bool, cas
     elif outcome == "mismatch":
         comparison_title, comparison_state = ("ポートの適合性：未適合あり" if native_evidence else "モデル比較：不一致あり"), "fail"
         next_step = "未適合の intrinsic と入力を選び、Intel の要求に対して移植実装の戻り値・丸め・FP flags・メモリ効果のどこが合っていないか確認します。保存した failure bundle から同じ入力を replay できます。" if native_evidence else "不一致の intrinsic と入力を選び、保存した期待値・モデル出力・比較契約を確認します。"
+        if native_evidence and summary.get("failure_bundles_saved") == 0 and summary.get("differences"):
+            next_step = "未適合の intrinsic と入力を選び、全差分の JSONL に保存された Intel の期待値と移植実装の実測値を確認します。この実行では standalone replay bundle の保存件数は0です。"
     else:
         comparison_title, comparison_state = "比較を完了できない入力あり", "unknown"
         next_step = "まず unsupported・invalid input・signal・runtime error などの実行ステータスを確認し、比較できる結果を揃えます。"
@@ -532,12 +534,21 @@ def _native_result_details(summary: Mapping[str, JSONValue], *, native_evidence:
           {table}<details><summary>入力・Intel / 対象の結果・メモリ効果をJSONで確認</summary><pre>{_text(dumps(saved))}</pre></details></details>''')
     if cards:
         note = f"保存した比較詳細 {len(cards):,}件。Intel baseline と対象の実測値をそのまま表示します。"
+        total = summary.get("native_findings_total", len(cards))
+        if isinstance(total, int) and total > len(cards):
+            note = f"観測値に差がある全 {total:,}件のうち先頭 {len(cards):,}件を表示します。契約による許容差を含み、未適合の総数は集計欄に表示します。"
     elif native_evidence:
         note = "このHTMLに入力ごとの比較詳細は添付されていません。不一致がある場合は comparison の failure bundle に保存した入力と各結果を確認してください。"
+        if summary.get("differences"):
+            note = "このHTMLでは入力ごとの比較詳細を省略しています。入力と実測値は下の全差分 JSONL で確認できます。"
     else:
         note = "この実行は development fixture です。CPU別C実装の実測値は記録されていません。独立したモデル検証の詳細は別の欄に表示します。"
+    archive = summary.get("differences")
+    download = ""
+    if native_evidence and isinstance(archive, dict) and archive.get("file") == "differences.jsonl":
+        download = f'<p><a href="differences.jsonl" download>全 {_text(archive.get("record_count", 0))}件の未適合・比較不能な入力と実測値をダウンロード（JSONL）</a>。HTMLの表示件数や replay bundle の保存上限によって、判定数を減らすことはありません。</p>'
     return f'''<section class="native-comparison" id="native-results"><div class="kicker">Recorded comparison details</div>
-      <h2>{'Intel reference と移植実装の結果' if native_evidence else 'Development fixture の結果記録'}</h2><p>{_text(note)}</p>{''.join(cards)}</section>'''
+      <h2>{'Intel reference と移植実装の結果' if native_evidence else 'Development fixture の結果記録'}</h2><p>{_text(note)}</p>{download}{''.join(cards)}</section>'''
 
 
 def _quality_section(quality: Mapping[str, JSONValue] | None, *, native_evidence: bool = False) -> str:
@@ -679,6 +690,7 @@ def render_showcase_html(
     native_evidence: bool,
     quality: Mapping[str, JSONValue] | None = None,
     target_roles: tuple[str, ...] | None = None,
+    language: str = "ja",
 ) -> str:
     """Render a portable report. All supplied text is escaped before insertion."""
 
@@ -834,7 +846,7 @@ def render_showcase_html(
                               quality_failed=quality_status == "fail")
     native_details = _native_result_details(summary, native_evidence=native_evidence)
 
-    return f"""<!doctype html>
+    html = f"""<!doctype html>
 <html lang="ja">
 <head>
   <meta charset="utf-8">
@@ -856,6 +868,7 @@ def render_showcase_html(
       <a href="#paths">Paths</a><a href="#cases">Cases</a><a href="#evidence">Evidence</a>
       <a href="#native-results">比較詳細</a>
       <a class="nav-quality" data-status="{quality_status}" href="#model-oracle">{quality_nav_label}</a>
+      <span class="language-switch" aria-label="Language"><a href="showcase.html" lang="ja">Japanese</a> / <a href="showcase.en.html" lang="en">English</a></span>
     </nav>
 
     <header class="hero" id="overview">
@@ -989,6 +1002,8 @@ def render_showcase_html(
         <div><div class="kicker">Intrinsic → contract → architecture binding</div><h2>Intrinsic catalog</h2></div>
         <div class="section-code"><span class="case-count" id="case-count" role="status" aria-live="polite" aria-atomic="true">{case_count} / {case_count} cases</span><br>{vectors_each:,} VECTORS / CASE</div>
       </div>
+      <p class="catalog-note" data-intrinsic-coverage="partial">このレポートの {case_count} ケースは Intel Intrinsics Guide 全体の一部です。全 intrinsics の対応完了を意味しません。
+      <a href="https://github.com/yuna-r/EquiLane/blob/main/documentation/intrinsic-coverage.json" target="_blank" rel="noopener noreferrer">Guide 3.6.9 の全 7,126 関数に対する収録状況と未収録の一覧</a>を確認できます。</p>
       <form class="case-filters" id="case-filters" role="search" aria-label="Filter the case catalog">
         <div class="filter-field"><label for="case-search">Intrinsic / case / operation</label><input id="case-search" type="search" placeholder="_mm_add_pd, ADDPD, case ID…" autocomplete="off" spellcheck="false"></div>
         <div class="filter-field"><label for="case-isa">Guide ISA</label><select id="case-isa"><option value="">All Guide ISA</option>{guide_isa_options}</select></div>
@@ -1035,6 +1050,8 @@ def render_showcase_html(
 </body>
 </html>
 """
+    from .i18n import translate_html
+    return translate_html(html, language=language, strict=language == "en")
 
 
 def write_showcase_report(
@@ -1068,5 +1085,11 @@ def write_showcase_report(
         quality=quality,
         target_roles=target_roles,
     )
-    atomic_write(path, html.encode("utf-8"))
+    from .i18n import translate_html
+    english = translate_html(html, language="en", strict=True)
+    english_path = path.with_name(path.stem + ".en" + path.suffix)
+    for output_path, content in ((path, html), (english_path, english)):
+        content = content.replace('href="showcase.html"', f'href="{escape(path.name, quote=True)}"')
+        content = content.replace('href="showcase.en.html"', f'href="{escape(english_path.name, quote=True)}"')
+        atomic_write(output_path, content.encode("utf-8"))
     return path

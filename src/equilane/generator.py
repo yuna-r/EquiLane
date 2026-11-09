@@ -13,6 +13,7 @@ from .canonical import (
     JSONValue,
     atomic_write,
     dump_bytes,
+    iter_canonical_jsonl,
     remove_completion_marker,
     require_int,
     require_string,
@@ -30,7 +31,16 @@ if TYPE_CHECKING:
 
 
 DEFAULT_SEED = "0x6a09e667f3bcc909"
-PROFILE_COUNTS = {"smoke": 32, "standard": 1_000, "exhaustive-small": 256, "stress": 100_000}
+PROFILE_COUNTS = {
+    "smoke": 32, "standard": 1_000, "exhaustive-small": 256,
+    "adversarial": 512, "stress": 100_000,
+}
+
+
+def case_record_count(case: CaseDefinition, requested: int) -> int:
+    """Do not request more distinct inputs than a finite signature admits."""
+    from .adversarial import adversarial_case_count
+    return adversarial_case_count(case, requested)
 
 
 @dataclass(frozen=True)
@@ -72,8 +82,24 @@ class GenerateResult:
         )
 
 
-def _candidate_records(case: CaseDefinition, *, seed_text: str) -> Iterator[dict[str, JSONValue]]:
-    yield from load_development_case(case).candidates(case, seed_text=seed_text)
+def _candidate_records(
+    case: CaseDefinition, *, seed_text: str, profile: str = "smoke",
+) -> Iterator[dict[str, JSONValue]]:
+    legacy = load_development_case(case).candidates(case, seed_text=seed_text)
+    if profile != "adversarial":
+        yield from legacy
+        return
+    # Keep established regression witnesses and boundary examples first.  The
+    # old random stream is replaced, so it cannot consume the structured budget.
+    for candidate in legacy:
+        generation = candidate["generation"]
+        assert isinstance(generation, dict)
+        if generation["class"] == "random":
+            break
+        yield candidate
+    from .adversarial import adversarial_candidates
+
+    yield from adversarial_candidates(case, seed_text=seed_text)
 
 
 def _all_records(
@@ -82,10 +108,12 @@ def _all_records(
     count_per_case: int,
     seed_text: str,
     sequence_start: int = 0,
+    profile: str = "smoke",
 ) -> Iterator[dict[str, JSONValue]]:
     sequence = sequence_start
     seen: set[str] = set()
     for case in registry:
+        target_count = case_record_count(case, count_per_case)
         raw_regressions = case.data.get("regressions", {})
         assert isinstance(raw_regressions, dict)
         regression_by_input: dict[str, str] = {}
@@ -124,7 +152,7 @@ def _all_records(
                 found_regression_modes.add(str(environment["rounding"]))
             return record
 
-        for candidate in _candidate_records(case, seed_text=seed_text):
+        for candidate in _candidate_records(case, seed_text=seed_text, profile=profile):
             record = materialize(candidate)
             input_id = str(record["input_id"])
             if input_id in seen:
@@ -154,7 +182,7 @@ def _all_records(
                 if pending_id not in seen and pending_id not in pending_ids:
                     pending_ids.add(pending_id)
                     unique_pending.append(pending_record)
-            if emitted + len(unique_pending) > count_per_case:
+            if emitted + len(unique_pending) > target_count:
                 raise ValidationError(
                     f"count_per_case is too small to include the nearest-even pair "
                     f"for a rounding witness in {case.id}"
@@ -169,7 +197,7 @@ def _all_records(
                 )
                 yield pending_record
                 emitted += 1
-            if emitted == count_per_case:
+            if emitted == target_count:
                 break
         missing_regressions = set(raw_regressions) - found_regressions
         if missing_regressions:
@@ -189,15 +217,16 @@ def _all_records(
 
 
 def _case_record_batch(
-    work: tuple[CaseDefinition, int, str, int],
+    work: tuple[CaseDefinition, int, str, int, str],
 ) -> list[dict[str, JSONValue]]:
-    case, count_per_case, seed_text, sequence_start = work
+    case, count_per_case, seed_text, sequence_start, profile = work
     return list(
         _all_records(
             (case,),
             count_per_case=count_per_case,
             seed_text=seed_text,
             sequence_start=sequence_start,
+            profile=profile,
         )
     )
 
@@ -209,11 +238,13 @@ def _parallel_records(
     seed_text: str,
     jobs: int,
     progress: Callable[[int], None] | None,
+    profile: str = "smoke",
 ) -> list[dict[str, JSONValue]]:
-    work = [
-        (case, count_per_case, seed_text, index * count_per_case)
-        for index, case in enumerate(registry)
-    ]
+    work = []
+    sequence_start = 0
+    for case in registry:
+        work.append((case, count_per_case, seed_text, sequence_start, profile))
+        sequence_start += case_record_count(case, count_per_case)
     ordered: list[list[dict[str, JSONValue]] | None] = [None] * len(work)
     completed_records = 0
     with ProcessPoolExecutor(max_workers=min(jobs, len(work))) as executor:
@@ -278,9 +309,11 @@ def generate_artifact(
     output_directory.mkdir(parents=True, exist_ok=True)
     vectors_path = output_directory / "test-vectors.jsonl"
     manifest_path = output_directory / "test-vectors.manifest.json"
+    coverage_path = output_directory / "adversarial-coverage.json"
     contracts = output_directory / "contracts"
     contracts.mkdir(parents=True, exist_ok=True)
     remove_completion_marker(manifest_path)
+    coverage_path.unlink(missing_ok=True)
     retained: list[dict[str, JSONValue]] | None = None
     if jobs > 1 and len(registry) > 1:
         retained = _parallel_records(
@@ -289,11 +322,12 @@ def generate_artifact(
             seed_text=seed,
             jobs=jobs,
             progress=progress,
+            profile=profile,
         )
         records: Iterator[dict[str, JSONValue]] | list[dict[str, JSONValue]] = retained
     else:
         serial_records = _all_records(
-            registry, count_per_case=count, seed_text=seed
+            registry, count_per_case=count, seed_text=seed, profile=profile
         )
         if progress is not None:
             serial_records = _records_with_progress(serial_records, progress)
@@ -303,7 +337,8 @@ def generate_artifact(
         else:
             records = serial_records
     record_count, byte_length, vectors_sha = write_jsonl(vectors_path, records)
-    if record_count != len(registry) * count:
+    expected_count = sum(case_record_count(case, count) for case in registry)
+    if record_count != expected_count:
         raise ValidationError("generator did not produce the requested unique inputs")
     case_sha = registry.projected_sha256(set(registry.ids))
     atomic_write(
@@ -311,6 +346,15 @@ def generate_artifact(
         dump_bytes(registry.projected_data(set(registry.ids)), newline=True),
     )
     atomic_write(contracts / "isa-used.json", dump_bytes(used.data, newline=True))
+    if profile == "adversarial":
+        from .adversarial import build_adversarial_coverage
+
+        coverage = build_adversarial_coverage(
+            registry,
+            retained if retained is not None else iter_canonical_jsonl(vectors_path),
+            vectors_sha256=vectors_sha,
+        )
+        atomic_write(coverage_path, dump_bytes(coverage, newline=True))
     manifest: dict[str, JSONValue] = {
         "artifact_type": "ioitf.test-vectors",
         "case_definitions_sha256": case_sha,

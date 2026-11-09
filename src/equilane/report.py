@@ -54,7 +54,8 @@ class ReportFiles:
     junit_path: Path
 
 
-def write_reports(output: str | Path, reports: Iterable[RecordReport]) -> ReportFiles:
+def write_reports(output: str | Path, reports: Iterable[RecordReport], *,
+                  summary_metadata: dict[str, JSONValue] | None = None) -> ReportFiles:
     """Write a small non-normative summary and deterministic JUnit XML."""
 
     destination = Path(output)
@@ -85,6 +86,8 @@ def write_reports(output: str | Path, reports: Iterable[RecordReport]) -> Report
         "record_count": len(ordered),
         "schema_version": 1,
     }
+    if summary_metadata:
+        summary.update(summary_metadata)
     suite = ET.Element(
         "testsuite",
         {

@@ -15,13 +15,13 @@ import subprocess
 import sys
 import threading
 from typing import Any
-from urllib.parse import unquote, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 from uuid import uuid4
 
 from .targets import TARGET_TARGETS
 
 
-_PROFILES = {"smoke", "standard", "stress", "exhaustive-small"}
+_PROFILES = {"smoke", "standard", "stress", "exhaustive-small", "adversarial"}
 _REPORT_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}\Z")
 _STAGE = re.compile(r"^\[\d+/\d+\]\s+(.+?)(?:\.\.\.|:\s+(?:done|failed)\b.*)?$")
 _MAX_OUTPUT_CHARS = 128 * 1024
@@ -45,7 +45,7 @@ class CheckOptions:
             raise ValueError("unknown check option")
         profile = value.get("profile", "smoke")
         if not isinstance(profile, str) or profile not in _PROFILES:
-            raise ValueError("profile must be smoke, standard, stress, or exhaustive-small")
+            raise ValueError("profile must be smoke, standard, stress, exhaustive-small, or adversarial")
         count = value.get("count_per_case", 8)
         if type(count) is not int or not 1 <= count <= 100_000:
             raise ValueError("count_per_case must be an integer between 1 and 100000")
@@ -390,13 +390,14 @@ class DashboardHandler(BaseHTTPRequestHandler):
             return
         if path == "/":
             from .webui import render_dashboard
-            self._send(200, render_dashboard().encode("utf-8"), "text/html; charset=utf-8")
+            language = "en" if parse_qs(urlsplit(self.path).query).get("lang") == ["en"] else "ja"
+            self._send(200, render_dashboard(language=language).encode("utf-8"), "text/html; charset=utf-8")
         elif path == "/api/reports":
             self._json(200, {"reports": self.server.reports.list_reports()})
         elif path == "/api/status":
             self._json(200, {"job": self.server.checks.status()})
         else:
-            match = re.fullmatch(r"/reports/([^/]+)/showcase\.html", path)
+            match = re.fullmatch(r"/reports/([^/]+)/showcase(\.en)?\.html", path)
             report = self.server.reports.report_file(match.group(1)) if match else None
             if report is None:
                 self._json(404, {"error": "not found"})
@@ -406,6 +407,13 @@ class DashboardHandler(BaseHTTPRequestHandler):
             except OSError:
                 self._json(404, {"error": "report not found"})
                 return
+            if match.group(2):
+                from .i18n import MissingTranslationError, translate_html
+                try:
+                    body = translate_html(body.decode("utf-8"), language="en", strict=True).encode("utf-8")
+                except (UnicodeError, MissingTranslationError):
+                    self._json(422, {"error": "English translation is incomplete for this saved report"})
+                    return
             self._send(200, body, "text/html; charset=utf-8")
 
     def do_POST(self) -> None:

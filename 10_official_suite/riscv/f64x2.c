@@ -356,3 +356,24 @@ void riscv_storer_f64x2(void *destination, f64x2 a)
     unsigned long long values[2] = {((u64x2)a)[1], ((u64x2)a)[0]};
     __builtin_memcpy(destination, values, sizeof(values));
 }
+
+/* Aligned memory and zero constructors added to the encoded case registry. */
+f64x2 riscv_setzero_f64x2(void)
+{
+    return (f64x2)rvv_splats(0ULL);
+}
+
+f64x2 riscv_load_f64x2(const void *source)
+{
+    return riscv_loadu_f64x2(__builtin_assume_aligned(source, 16));
+}
+
+void riscv_store_f64x2(void *destination, f64x2 a)
+{
+    riscv_storeu_f64x2(__builtin_assume_aligned(destination, 16), a);
+}
+
+void riscv_storel_f64x2(void *destination, f64x2 a)
+{
+    riscv_store_scalar_f64x2(destination, a);
+}

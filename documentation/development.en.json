@@ -1,0 +1,911 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.development-guide",
+  "language": "en",
+  "title": "Development and verification guide",
+  "sections": [
+    {
+      "id": "開発・検証ガイド",
+      "level": 1,
+      "title": "Development and verification guide",
+      "blocks": []
+    },
+    {
+      "id": "native-abi-workflow",
+      "level": 2,
+      "title": "Run through the shared C ABI",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The native runner for all 254 operations validates each case contract, generates the shared C ABI, and calls the actual C symbol in an isolated Linux worker. It uses Intel results as the reference to check whether the target implementation satisfies the porting contract. A mismatch requires investigation and correction; it does not pass simply because it can be explained as a CPU difference. The ordinary check command uses the existing Python development fixture."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane generate-vectors --output artifacts/vectors\nequilane run-native --input artifacts/vectors --role arm --output artifacts/native/arm --compiler clang --jobs 2"
+        },
+        {
+          "type": "paragraph",
+          "text": "Run run-native inside an Ubuntu container whose target matches the execution CPU. The entry point for building all environments, running C tests and Python regressions, comparing results, and generating JSON/HTML reports is ./docker/run.sh verify."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./docker/run.sh verify\n./docker/run.sh all\n./docker/run.sh wrappers"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "verify: CMake/CTest for all four environments, raw-wrapper comparisons, shared C ABI comparisons, RISC-V VLEN 128/256, and Python/browser/sanitizer/cross-build checks.",
+            "all: capture, compare, and report through the raw-wrapper and shared C ABI paths.",
+            "wrappers: capture, compare, and report through the raw-wrapper path only."
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "The output files pipeline-summary.json and pipeline-report.html summarize each stage. Semantic mismatches produce exit code 1, while Docker and verification-stage errors are recorded separately. See native-contract.json for completion criteria and evidence."
+        },
+        {
+          "type": "table",
+          "columns": [
+            "run-native argument",
+            "Purpose"
+          ],
+          "rows": [
+            [
+              "--input / --vectors",
+              "Canonical test-vectors manifest, JSONL, or artifact directory"
+            ],
+            [
+              "--role intel|openpower|arm|riscv",
+              "Target matching the execution CPU"
+            ],
+            [
+              "--output",
+              "Directory for native results, builds, probes, and traces"
+            ],
+            [
+              "--compiler clang",
+              "Clang with strict floating-point support"
+            ],
+            [
+              "--library",
+              "Existing library with build-evidence.json; case, source, header, and binary hashes are rechecked"
+            ],
+            [
+              "--timeout 5",
+              "Call-worker deadline in seconds"
+            ],
+            [
+              "--jobs 2",
+              "Number of isolated workers running cases in parallel"
+            ]
+          ]
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane compare-results --input artifacts/vectors --intel artifacts/native/intel --target-role arm --target artifacts/native/arm --output artifacts/comparison-arm --showcase-report\nequilane validate-native-trace --input artifacts/vectors --role arm --output artifacts/native/arm"
+        },
+        {
+          "type": "paragraph",
+          "text": "validate-native-trace verifies the links between the native manifest, case contracts and input IDs, symbols, build units, retained library/object bytes, measured preflight observations, and Docker image identity. It does not execute target-CPU code."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane replay --failure artifacts/comparison-arm/failures/$INPUT_ID/failure.json --role arm --output artifacts/replay/arm --timeout 5 --jobs 1\nequilane replay --failure artifacts/comparison-arm/failures/$INPUT_ID/failure.json --role intel --output artifacts/replay/intel\nequilane verify-replay --failure artifacts/comparison-arm/failures/$INPUT_ID/failure.json --intel \"$(pwd)/artifacts/replay/intel\" --target-role arm --target \"$(pwd)/artifacts/replay/arm\""
+        },
+        {
+          "type": "paragraph",
+          "text": "verify-replay resolves relative result paths against the failure bundle. Use absolute paths, as above, when the replay results were saved elsewhere."
+        }
+      ]
+    },
+    {
+      "id": "adversarial-inputs",
+      "level": 2,
+      "title": "Probe porting boundaries with a larger input set",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The adversarial profile generates inputs that commonly expose mistakes in Intel Intrinsics ports from the 254 existing case contracts. The generator does not calculate an expected return value. It sends identical inputs to the Intel and ported C implementations and compares their observed results."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "EQUILANE_PROFILE=adversarial ./docker/run.sh all artifacts/adversarial\nEQUILANE_PROFILE=adversarial EQUILANE_COUNT_PER_CASE=2048 ./docker/run.sh all artifacts/adversarial-large"
+        },
+        {
+          "type": "paragraph",
+          "text": "The default is 512 inputs per case. However, _mm_set1_epi8 has one 8-bit scalar input, so there are only 256 unique inputs in its allowed environment. That case stops after all 256, giving 253×512 + 256 = 129,792 inputs per target. The generator does not invent nonexistent inputs or count duplicates."
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Test category",
+            "Included inputs"
+          ],
+          "rows": [
+            [
+              "Integers",
+              "0, ±1, signed minima/maxima, unsigned maxima, saturation and narrowing boundaries, alternating bits, walking one/zero"
+            ],
+            [
+              "Floating point",
+              "±0, minimum/maximum subnormals, minimum normals, maximum finite values, ±infinity, positive/negative quiet/signaling NaNs with different payloads"
+            ],
+            [
+              "Rounding and conversion",
+              "Representable values near 0.5/1.5, on either side of one ULP, and near 2^23/2^24/2^31/2^32/2^52/2^53/2^63"
+            ],
+            [
+              "Arguments and lanes",
+              "Special-value pairs in both operand orders, distinct lane bits, and walking one/zero at each position"
+            ],
+            [
+              "Immediates and shifts",
+              "Every declared immediate; variable-shift counts of 0, width-1, width, width+1, and large values; ignored upper count lanes"
+            ],
+            [
+              "Memory",
+              "Every contract-valid offset in 0..31, offsets near a 64-byte boundary, prefix/suffix guard bytes, and exact-fit buffers"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "The generator does not change permitted immediates, alignment, or rounding modes. For example, a nearest_even-only case never runs under another rounding mode. Existing profiles such as smoke retain their input ordering and seeds; adversarial adds its own structured inputs and seeded raw-bit inputs."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane generate-vectors --profile adversarial --output artifacts/vectors-adversarial\nequilane generate-vectors --profile adversarial --count-per-case 2048 --jobs 4 --output artifacts/vectors-adversarial-large"
+        },
+        {
+          "type": "paragraph",
+          "text": "adversarial-coverage.json in the input output directory records coverage tied to the SHA-256 of the actual test-vectors.jsonl. For each case it records unique input counts, available/observed counts per category, missing boundary bits, immediates, memory offsets, and guard/exact-fit counts. Categories can overlap. This is input coverage, not C execution success or agreement with Intel."
+        },
+        {
+          "type": "paragraph",
+          "text": "Some operations cannot fit every structured input within 512 records, so their structured_complete field is false. Increasing count-per-case includes the remaining structured inputs followed by raw-bit inputs. This does not prove the behavior for every input permitted by the case contract. Check native results, comparisons, and HTML for observed results and mismatches."
+        },
+        {
+          "type": "paragraph",
+          "text": "Adversarial comparisons evaluate every input and save all mismatches and non-comparable results in differences.jsonl. Detailed HTML and individual replay bundles are limited to 128 entries per comparison by default. Full counts are retained. Use compare-results --failure-limit to adjust the individual-file limit."
+        }
+      ]
+    },
+    {
+      "id": "共通の検証環境",
+      "level": 2,
+      "title": "Shared verification environment",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The shared architecture-comparison environment is Ubuntu 26.04 LTS in Docker.\nInstall Docker on the host; use the C compiler and Python inside each container."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./docker/run.sh all"
+        },
+        {
+          "type": "paragraph",
+          "text": "Run all 254 operations with three raw-wrapper inputs on Intel, OpenPOWER, ARM64, and RISC-V64, and compare the three targets with Intel.\nThe output goes to `artifacts/docker/`; a different directory can be passed as the second argument.\nMismatches remain recorded and the comparison after capture returns exit code 1."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./docker/run.sh intel artifacts/docker\n./docker/run.sh openpower artifacts/docker\n./docker/run.sh arm artifacts/docker\n./docker/run.sh riscv artifacts/docker\n./docker/run.sh compare artifacts/docker"
+        },
+        {
+          "type": "paragraph",
+          "text": "Docker all runs both the raw-wrapper and shared C ABI paths. Ordinary equilane check and Report Studio check use the shared Python model as a development fixture. Required emulators, CPU settings, and artifact scope are described in the [Docker verification guide](../docker/guide.json)."
+        }
+      ]
+    },
+    {
+      "id": "まずは動かす",
+      "level": 2,
+      "title": "Get started",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "git clone --recurse-submodules <repository-url> EquiLane\ncd EquiLane\n\npython3 -m venv .venv\nsource .venv/bin/activate\npython -m pip install -e .\n\nequilane check"
+        },
+        {
+          "type": "paragraph",
+          "text": "A final `\"status\":\"pass\"` indicates success."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "text": "{\"case_count\":254,\"record_count\":2032,\"status\":\"pass\"}"
+        },
+        {
+          "type": "paragraph",
+          "text": "During execution, progress is shown for vector generation, Intel and selected-target fixtures, comparison, and report generation.\nProgress goes to stderr and the final JSON goes to stdout for use in scripts.\nUse `equilane check --quiet` to suppress progress output."
+        },
+        {
+          "type": "paragraph",
+          "text": "Use `--jobs` to use multiple CPU cores for larger case or vector sets."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check --profile standard --count-per-case 1000 --jobs auto\nequilane check --jobs 8"
+        },
+        {
+          "type": "paragraph",
+          "text": "`auto` uses the available logical CPU count; an integer sets the worker-process count. Without this option, execution uses one process.\nVector generation, Intel and selected-target fixtures, and comparisons run in parallel by case. Results are restored to their original order, giving the same ordering and SHA-256 as a one-process run.\nWhen used with `--quality`, the setting also controls sanitizer-build parallelism.\nProcess startup can outweigh the benefit for small smoke runs; this option is intended for larger runs."
+        },
+        {
+          "type": "paragraph",
+          "text": "Verification metrics are displayed at the end of an ordinary `equilane check`, even without an HTML report.\nCounts come from the selected profile and actual vectors. For example, a standard run produces:"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "text": "Verification metrics\n  cases                                         254\n  trials                                    254,000\n  implementation-path evaluations          508,000\n  lane verdicts                           1,131,000\n  bit positions                          30,016,000\n  match rate                                   100%\n  mismatch                                         0"
+        },
+        {
+          "type": "paragraph",
+          "text": "This table also goes to stderr, leaving the final stdout JSON as one line."
+        },
+        {
+          "type": "paragraph",
+          "text": "Normal runs then display lightweight quality metrics. They are calculated from contracts and portable models that are already loaded, without additional builds or test runs."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "text": "Quality metrics\n  valid contracts              254 / 254\n  portable models              254 / 254\n  standard boundary floors     254 / 254\n  architecture bindings      1016 / 1016\n  contract drift                       0"
+        },
+        {
+          "type": "paragraph",
+          "text": "Add `--quality` when you want independent regression tests and sanitizer checks."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check --quality"
+        },
+        {
+          "type": "paragraph",
+          "text": "This option runs the following heavier quality gates after the ordinary equivalence check."
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "Full Python regression suite (coverage is measured only when `--coverage` is supplied)",
+            "Portable C build and CTest with ASan / UBSan enabled",
+            "Clang cross builds for Intel x86_64, OpenPOWER ppc64le, ARM64 NEON, and RISC-V64 RVV"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Three progress bars appear under `[7/8] Run quality gates`. Measured progress advances from `0%` to `100%` using the Python test count, three sanitizer stages, and 24 cross-compilation units as denominators."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "text": "[7/8] Run quality gates\n  [1/3] Python tests (coverage optional)      [=======-----------]  39% 35/89\n  [2/3] C sanitizers                 [============------]  66% 2/3\n  [3/3] 4-architecture cross build    [===============---]  83% 20/24"
+        },
+        {
+          "type": "paragraph",
+          "text": "Source-line coverage here is different from the equivalence match rate. It is the fraction of executable Python source lines reached by regression tests. It is currently recorded but is not a pass/fail threshold."
+        },
+        {
+          "type": "paragraph",
+          "text": "Results go to `<check output>/quality/summary.json`; command logs and any explicitly requested coverage annotations remain under `quality/`. Failure of any of the three gates makes the command exit nonzero.\nOrdinary `equilane check` skips these gates, so its usual speed is unchanged. Source-line coverage is measured only with `--quality --coverage`."
+        },
+        {
+          "type": "paragraph",
+          "text": "With `--quality --showcase-report`, HTML also shows differences between model outputs and independent expected results. Inputs, expected values, and observed values are separated from other test failures and execution errors.\nA failed quality check appears at the top of the report even if fixture comparison matched. Confirmed NaN mismatches and their causes are documented in [`tests/BUG_HUNT.md`](../tests/BUG_HUNT.md)."
+        },
+        {
+          "type": "paragraph",
+          "text": "One `equilane check` command validates cases, generates inputs, executes both sides, and compares answers. Intermediate records remain in `.equilane/checks/<timestamp>/`."
+        },
+        {
+          "type": "paragraph",
+          "text": "> This runs local development fixtures. It is not evidence that physical CPUs produced matching results."
+        }
+      ]
+    },
+    {
+      "id": "レポート",
+      "level": 2,
+      "title": "Reports",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "`--showcase-report` adds an HTML report with soft colors, rounded cards, and a flying-squirrel mascot to the usual artifacts. The preview uses observations from a smoke run and independent model checks. It distinguishes matching fixture comparisons from 2,159 model-output mismatches: 106 under the official nearest-even contracts and 2,053 under test contracts with extended rounding modes."
+        },
+        {
+          "type": "paragraph",
+          "text": "![Showcase report preview](../assets/showcase-report-preview.svg)"
+        },
+        {
+          "type": "paragraph",
+          "text": "To run the same checks as the preview:"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check --quality --showcase-report"
+        },
+        {
+          "type": "paragraph",
+          "text": "To run a larger input set:"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check --profile standard --count-per-case 1000 --showcase-report"
+        },
+        {
+          "type": "paragraph",
+          "text": "254 cases × 1,000 vectors gives 254,000 trials, 508,000 fixture evaluations across both paths, 1,131,000 lane verdicts, and 30,016,000 paired bit positions. The rectangular load chart also shows how much of the deterministic stream, including boundary and special values, was processed."
+        },
+        {
+          "type": "paragraph",
+          "text": "The `showcase_report` field in the command result identifies the generated file."
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "text": "{\"showcase_report\":\".equilane/checks/.../showcase.html\",\"status\":\"pass\"}"
+        },
+        {
+          "type": "paragraph",
+          "text": "The report is one self-contained file with no external images or web fonts, so it can be opened directly in a browser or shared."
+        },
+        {
+          "type": "paragraph",
+          "text": "Changing the presentation does not change the canonical JSON artifacts used for the verdict."
+        }
+      ]
+    },
+    {
+      "id": "不一致の詳細を調べる",
+      "level": 3,
+      "title": "Investigate mismatches",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "HTML produced with `--quality --showcase-report` shows mismatch counts by cause, case, and rounding mode, along with examples and per-lane expected bits, observed bits, and XOR differences. Search by input ID or operation. Recorded rows and deduplicated input counts are reported separately."
+        },
+        {
+          "type": "paragraph",
+          "text": "To create detailed HTML from saved quality JSON without rerunning the checks:"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane mismatch-report \\\n  --quality .equilane/checks/RUN/quality/summary.json \\\n  --observations tests/data/mismatch-report-2026-10-16.json \\\n  --output .equilane/mismatch-details.html"
+        },
+        {
+          "type": "paragraph",
+          "text": "Replace `RUN` with the saved run-directory name.\n`--quality` also accepts a summary.json written by a standalone equilane.quality_runner run.\n`--observations` is optional. If supplied, separately captured ARM/RISC-V observation snapshots are shown with capture dates, execution types, references, inputs, and outputs. Native results for omitted targets are never inferred from the Python model.\nExit code 0 on generation means that the HTML was written; it does not mean mismatches were fixed or verification passed."
+        },
+        {
+          "type": "paragraph",
+          "text": "See the [detailed mismatch report](../MISMATCH_REPORT.md) for the current cause analysis and execution scope."
+        }
+      ]
+    },
+    {
+      "id": "intelと各アーキテクチャを見比べる",
+      "level": 2,
+      "title": "Compare Intel with each architecture",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The top-level [`10_official_suite/`](../10_official_suite) contains all 254 contracts and all 254 operations for each of Intel, OpenPOWER, ARM, and RISC-V."
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Intel Intrinsic",
+            "OpenPOWER / VSX"
+          ],
+          "rows": [
+            [
+              "`_mm_add_pd(a, b)`",
+              "`vec_add(a, b)`"
+            ],
+            [
+              "`_mm_cmpeq_pd(a, b)`",
+              "lane comparison + all-bits mask"
+            ],
+            [
+              "`_mm_adds_epi16(a, b)`",
+              "`vec_adds(a, b)`"
+            ],
+            [
+              "`_mm_subs_epu8(a, b)`",
+              "`vec_subs(a, b)`"
+            ],
+            [
+              "`_mm_set1_pd(x)`",
+              "`vec_splats(x)`"
+            ],
+            [
+              "`_mm_shuffle_epi32(v, 27)`",
+              "`{v[3], v[2], v[1], v[0]}`"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "[`intel/`](../10_official_suite/intel) and [`openpower/`](../10_official_suite/openpower) have matching layouts, each grouped into f32, f64, i8, i16, i32, and i64 files."
+        },
+        {
+          "type": "paragraph",
+          "text": "Clang cross builds also take one command:"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./10_official_suite/cross-compile.sh"
+        },
+        {
+          "type": "paragraph",
+          "text": "This produces six ELF objects each for x86-64, ppc64le, aarch64, and riscv64, for 24 objects total.\nRVV uses `-march=rv64gcv -mrvv-vector-bits=scalable` to implement fixed 16-byte logical vectors."
+        }
+      ]
+    },
+    {
+      "id": "比較対象を選ぶ",
+      "level": 3,
+      "title": "Select comparison targets",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check --target arm --showcase-report\nequilane check --target riscv --showcase-report\nequilane check --target arm --target riscv --showcase-report\nequilane check --target all --showcase-report"
+        },
+        {
+          "type": "paragraph",
+          "text": "Intel is the shared reference. With multiple targets, the Intel fixture runs once and is compared with each target.\nHTML displays matches per target. The summary `record_count` counts comparison pairs, while the final CLI JSON `record_count` counts unique inputs. Detailed per-target artifacts are in `comparison/<role>/`, and totals are in `comparison/summary.json`."
+        },
+        {
+          "type": "paragraph",
+          "text": "The `arm` and `riscv` bindings are project extensions. Older case packs containing only Intel/OpenPOWER bindings remain readable. A case without a requested extra-target binding is classified as `unsupported`.\nThe C implementations return their actual ARM NaN, signed-zero, and conversion behavior and RVV NaN canonicalization. The Python fixture is a shared model and does not reproduce those CPU differences."
+        }
+      ]
+    },
+    {
+      "id": "ケースをひとつ増やす",
+      "level": 2,
+      "title": "Add one case",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "For a typical binary integer-vector operation, one command creates the starting case pack."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./10_official_suite/new-case my-new-i32x4 +"
+        },
+        {
+          "type": "paragraph",
+          "text": "One case is this one file:"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "text": "10_official_suite/cases/my-new-i32x4.py"
+        },
+        {
+          "type": "paragraph",
+          "text": "Existing files are never overwritten. Edit the generated file, then run the usual command.\nThe first half is the YAML contract and the end is a short model declaration."
+        },
+        {
+          "type": "paragraph",
+          "text": "The model declaration specifies only the case ID, type, and operation."
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "text": "CASE_ID, MINIMUM_COUNTS, candidates, execute = binary_case(\n    \"sse2.my-new.i32x4.default\", \"i32x4\", \"+\", standard=8)"
+        },
+        {
+          "type": "paragraph",
+          "text": "Shared boundary values, random generation, and lane handling are encapsulated. Conversion, comparison, shuffle, and pack operations have similarly sized families; all 254 official cases use this layout."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check"
+        },
+        {
+          "type": "paragraph",
+          "text": "The local case is now added. There is no central giant switch statement to update with its ID.\nSee [`10_official_suite/cases/`](../10_official_suite/cases) for examples."
+        }
+      ]
+    },
+    {
+      "id": "変更後の確認",
+      "level": 2,
+      "title": "Check your changes",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "These two commands are sufficient for routine changes."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check\npython -m unittest discover -s tests -v"
+        },
+        {
+          "type": "paragraph",
+          "text": "Also run the C tests when changing native code."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "cmake -S . -B build/native -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release\ncmake --build build/native --parallel\nctest --test-dir build/native --output-on-failure"
+        }
+      ]
+    },
+    {
+      "id": "必要になったら開くところ",
+      "level": 2,
+      "title": "Further reference",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Use the following sections as needed."
+        }
+      ]
+    },
+    {
+      "id": "収録している254ケース",
+      "level": 2,
+      "title": "The 254 included cases",
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "f64 arithmetic / memory: packed / scalar add, sub, mul, div, sqrt, min, max, \nload / store (scalar, unaligned, high / low, reverse included)",
+            "f64 bit / lane: `_mm_and_pd`, `_mm_or_pd`, `_mm_xor_pd`, `_mm_set1_pd`, \n`_mm_andnot_pd`, `_mm_move_sd`, `_mm_unpacklo_pd`, `_mm_unpackhi_pd`, \n`_mm_shuffle_pd`, `_mm_set_pd`, cast ×6, movemask, packed min/max",
+            "f64 comparison: `_mm_cmpeq_pd`, `_mm_cmplt_pd`, `_mm_cmple_pd`, `_mm_cmpgt_pd`, \n`_mm_cmpge_pd`, `_mm_cmpneq_pd`, `_mm_cmpord_pd`, `_mm_cmpunord_pd`, \n`_mm_cmpnlt_pd`, `_mm_cmpnle_pd`, `_mm_cmpngt_pd`, `_mm_cmpnge_pd`, \nscalar compare ×12, scalar COMI ×6",
+            "f32 arithmetic / memory: packed / scalar add, sub, mul, div, sqrt, min, max, \nload / store (scalar, unaligned, reverse included)",
+            "f32 logic / comparison: packed and, or, xor, andnot, packed / scalar compare ×12, \nscalar COMI ×6",
+            "f32 lane / conversion: movemask, unpack ×2, shuffle, move ×3, set / setr / set1, \n`_mm_cvtps_pd`, `_mm_cvtpd_ps`, `_mm_cvtepi32_pd`, `_mm_cvtepi32_ps`, \npacked / scalar convert (round / truncate included)",
+            "f64 conversion: packed / scalar convert (f32, i32, i64, round / truncate included)",
+            "i8 arithmetic / saturation / comparison / construction: `_mm_add_epi8`, `_mm_sub_epi8`, \n`_mm_adds_epi8`, `_mm_adds_epu8`, `_mm_subs_epi8`, `_mm_subs_epu8`, \n`_mm_cmpeq_epi8`, `_mm_cmpgt_epi8`, `_mm_avg_epu8`, `_mm_sad_epu8`, \n`_mm_min_epu8`, `_mm_max_epu8`, byte shift ×2, unpack ×2, movemask, signed less-than, set, setr, set1",
+            "i16 arithmetic / saturation / comparison / construction: `_mm_add_epi16`, `_mm_sub_epi16`, \n`_mm_adds_epi16`, `_mm_adds_epu16`, `_mm_subs_epi16`, `_mm_subs_epu16`, \n`_mm_cmpeq_epi16`, `_mm_cmpgt_epi16`, mul ×3, `_mm_madd_epi16`, \n`_mm_avg_epu16`, min/max, immediate shift ×3, vector-count shift ×3, unpack ×2, \npack ×2, shuffle ×2, signed less-than, set, setr, set1, extract, insert",
+            "i32 arithmetic / construction: `_mm_add_epi32`, `_mm_sub_epi32`, `_mm_mul_epu32`, \n`_mm_cvtsi32_si128`, `_mm_set1_epi32`",
+            "i32 logic: `_mm_and_si128`, `_mm_or_si128`, `_mm_xor_si128`, `_mm_andnot_si128`",
+            "i32 comparison: `_mm_cmpeq_epi32`, `_mm_cmpgt_epi32`, `_mm_cmplt_epi32`",
+            "i32 shift: immediate ×3, vector-count ×3",
+            "i32 lane / pack / memory: `_mm_shuffle_epi32`, `_mm_unpacklo_epi32`, `_mm_unpackhi_epi32`, \n`_mm_packs_epi32`, low-lane extract, set, setr, unaligned load / store",
+            "i64 arithmetic / lane: `_mm_add_epi64`, `_mm_sub_epi64`, shift ×2, unpack ×2, \n`_mm_move_epi64`, `_mm_cvtsi64_si128`, `_mm_set1_epi64x`, vector-count shift ×2, \nlow-lane extract, set, low-lane load / store"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "All 254 cases can be checked with portable fixtures, and the official Intel/OpenPOWER/ARM/RISC-V sources include all 254 operations."
+        }
+      ]
+    },
+    {
+      "id": "1ファイルcase-packの書き方",
+      "level": 2,
+      "title": "Write a single-file case pack",
+      "blocks": []
+    },
+    {
+      "id": "case-yaml",
+      "level": 3,
+      "title": "`CASE_YAML`",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "At the start of the Python file, declare the case ID, arguments, return type, required ISA, and comparison method.\nIt is a string containing ordinary YAML."
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "text": "CASE_YAML = \"\"\"\nschema_version: 1\nid: sse2.add.f64x2.default\ndescription: two-lane IEEE 754 binary64 addition\n\nintel:\n  symbol: intel_mm_add_pd\n  required_isa: [sse2]\n\nopenpower:\n  symbol: power_mm_add_pd\n  required_isa: [power8, vsx]\n\narm:\n  symbol: arm_mm_add_pd\n  required_isa: [neon]\n\nriscv:\n  symbol: riscv_mm_add_pd\n  required_isa: [rvv]\n\nsignature:\n  arguments:\n    - {name: a, type: vector, element: f64, lanes: 2}\n    - {name: b, type: vector, element: f64, lanes: 2}\n  return: {type: vector, element: f64, lanes: 2}\n\ninput_domain: {exclude: []}\ncomparison: {mode: bit_exact}\nenvironment:\n  fp_rounding_modes: [nearest_even]\n  observe_fp_exceptions: false\ntags: []\n\"\"\"\n\nfrom equilane.casepack_families import float_binary_case\n\n\nCASE_ID, MINIMUM_COUNTS, candidates, execute = float_binary_case(\n    \"sse2.add.f64x2.default\", \"f64x2\", \"+\")"
+        },
+        {
+          "type": "paragraph",
+          "text": "`equilane` reads `CASE_YAML` statically through the Python AST without executing the model during contract validation. The model part of the file is loaded only when input generation is needed.\nThe earlier `case.yaml + model.py` layout and the legacy `development.py` filename remain supported."
+        }
+      ]
+    },
+    {
+      "id": "浮動小数点は文字列にする",
+      "level": 3,
+      "title": "Represent floating-point parameters as strings",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Although YAML supports floating-point values, case definitions in this project reject raw floating-point numbers. Using strings avoids environment-dependent rounding and formatting so the same case always produces the same hash."
+        },
+        {
+          "type": "code",
+          "language": "yaml",
+          "text": "# Invalid: a YAML floating-point number\nabs_tolerance: 0.001\n\n# Valid: an exactly interpreted decimal string\nabs_tolerance: \"0.001\"\nrel_tolerance: \"0\""
+        },
+        {
+          "type": "paragraph",
+          "text": "The shared family referenced at the end of a case pack generates f32/f64 inputs as IEEE 754 32/64-bit patterns. `NaN`, infinity, and `-0.0` remain bit representations, preserving values and NaN payloads."
+        },
+        {
+          "type": "paragraph",
+          "text": "YAML anchors, aliases, merge keys, explicit tags, and duplicate keys are also rejected. JSON-formatted cases are supported."
+        }
+      ]
+    },
+    {
+      "id": "実機で動くcaseへ育てる",
+      "level": 2,
+      "title": "Extend a case to native execution",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A single case-pack file is sufficient for local development. To proceed to native verification, add the relevant target implementations and declarations:"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "`adapters/intel/`: implementation calling Intel intrinsics",
+            "`adapters/openpower/`: implementation calling the OpenPOWER-compatible implementation",
+            "`adapters/arm/`: ARM64 NEON implementation",
+            "`adapters/riscv/`: RISC-V64 RVV implementation",
+            "`adapters/portable/`: helper implementation that can run on the host",
+            "`include/framework/example_cases.h`: public C symbols",
+            "`tests/native/test_native.c`: ABI tests and representative inputs"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Intel and OpenPOWER code are built and executed separately on their respective target CPUs.\nThe ARM adapter is also enabled on arm64 macOS/Linux, the Intel adapter on Linux x86_64, the OpenPOWER adapter on ppc64le, and the RVV adapter on riscv64."
+        },
+        {
+          "type": "paragraph",
+          "text": "See [Native status](native-status.json) for details."
+        }
+      ]
+    },
+    {
+      "id": "framework側へテストを追加する",
+      "level": 2,
+      "title": "Add framework tests",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Add tests near the implementation you changed."
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "Case schema, YAML, and input generation: `tests/test_cases_generator.py`",
+            "Project-file loading: `tests/test_project.py`",
+            "Manifest and artifact validation: `tests/test_artifacts.py`",
+            "Comparison rules: `tests/test_compare.py`",
+            "CLI and end-to-end workflow: `tests/test_end_to_end.py`",
+            "Failure bundles and replay: `tests/test_replay.py`",
+            "C ABI and adapters: `tests/native/test_native.c`"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "See [`tests/BUG_HUNT.md`](../tests/BUG_HUNT.md) for tests that detect bugs hidden by comparing the same fixture model on both sides, and for confirmed NaN mismatches."
+        },
+        {
+          "type": "paragraph",
+          "text": "Python tests use the standard `unittest` module."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "python -m unittest discover -s tests -v"
+        },
+        {
+          "type": "paragraph",
+          "text": "Native tests:"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "cmake -S . -B build/native -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release\ncmake --build build/native --parallel\nctest --test-dir build/native --output-on-failure"
+        }
+      ]
+    },
+    {
+      "id": "中で何をしているのか",
+      "level": 2,
+      "title": "How the pipeline works",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "text": "case pack ──> test vectors ──┬──> Intel result\n                             └──> OpenPOWER result\n                                      │\n                                      ▼\n                                   compare\n                                      │\n                         summary / JUnit / failure bundle"
+        },
+        {
+          "type": "paragraph",
+          "text": "The framework and test suite are kept separate."
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "text": "EquiLane/\n├── 10_official_suite/     # 254 cases + 254 operations for each of 4 architectures\n├── src/equilane/             # CLI and artifact handling\n├── adapters/              # native / portable adapters\n├── contracts/             # ISA registry\n├── tests/                 # tests of the framework itself\n└── equilane.toml             # selected suite"
+        },
+        {
+          "type": "paragraph",
+          "text": "To use a particular project file:"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check --project ../my-intrinsics/equilane.toml"
+        },
+        {
+          "type": "paragraph",
+          "text": "Relative paths are resolved against the directory containing that `equilane.toml`."
+        }
+      ]
+    },
+    {
+      "id": "工程をひとつずつ実行する",
+      "level": 2,
+      "title": "Run each stage separately",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane validate-cases\n\nequilane generate-vectors \\\n  --output artifacts/vectors \\\n  --count-per-case 8\n\nequilane fixture-run \\\n  --input artifacts/vectors/test-vectors.manifest.json \\\n  --role intel --output artifacts/intel \\\n  --i-understand-this-is-not-native-evidence\n\nequilane fixture-run \\\n  --input artifacts/vectors/test-vectors.manifest.json \\\n  --role openpower --output artifacts/openpower \\\n  --i-understand-this-is-not-native-evidence\n\nequilane compare-results \\\n  --input artifacts/vectors/test-vectors.manifest.json \\\n  --intel artifacts/intel/intel-results.manifest.json \\\n  --openpower artifacts/openpower/power-results.manifest.json \\\n  --output artifacts/comparison \\\n  --allow-development-fixtures"
+        },
+        {
+          "type": "paragraph",
+          "text": "Use `PYTHONPATH=src python -m equilane` to try commands without installing the package."
+        }
+      ]
+    },
+    {
+      "id": "不一致を別のホストで再確認する",
+      "level": 2,
+      "title": "Recheck a mismatch on another host",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "When a mismatch is found, its input is saved in a failure bundle under `<output>/failures/<input_id>/`.\nResults recaptured on another host can be checked with `verify-replay`."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane verify-replay \\\n  --failure artifacts/comparison/failures/$INPUT_ID/failure.json \\\n  --intel replay/intel/intel-results.manifest.json \\\n  --openpower replay/openpower/power-results.manifest.json"
+        },
+        {
+          "type": "paragraph",
+          "text": "`--failure` accepts either failure.json or a bundle directory."
+        },
+        {
+          "type": "paragraph",
+          "text": "For ARM/RISC-V, replace `--openpower` with an option such as `--target-role arm --target replay/arm/arm-results.manifest.json`.\nIf only `--target` is supplied, the bundle target is used.\nTo replay only the development fixture using the same local case pack:"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane replay --failure artifacts/comparison/failures/$INPUT_ID/failure.json \\\n  --role arm --output replay/arm --i-understand-this-is-not-native-evidence"
+        },
+        {
+          "type": "paragraph",
+          "text": "Without this opt-in, replay uses the native C ABI. It checks the authenticated bundle JSON against the local case contract and builds trusted local sources, without executing Python or shared libraries from the bundle. An explicitly supplied existing library is also checked against build-evidence.json and source/contract/binary hashes."
+        },
+        {
+          "type": "paragraph",
+          "text": "Bundle validation checks file SHA-256 values, the case contract, input ID, used ISA, both reference results, mismatch counts, and the first difference.\nPaths and symlinks escaping the bundle are rejected."
+        },
+        {
+          "type": "paragraph",
+          "text": "Development-fixture artifacts require `--allow-development-fixtures`.\nThis option does not turn them into native evidence."
+        }
+      ]
+    },
+    {
+      "id": "現在の制限と終了コード",
+      "level": 2,
+      "title": "Current limitations and exit codes",
+      "blocks": []
+    },
+    {
+      "id": "現在の制限",
+      "level": 3,
+      "title": "Current limitations",
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "Docker raw-wrapper verification and shared C ABI run-native are separate execution paths.",
+            "Preflight probes measure CPU features, IEEE controls, four rounding modes, and FP exceptions; build-evidence.json and native-traceability.json are retained.",
+            "Native replay reruns one authenticated input in an isolated worker.",
+            "Results captured through QEMU are emulator observations.",
+            "Default official case packs disable FP exception observation. Custom cases observing FP exceptions require regression witnesses according to the specification.",
+            "See native-contract.json and retained execution evidence for the verified status of individual features."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "終了コード",
+      "level": 3,
+      "title": "Exit codes",
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "`0`: match, or successful validation/generation",
+            "`1`: comparison mismatch",
+            "`2`: case-definition or input error",
+            "`3`: required ISA or capability unavailable",
+            "`4`: runner or artifact error",
+            "`5`: Intel regression-oracle error"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "インストールで詰まったとき",
+      "level": 2,
+      "title": "Installation troubleshooting",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Python 3.11 or later is required. If macOS `/usr/bin/python3` is too old, create the virtual environment with a Python installation from Homebrew or another source."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "python3 --version"
+        }
+      ]
+    },
+    {
+      "id": "仕様を読む",
+      "level": 2,
+      "title": "Read the specification",
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "[Start here: an approachable explanation](https://github.com/daisukeokaoss/ToukaSpecification/blob/a4d888dfdca53d4335a6051bea9df8b9fda9bf35/doc/intel-openpower-intrinsics-equivalence-test-framework-spec-for-everyone.md)",
+            "[IOITF specification](https://github.com/daisukeokaoss/ToukaSpecification/blob/a4d888dfdca53d4335a6051bea9df8b9fda9bf35/doc/intel-openpower-intrinsics-equivalence-test-framework-spec.md)",
+            "[Native implementation status](native-status.json)"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Hosts exchange only canonical JSON / JSONL. Raw CPU-specific types such as `__m128i` or OpenPOWER vectors are not the common ABI format.\nThe Docker raw-wrapper verification format is distinct from the specification-compatible native manifest emitted by run-native."
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "state": "verified",
+    "completion_contract": "native-contract.json",
+    "evidence_policy": "Implementation descriptions do not certify completion; each requirement needs saved verification evidence.",
+    "date": "2026-11-10",
+    "port_conformance": "unresolved",
+    "evidence_method": "Retained native Docker executions plus latest-source quality and separately refreshed, reauthenticated reports; see native-contract.json."
+  },
+  "purpose": "Development procedures for checking that Intel Intrinsics are ported correctly to other architectures using Intel execution results and case contracts as the reference."
+}

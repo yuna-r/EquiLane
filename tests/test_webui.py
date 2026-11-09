@@ -53,7 +53,7 @@ class DashboardTests(unittest.TestCase):
         self.assertTrue(self.html.startswith("<!doctype html>"))
         self.assertIn("EquiLane · Report studio", self.html)
         self.assertNotIn("{{MASCOT}}", self.html)
-        self.assertEqual(self.markup.resources, [])
+        self.assertEqual(self.markup.resources, ["?lang=ja", "?lang=en"])
         self.assertIn("最初のレポートを、どうぞ。", self.html)
         self.assertIn("@media (max-width:540px)", self.html)
         self.assertIn("prefers-reduced-motion:reduce", self.html)

@@ -104,6 +104,80 @@
       ]
     },
     {
+      "id": "adversarial-inputs",
+      "level": 2,
+      "title": "移植の境界条件を大量入力で調べる",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "adversarial profileは、Intel Intrinsicsの移植で見落としやすい入力を、254個の既存case契約から生成します。戻り値の正解は生成器では計算しません。同じ入力をIntel側と移植先のC実装へ渡し、実測結果を比較します。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "EQUILANE_PROFILE=adversarial ./docker/run.sh all artifacts/adversarial\nEQUILANE_PROFILE=adversarial EQUILANE_COUNT_PER_CASE=2048 ./docker/run.sh all artifacts/adversarial-large"
+        },
+        {
+          "type": "paragraph",
+          "text": "既定は512入力/caseです。ただし _mm_set1_epi8 は8bit scalarが1個で、許可された環境の一意入力は256個だけです。このcaseは全256個で打ち切り、253×512 + 256 = 129,792入力/対象を生成します。存在しない入力を作ったり、重複を件数へ加えたりしません。"
+        },
+        {
+          "type": "table",
+          "columns": [
+            "検証軸",
+            "含める入力"
+          ],
+          "rows": [
+            [
+              "整数",
+              "0・±1・符号付き最小/最大・符号なし最大・飽和と縮小変換の境界・交互bit・walking one/zero"
+            ],
+            [
+              "浮動小数点",
+              "±0・最小/最大subnormal・最小normal・最大有限値・±∞・正負のquiet/signaling NaNと異なるpayload"
+            ],
+            [
+              "丸めと変換",
+              "0.5/1.5付近、1 ULPの前後、2^23/2^24/2^31/2^32/2^52/2^53/2^63付近の表現可能値"
+            ],
+            [
+              "引数とレーン",
+              "左右を入れ替えた特殊値ペア・レーンごとに異なるbit・各位置のwalking one/zero"
+            ],
+            [
+              "即値とシフト",
+              "caseが許可した全即値、可変シフトの0/幅-1/幅/幅+1/巨大カウント、無視される上位カウントレーン"
+            ],
+            [
+              "メモリ",
+              "契約上有効な0..31の各offset・64byte境界付近・前後のguard bytes・必要長ぴったりのbuffer"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "契約の許可即値やアライメント、丸めモードは変更しません。たとえばnearest_evenだけのcaseを他の丸めモードで実行することはありません。smokeなど既存profileの入力順序とseedは変えず、adversarialだけ独立した構造化入力とseed付きraw-bit入力を追加します。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane generate-vectors --profile adversarial --output artifacts/vectors-adversarial\nequilane generate-vectors --profile adversarial --count-per-case 2048 --jobs 4 --output artifacts/vectors-adversarial-large"
+        },
+        {
+          "type": "paragraph",
+          "text": "入力生成先のadversarial-coverage.jsonは、実際のtest-vectors.jsonlのSHA-256に結び付けた収録範囲です。caseごとに一意入力数、各検証軸のavailable/observed数、未収録の境界bit、即値、メモリoffset、guard/exact-fit数を記録します。各軸は重なる場合があります。このJSONは入力の収録率であり、C実行の成功率やIntelとの一致率ではありません。"
+        },
+        {
+          "type": "paragraph",
+          "text": "512件では操作によって構造化入力をすべて収録できないため、structured_completeがfalseのcaseもあります。count-per-caseを増やすと残りの構造化入力、その後にraw-bit入力を採取します。case契約が許す全入力の証明を意味するものではありません。実測結果と不一致は従来のnative結果・comparison・HTMLで確認してください。"
+        },
+        {
+          "type": "paragraph",
+          "text": "adversarialの比較は全入力を判定し、不一致・比較不能の全件をdifferences.jsonlへ保存します。HTMLの詳細と個別replay bundleの既定上限は各比較128件です。全件の集計は維持します。compare-results --failure-limitで個別ファイル数を調整できます。"
+        }
+      ]
+    },
+    {
       "id": "共通の検証環境",
       "level": 2,
       "title": "共通の検証環境",

@@ -10,8 +10,8 @@
     "offline_archive_sha256": "4de3a0c59a944f153f6dc47cfb2d0e455ef16e54a8878f8882db82237947f5e7",
     "data_js_sha256": "67307df98241728ff14ea2ad4102a3316b4674d7e4629a7293e39952eec59d69",
     "decoded_xml_sha256": "6762a50652a35ef663fd532ed83b789d19bbc2ac7e94b1771f19d666d96c2c30",
-    "framework_case_count": 254,
-    "framework_case_bindings_sha256": "3d2b75ca090a4b03314d590ff042cb15d6c54df9e82167aa28463364b0e6988f",
+    "framework_case_count": 268,
+    "framework_case_bindings_sha256": "e93496765d96b78aa867bf1a9fe6838178d4cc30b5c96f6e7d3cdbc5e27b094c",
     "summary_note": "summary_jaは短い独自の説明。Guideのdescriptionとoperationの本文は収録していない。",
     "binding_note": "GuideのCPUIDとframework_required_isaは別の項目。公式caseのIntel symbolに対応するAPIを索引し、各CPUの実行や等価性を証明しない。"
   },
@@ -1988,6 +1988,23 @@
       "summary_ja": "即値で選んだ16ビット要素を整数入力の下位16ビットで置き換える。",
       "case_call": "_mm_insert_epi16(a, value, imm8)"
     },
+    "sse2.load.f32x4.aligned": {
+      "name": "_mm_load_ps",
+      "intel_symbol": "intel_mm_load_ps",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_load_ps",
+      "header": "immintrin.h",
+      "prototype": "__m128 _mm_load_ps(float const* mem_addr);",
+      "instructions": [
+        "MOVAPS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "16byte整列したメモリから128bitを読み込む。",
+      "summary_en": "Load 128 bits from 16-byte-aligned memory.",
+      "case_call": "_mm_load_ps(source)"
+    },
     "sse2.load.f32x4.scalar": {
       "name": "_mm_load_ss",
       "intel_symbol": "intel_mm_load_ss",
@@ -2004,6 +2021,23 @@
       "summary_ja": "メモリから最下位の浮動小数点要素を読み、上位要素を0にする。",
       "case_call": "_mm_load_ss(source)"
     },
+    "sse2.load.f64x2.aligned": {
+      "name": "_mm_load_pd",
+      "intel_symbol": "intel_mm_load_pd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_load_pd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_load_pd(double const* mem_addr);",
+      "instructions": [
+        "MOVAPD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "16byte整列したメモリから128bitを読み込む。",
+      "summary_en": "Load 128 bits from 16-byte-aligned memory.",
+      "case_call": "_mm_load_pd(source)"
+    },
     "sse2.load.f64x2.scalar": {
       "name": "_mm_load_sd",
       "intel_symbol": "intel_mm_load_sd",
@@ -2019,6 +2053,23 @@
       ],
       "summary_ja": "メモリから最下位の浮動小数点要素を読み、上位要素を0にする。",
       "case_call": "_mm_load_sd(source)"
+    },
+    "sse2.load.i32x4.aligned": {
+      "name": "_mm_load_si128",
+      "intel_symbol": "intel_mm_load_si128",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_load_si128",
+      "header": "emmintrin.h",
+      "prototype": "__m128i _mm_load_si128(__m128i const* mem_addr);",
+      "instructions": [
+        "MOVDQA"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "16byte整列したメモリから128bitを読み込む。",
+      "summary_en": "Load 128 bits from 16-byte-aligned memory.",
+      "case_call": "_mm_load_si128(source)"
     },
     "sse2.load1.f32x4.broadcast": {
       "name": "_mm_load1_ps",
@@ -2050,6 +2101,23 @@
       "summary_ja": "メモリから1要素を読み、ベクトル全体へ複製する。",
       "case_call": "_mm_load1_pd(source)"
     },
+    "sse2.loadh.f32x4.preserve-low": {
+      "name": "_mm_loadh_pi",
+      "intel_symbol": "intel_mm_loadh_pi",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_loadh_pi",
+      "header": "immintrin.h",
+      "prototype": "__m128 _mm_loadh_pi(__m128 a, __m64 const* mem_addr);",
+      "instructions": [
+        "MOVHPS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "上位64bitへメモリを読み込み、下位64bitは保持する。",
+      "summary_en": "Load the upper 64 bits from memory and preserve the other half.",
+      "case_call": "_mm_loadh_pi(a, source)"
+    },
     "sse2.loadh.f64x2.preserve-low": {
       "name": "_mm_loadh_pd",
       "intel_symbol": "intel_mm_loadh_pd",
@@ -2065,6 +2133,23 @@
       ],
       "summary_ja": "メモリから64ビットを上位側へ読み込み、入力の下位側を保持する。",
       "case_call": "_mm_loadh_pd(a, source)"
+    },
+    "sse2.loadl.f32x4.preserve-high": {
+      "name": "_mm_loadl_pi",
+      "intel_symbol": "intel_mm_loadl_pi",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_loadl_pi",
+      "header": "immintrin.h",
+      "prototype": "__m128 _mm_loadl_pi(__m128 a, __m64 const* mem_addr);",
+      "instructions": [
+        "MOVLPS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "下位64bitへメモリを読み込み、上位64bitは保持する。",
+      "summary_en": "Load the lower 64 bits from memory and preserve the other half.",
+      "case_call": "_mm_loadl_pi(a, source)"
     },
     "sse2.loadl.f64x2.preserve-high": {
       "name": "_mm_loadl_pd",
@@ -3018,6 +3103,57 @@
       "summary_ja": "引数に渡した値を下位から上位の順にベクトルへ配置する。",
       "case_call": "_mm_setr_epi8(lane0, lane1, lane2, lane3, lane4, lane5, lane6, lane7, lane8, lane9, lane10, lane11, lane12, lane13, lane14, lane15)"
     },
+    "sse2.setzero.f32x4.default": {
+      "name": "_mm_setzero_ps",
+      "intel_symbol": "intel_mm_setzero_ps",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_setzero_ps",
+      "header": "xmmintrin.h",
+      "prototype": "__m128 _mm_setzero_ps(void);",
+      "instructions": [
+        "XORPS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "すべてのレーンを0にする。",
+      "summary_en": "Set every lane to zero.",
+      "case_call": "_mm_setzero_ps()"
+    },
+    "sse2.setzero.f64x2.default": {
+      "name": "_mm_setzero_pd",
+      "intel_symbol": "intel_mm_setzero_pd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_setzero_pd",
+      "header": "emmintrin.h",
+      "prototype": "__m128d _mm_setzero_pd(void);",
+      "instructions": [
+        "XORPD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "すべてのレーンを0にする。",
+      "summary_en": "Set every lane to zero.",
+      "case_call": "_mm_setzero_pd()"
+    },
+    "sse2.setzero.i32x4.default": {
+      "name": "_mm_setzero_si128",
+      "intel_symbol": "intel_mm_setzero_si128",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_setzero_si128",
+      "header": "emmintrin.h",
+      "prototype": "__m128i _mm_setzero_si128(void);",
+      "instructions": [
+        "PXOR"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "すべてのレーンを0にする。",
+      "summary_en": "Set every lane to zero.",
+      "case_call": "_mm_setzero_si128()"
+    },
     "sse2.shuffle.f32x4.imm8": {
       "name": "_mm_shuffle_ps",
       "intel_symbol": "intel_mm_shuffle_ps",
@@ -3451,6 +3587,23 @@
       "summary_ja": "各整数要素を即値で指定した数だけ論理右シフトする。",
       "case_call": "_mm_srli_epi64(a, imm8)"
     },
+    "sse2.store.f32x4.aligned": {
+      "name": "_mm_store_ps",
+      "intel_symbol": "intel_mm_store_ps",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_store_ps",
+      "header": "immintrin.h",
+      "prototype": "void _mm_store_ps(float* mem_addr, __m128 a);",
+      "instructions": [
+        "MOVAPS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "128bitを16byte整列したメモリへ書き込む。",
+      "summary_en": "Store 128 bits to 16-byte-aligned memory.",
+      "case_call": "_mm_store_ps(destination, a)"
+    },
     "sse2.store.f32x4.scalar": {
       "name": "_mm_store_ss",
       "intel_symbol": "intel_mm_store_ss",
@@ -3466,6 +3619,23 @@
       ],
       "summary_ja": "最下位の浮動小数点要素をメモリへ書き込む。",
       "case_call": "_mm_store_ss(destination, a)"
+    },
+    "sse2.store.f64x2.aligned": {
+      "name": "_mm_store_pd",
+      "intel_symbol": "intel_mm_store_pd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_store_pd",
+      "header": "emmintrin.h",
+      "prototype": "void _mm_store_pd(double* mem_addr, __m128d a);",
+      "instructions": [
+        "MOVAPD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "128bitを16byte整列したメモリへ書き込む。",
+      "summary_en": "Store 128 bits to 16-byte-aligned memory.",
+      "case_call": "_mm_store_pd(destination, a)"
     },
     "sse2.store.f64x2.scalar": {
       "name": "_mm_store_sd",
@@ -3483,6 +3653,40 @@
       "summary_ja": "最下位の浮動小数点要素をメモリへ書き込む。",
       "case_call": "_mm_store_sd(destination, a)"
     },
+    "sse2.store.i32x4.aligned": {
+      "name": "_mm_store_si128",
+      "intel_symbol": "intel_mm_store_si128",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_store_si128",
+      "header": "emmintrin.h",
+      "prototype": "void _mm_store_si128(__m128i* mem_addr, __m128i a);",
+      "instructions": [
+        "MOVDQA"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "128bitを16byte整列したメモリへ書き込む。",
+      "summary_en": "Store 128 bits to 16-byte-aligned memory.",
+      "case_call": "_mm_store_si128(destination, a)"
+    },
+    "sse2.storeh.f32x4.high": {
+      "name": "_mm_storeh_pi",
+      "intel_symbol": "intel_mm_storeh_pi",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_storeh_pi",
+      "header": "immintrin.h",
+      "prototype": "void _mm_storeh_pi(__m64* mem_addr, __m128 a);",
+      "instructions": [
+        "MOVHPS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "上位64bitをメモリへ書き込む。",
+      "summary_en": "Store the upper 64 bits to memory.",
+      "case_call": "_mm_storeh_pi(destination, a)"
+    },
     "sse2.storeh.f64x2.high": {
       "name": "_mm_storeh_pd",
       "intel_symbol": "intel_mm_storeh_pd",
@@ -3498,6 +3702,40 @@
       ],
       "summary_ja": "上位64ビットをメモリへ書き込む。",
       "case_call": "_mm_storeh_pd(destination, a)"
+    },
+    "sse2.storel.f32x4.low": {
+      "name": "_mm_storel_pi",
+      "intel_symbol": "intel_mm_storel_pi",
+      "isa": "SSE",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_storel_pi",
+      "header": "immintrin.h",
+      "prototype": "void _mm_storel_pi(__m64* mem_addr, __m128 a);",
+      "instructions": [
+        "MOVLPS"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "下位64bitをメモリへ書き込む。",
+      "summary_en": "Store the lower 64 bits to memory.",
+      "case_call": "_mm_storel_pi(destination, a)"
+    },
+    "sse2.storel.f64x2.low": {
+      "name": "_mm_storel_pd",
+      "intel_symbol": "intel_mm_storel_pd",
+      "isa": "SSE2",
+      "guide_url": "https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html#text=_mm_storel_pd",
+      "header": "emmintrin.h",
+      "prototype": "void _mm_storel_pd(double* mem_addr, __m128d a);",
+      "instructions": [
+        "MOVLPD"
+      ],
+      "framework_required_isa": [
+        "sse2"
+      ],
+      "summary_ja": "下位64bitをメモリへ書き込む。",
+      "summary_en": "Store the lower 64 bits to memory.",
+      "case_call": "_mm_storel_pd(destination, a)"
     },
     "sse2.storel.i64x2.low": {
       "name": "_mm_storel_epi64",

@@ -94,6 +94,7 @@ class MismatchReportTests(unittest.TestCase):
         parser.feed(html)
         self.assertEqual(parser.external, [])
         self.assertTrue(all(url.startswith("https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html")
+                            or url in {"mismatch-report.html", "mismatch-report.en.html"}
                             for url in parser.external_links))
         self.assertLessEqual(parser.anchors, parser.ids)
         self.assertIn('lang="ja"', html)

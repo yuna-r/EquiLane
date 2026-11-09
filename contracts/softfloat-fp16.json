@@ -1,0 +1,7539 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.softfloat-fp16-candidates",
+  "language": "en",
+  "abi_version": 1,
+  "scope": "117 non-immediate packed FP16 arithmetic and FMA APIs, with merge, zero and mask3 forms. Half values cross the ABI as raw bits. This is an implementation catalog, not conformance evidence.",
+  "byte_order": "little",
+  "input_layout": "Arguments concatenated in signature order without padding.",
+  "intel_reference": "Actual AVX-512 FP16 intrinsic behind a CPU guard; never SoftFloat.",
+  "portable_backend": "Berkeley SoftFloat integer IEEE FP16 with 8086-SSE NaN specialization.",
+  "statuses": {
+    "ok": 0,
+    "unknown_operation": 1,
+    "invalid_buffer": 2,
+    "unsupported_cpu": 3,
+    "fp_environment_error": 4
+  },
+  "guide": {
+    "version": "3.6.9",
+    "date": "07/12/2024",
+    "offline_archive_sha256": "4de3a0c59a944f153f6dc47cfb2d0e455ef16e54a8878f8882db82237947f5e7",
+    "data_js_sha256": "67307df98241728ff14ea2ad4102a3316b4674d7e4629a7293e39952eec59d69",
+    "decoded_xml_sha256": "6762a50652a35ef663fd532ed83b789d19bbc2ac7e94b1771f19d666d96c2c30"
+  },
+  "softfloat_commit": "07ebd29db0cfb55723a79fbbffe99103ef38e305",
+  "softfloat_manifest_sha256": "0bfcb88b33c6508489583823322dc3d4177775ede1a6b7150020aaa6e94e2e12",
+  "candidate_count": 117,
+  "intrinsics": [
+    {
+      "name": "_mm256_add_ph",
+      "ordinal": 0,
+      "operation": "add",
+      "mask_mode": "none",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 64,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_div_ph",
+      "ordinal": 1,
+      "operation": "div",
+      "mask_mode": "none",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 64,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_fmadd_ph",
+      "ordinal": 2,
+      "operation": "fmadd",
+      "mask_mode": "none",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 96,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_fmaddsub_ph",
+      "ordinal": 3,
+      "operation": "fmaddsub",
+      "mask_mode": "none",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 96,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_fmsub_ph",
+      "ordinal": 4,
+      "operation": "fmsub",
+      "mask_mode": "none",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 96,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_fmsubadd_ph",
+      "ordinal": 5,
+      "operation": "fmsubadd",
+      "mask_mode": "none",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 96,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_fnmadd_ph",
+      "ordinal": 6,
+      "operation": "fnmadd",
+      "mask_mode": "none",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 96,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_fnmsub_ph",
+      "ordinal": 7,
+      "operation": "fnmsub",
+      "mask_mode": "none",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 96,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask3_fmadd_ph",
+      "ordinal": 8,
+      "operation": "fmadd",
+      "mask_mode": "mask3",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 96
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask3_fmaddsub_ph",
+      "ordinal": 9,
+      "operation": "fmaddsub",
+      "mask_mode": "mask3",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 96
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask3_fmsub_ph",
+      "ordinal": 10,
+      "operation": "fmsub",
+      "mask_mode": "mask3",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 96
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask3_fmsubadd_ph",
+      "ordinal": 11,
+      "operation": "fmsubadd",
+      "mask_mode": "mask3",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 96
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask3_fnmadd_ph",
+      "ordinal": 12,
+      "operation": "fnmadd",
+      "mask_mode": "mask3",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 96
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask3_fnmsub_ph",
+      "ordinal": 13,
+      "operation": "fnmsub",
+      "mask_mode": "mask3",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 96
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask_add_ph",
+      "ordinal": 14,
+      "operation": "add",
+      "mask_mode": "mask",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 32
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask_div_ph",
+      "ordinal": 15,
+      "operation": "div",
+      "mask_mode": "mask",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 32
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask_fmadd_ph",
+      "ordinal": 16,
+      "operation": "fmadd",
+      "mask_mode": "mask",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 32
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask_fmaddsub_ph",
+      "ordinal": 17,
+      "operation": "fmaddsub",
+      "mask_mode": "mask",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 32
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask_fmsub_ph",
+      "ordinal": 18,
+      "operation": "fmsub",
+      "mask_mode": "mask",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 32
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask_fmsubadd_ph",
+      "ordinal": 19,
+      "operation": "fmsubadd",
+      "mask_mode": "mask",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 32
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask_fnmadd_ph",
+      "ordinal": 20,
+      "operation": "fnmadd",
+      "mask_mode": "mask",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 32
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask_fnmsub_ph",
+      "ordinal": 21,
+      "operation": "fnmsub",
+      "mask_mode": "mask",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 32
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask_mul_ph",
+      "ordinal": 22,
+      "operation": "mul",
+      "mask_mode": "mask",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 32
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask_sqrt_ph",
+      "ordinal": 23,
+      "operation": "sqrt",
+      "mask_mode": "mask",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 32
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 66,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mask_sub_ph",
+      "ordinal": 24,
+      "operation": "sub",
+      "mask_mode": "mask",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 32
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_maskz_add_ph",
+      "ordinal": 25,
+      "operation": "add",
+      "mask_mode": "maskz",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 2
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 66,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_maskz_div_ph",
+      "ordinal": 26,
+      "operation": "div",
+      "mask_mode": "maskz",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 2
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 66,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_maskz_fmadd_ph",
+      "ordinal": 27,
+      "operation": "fmadd",
+      "mask_mode": "maskz",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 2
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_maskz_fmaddsub_ph",
+      "ordinal": 28,
+      "operation": "fmaddsub",
+      "mask_mode": "maskz",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 2
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_maskz_fmsub_ph",
+      "ordinal": 29,
+      "operation": "fmsub",
+      "mask_mode": "maskz",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 2
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_maskz_fmsubadd_ph",
+      "ordinal": 30,
+      "operation": "fmsubadd",
+      "mask_mode": "maskz",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 2
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_maskz_fnmadd_ph",
+      "ordinal": 31,
+      "operation": "fnmadd",
+      "mask_mode": "maskz",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 2
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_maskz_fnmsub_ph",
+      "ordinal": 32,
+      "operation": "fnmsub",
+      "mask_mode": "maskz",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 2
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        },
+        {
+          "name": "c",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 66
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 98,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_maskz_mul_ph",
+      "ordinal": 33,
+      "operation": "mul",
+      "mask_mode": "maskz",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 2
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 66,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_maskz_sqrt_ph",
+      "ordinal": 34,
+      "operation": "sqrt",
+      "mask_mode": "maskz",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 2
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 34,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_maskz_sub_ph",
+      "ordinal": 35,
+      "operation": "sub",
+      "mask_mode": "maskz",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask16",
+          "intel_type": "__mmask16",
+          "portable_type": "__mmask16",
+          "byte_length": 2,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 2
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 34
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 66,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_mul_ph",
+      "ordinal": 36,
+      "operation": "mul",
+      "mask_mode": "none",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 64,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_sqrt_ph",
+      "ordinal": 37,
+      "operation": "sqrt",
+      "mask_mode": "none",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 32,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm256_sub_ph",
+      "ordinal": 38,
+      "operation": "sub",
+      "mask_mode": "none",
+      "lane_count": 16,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m256h",
+          "intel_type": "__m256h",
+          "portable_type": "__m256h",
+          "byte_length": 32,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        }
+      ],
+      "return": {
+        "guide_type": "__m256h",
+        "intel_type": "__m256h",
+        "portable_type": "__m256h",
+        "byte_length": 32,
+        "kind": "vector"
+      },
+      "input_byte_length": 64,
+      "output_byte_length": 32,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_add_ph",
+      "ordinal": 39,
+      "operation": "add",
+      "mask_mode": "none",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 128,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_div_ph",
+      "ordinal": 40,
+      "operation": "div",
+      "mask_mode": "none",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 128,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_fmadd_ph",
+      "ordinal": 41,
+      "operation": "fmadd",
+      "mask_mode": "none",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 128
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 192,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_fmaddsub_ph",
+      "ordinal": 42,
+      "operation": "fmaddsub",
+      "mask_mode": "none",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 128
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 192,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_fmsub_ph",
+      "ordinal": 43,
+      "operation": "fmsub",
+      "mask_mode": "none",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 128
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 192,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_fmsubadd_ph",
+      "ordinal": 44,
+      "operation": "fmsubadd",
+      "mask_mode": "none",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 128
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 192,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_fnmadd_ph",
+      "ordinal": 45,
+      "operation": "fnmadd",
+      "mask_mode": "none",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 128
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 192,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_fnmsub_ph",
+      "ordinal": 46,
+      "operation": "fnmsub",
+      "mask_mode": "none",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 128
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 192,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask3_fmadd_ph",
+      "ordinal": 47,
+      "operation": "fmadd",
+      "mask_mode": "mask3",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 128
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 192
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask3_fmaddsub_ph",
+      "ordinal": 48,
+      "operation": "fmaddsub",
+      "mask_mode": "mask3",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 128
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 192
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask3_fmsub_ph",
+      "ordinal": 49,
+      "operation": "fmsub",
+      "mask_mode": "mask3",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 128
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 192
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask3_fmsubadd_ph",
+      "ordinal": 50,
+      "operation": "fmsubadd",
+      "mask_mode": "mask3",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 128
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 192
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask3_fnmadd_ph",
+      "ordinal": 51,
+      "operation": "fnmadd",
+      "mask_mode": "mask3",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 128
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 192
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask3_fnmsub_ph",
+      "ordinal": 52,
+      "operation": "fnmsub",
+      "mask_mode": "mask3",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 128
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 192
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask_add_ph",
+      "ordinal": 53,
+      "operation": "add",
+      "mask_mode": "mask",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 64
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask_div_ph",
+      "ordinal": 54,
+      "operation": "div",
+      "mask_mode": "mask",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 64
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask_fmadd_ph",
+      "ordinal": 55,
+      "operation": "fmadd",
+      "mask_mode": "mask",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 64
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask_fmaddsub_ph",
+      "ordinal": 56,
+      "operation": "fmaddsub",
+      "mask_mode": "mask",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 64
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask_fmsub_ph",
+      "ordinal": 57,
+      "operation": "fmsub",
+      "mask_mode": "mask",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 64
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask_fmsubadd_ph",
+      "ordinal": 58,
+      "operation": "fmsubadd",
+      "mask_mode": "mask",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 64
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask_fnmadd_ph",
+      "ordinal": 59,
+      "operation": "fnmadd",
+      "mask_mode": "mask",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 64
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask_fnmsub_ph",
+      "ordinal": 60,
+      "operation": "fnmsub",
+      "mask_mode": "mask",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 64
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask_mul_ph",
+      "ordinal": 61,
+      "operation": "mul",
+      "mask_mode": "mask",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 64
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask_sqrt_ph",
+      "ordinal": 62,
+      "operation": "sqrt",
+      "mask_mode": "mask",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 64
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 132,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mask_sub_ph",
+      "ordinal": 63,
+      "operation": "sub",
+      "mask_mode": "mask",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 64
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_maskz_add_ph",
+      "ordinal": 64,
+      "operation": "add",
+      "mask_mode": "maskz",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 4
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 132,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_maskz_div_ph",
+      "ordinal": 65,
+      "operation": "div",
+      "mask_mode": "maskz",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 4
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 132,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_maskz_fmadd_ph",
+      "ordinal": 66,
+      "operation": "fmadd",
+      "mask_mode": "maskz",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 4
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_maskz_fmaddsub_ph",
+      "ordinal": 67,
+      "operation": "fmaddsub",
+      "mask_mode": "maskz",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 4
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_maskz_fmsub_ph",
+      "ordinal": 68,
+      "operation": "fmsub",
+      "mask_mode": "maskz",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 4
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_maskz_fmsubadd_ph",
+      "ordinal": 69,
+      "operation": "fmsubadd",
+      "mask_mode": "maskz",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 4
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_maskz_fnmadd_ph",
+      "ordinal": 70,
+      "operation": "fnmadd",
+      "mask_mode": "maskz",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 4
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_maskz_fnmsub_ph",
+      "ordinal": 71,
+      "operation": "fnmsub",
+      "mask_mode": "maskz",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 4
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        },
+        {
+          "name": "c",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 132
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 196,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_maskz_mul_ph",
+      "ordinal": 72,
+      "operation": "mul",
+      "mask_mode": "maskz",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 4
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 132,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_maskz_sqrt_ph",
+      "ordinal": 73,
+      "operation": "sqrt",
+      "mask_mode": "maskz",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 4
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 68,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_maskz_sub_ph",
+      "ordinal": 74,
+      "operation": "sub",
+      "mask_mode": "maskz",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask32",
+          "intel_type": "__mmask32",
+          "portable_type": "__mmask32",
+          "byte_length": 4,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 4
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 68
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 132,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_mul_ph",
+      "ordinal": 75,
+      "operation": "mul",
+      "mask_mode": "none",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 128,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_sqrt_ph",
+      "ordinal": 76,
+      "operation": "sqrt",
+      "mask_mode": "none",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 64,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm512_sub_ph",
+      "ordinal": 77,
+      "operation": "sub",
+      "mask_mode": "none",
+      "lane_count": 32,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16"
+      ],
+      "intel_target_features": [
+        "avx512fp16"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m512h",
+          "intel_type": "__m512h",
+          "portable_type": "__m512h",
+          "byte_length": 64,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 64
+        }
+      ],
+      "return": {
+        "guide_type": "__m512h",
+        "intel_type": "__m512h",
+        "portable_type": "__m512h",
+        "byte_length": 64,
+        "kind": "vector"
+      },
+      "input_byte_length": 128,
+      "output_byte_length": 64,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_add_ph",
+      "ordinal": 78,
+      "operation": "add",
+      "mask_mode": "none",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 32,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_div_ph",
+      "ordinal": 79,
+      "operation": "div",
+      "mask_mode": "none",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 32,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_fmadd_ph",
+      "ordinal": 80,
+      "operation": "fmadd",
+      "mask_mode": "none",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 48,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_fmaddsub_ph",
+      "ordinal": 81,
+      "operation": "fmaddsub",
+      "mask_mode": "none",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 48,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_fmsub_ph",
+      "ordinal": 82,
+      "operation": "fmsub",
+      "mask_mode": "none",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 48,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_fmsubadd_ph",
+      "ordinal": 83,
+      "operation": "fmsubadd",
+      "mask_mode": "none",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 48,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_fnmadd_ph",
+      "ordinal": 84,
+      "operation": "fnmadd",
+      "mask_mode": "none",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 48,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_fnmsub_ph",
+      "ordinal": 85,
+      "operation": "fnmsub",
+      "mask_mode": "none",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 48,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask3_fmadd_ph",
+      "ordinal": 86,
+      "operation": "fmadd",
+      "mask_mode": "mask3",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 48
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask3_fmaddsub_ph",
+      "ordinal": 87,
+      "operation": "fmaddsub",
+      "mask_mode": "mask3",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 48
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask3_fmsub_ph",
+      "ordinal": 88,
+      "operation": "fmsub",
+      "mask_mode": "mask3",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 48
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask3_fmsubadd_ph",
+      "ordinal": 89,
+      "operation": "fmsubadd",
+      "mask_mode": "mask3",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 48
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask3_fnmadd_ph",
+      "ordinal": 90,
+      "operation": "fnmadd",
+      "mask_mode": "mask3",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 48
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask3_fnmsub_ph",
+      "ordinal": 91,
+      "operation": "fnmsub",
+      "mask_mode": "mask3",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 32
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 48
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask_add_ph",
+      "ordinal": 92,
+      "operation": "add",
+      "mask_mode": "mask",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 16
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask_div_ph",
+      "ordinal": 93,
+      "operation": "div",
+      "mask_mode": "mask",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 16
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask_fmadd_ph",
+      "ordinal": 94,
+      "operation": "fmadd",
+      "mask_mode": "mask",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 16
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask_fmaddsub_ph",
+      "ordinal": 95,
+      "operation": "fmaddsub",
+      "mask_mode": "mask",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 16
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask_fmsub_ph",
+      "ordinal": 96,
+      "operation": "fmsub",
+      "mask_mode": "mask",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 16
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask_fmsubadd_ph",
+      "ordinal": 97,
+      "operation": "fmsubadd",
+      "mask_mode": "mask",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 16
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask_fnmadd_ph",
+      "ordinal": 98,
+      "operation": "fnmadd",
+      "mask_mode": "mask",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 16
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask_fnmsub_ph",
+      "ordinal": 99,
+      "operation": "fnmsub",
+      "mask_mode": "mask",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 16
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask_mul_ph",
+      "ordinal": 100,
+      "operation": "mul",
+      "mask_mode": "mask",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 16
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask_sqrt_ph",
+      "ordinal": 101,
+      "operation": "sqrt",
+      "mask_mode": "mask",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 16
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 33,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mask_sub_ph",
+      "ordinal": 102,
+      "operation": "sub",
+      "mask_mode": "mask",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "src",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 16
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_maskz_add_ph",
+      "ordinal": 103,
+      "operation": "add",
+      "mask_mode": "maskz",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 1
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 33,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_maskz_div_ph",
+      "ordinal": 104,
+      "operation": "div",
+      "mask_mode": "maskz",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 1
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 33,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_maskz_fmadd_ph",
+      "ordinal": 105,
+      "operation": "fmadd",
+      "mask_mode": "maskz",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 1
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_maskz_fmaddsub_ph",
+      "ordinal": 106,
+      "operation": "fmaddsub",
+      "mask_mode": "maskz",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 1
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_maskz_fmsub_ph",
+      "ordinal": 107,
+      "operation": "fmsub",
+      "mask_mode": "maskz",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 1
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_maskz_fmsubadd_ph",
+      "ordinal": 108,
+      "operation": "fmsubadd",
+      "mask_mode": "maskz",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 1
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_maskz_fnmadd_ph",
+      "ordinal": 109,
+      "operation": "fnmadd",
+      "mask_mode": "maskz",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 1
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_maskz_fnmsub_ph",
+      "ordinal": 110,
+      "operation": "fnmsub",
+      "mask_mode": "maskz",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 1
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        },
+        {
+          "name": "c",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 33
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 49,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_maskz_mul_ph",
+      "ordinal": 111,
+      "operation": "mul",
+      "mask_mode": "maskz",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 1
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 33,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_maskz_sqrt_ph",
+      "ordinal": 112,
+      "operation": "sqrt",
+      "mask_mode": "maskz",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 1
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 17,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_maskz_sub_ph",
+      "ordinal": 113,
+      "operation": "sub",
+      "mask_mode": "maskz",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "k",
+          "guide_type": "__mmask8",
+          "intel_type": "__mmask8",
+          "portable_type": "__mmask8",
+          "byte_length": 1,
+          "kind": "mask",
+          "element_type": "MASK",
+          "offset": 0
+        },
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 1
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 17
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 33,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_mul_ph",
+      "ordinal": 114,
+      "operation": "mul",
+      "mask_mode": "none",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 32,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_sqrt_ph",
+      "ordinal": 115,
+      "operation": "sqrt",
+      "mask_mode": "none",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 16,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    },
+    {
+      "name": "_mm_sub_ph",
+      "ordinal": 116,
+      "operation": "sub",
+      "mask_mode": "none",
+      "lane_count": 8,
+      "technology": "AVX-512",
+      "cpuid": [
+        "AVX512_FP16",
+        "AVX512VL"
+      ],
+      "intel_target_features": [
+        "avx512fp16",
+        "avx512vl"
+      ],
+      "categories": [
+        "Arithmetic"
+      ],
+      "arguments": [
+        {
+          "name": "a",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 0
+        },
+        {
+          "name": "b",
+          "guide_type": "__m128h",
+          "intel_type": "__m128h",
+          "portable_type": "__m128h",
+          "byte_length": 16,
+          "kind": "vector",
+          "element_type": "FP16",
+          "offset": 16
+        }
+      ],
+      "return": {
+        "guide_type": "__m128h",
+        "intel_type": "__m128h",
+        "portable_type": "__m128h",
+        "byte_length": 16,
+        "kind": "vector"
+      },
+      "input_byte_length": 32,
+      "output_byte_length": 16,
+      "status": "source_implementation_not_execution_evidence"
+    }
+  ]
+}

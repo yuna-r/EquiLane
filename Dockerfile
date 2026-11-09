@@ -26,6 +26,8 @@ COPY CMakeLists.txt equilane.toml ioitf.toml ./
 COPY adapters ./adapters
 COPY include ./include
 COPY contracts ./contracts
+COPY vendor ./vendor
+COPY tools ./tools
 COPY 10_official_suite ./10_official_suite
 COPY tests ./tests
 COPY docker ./docker

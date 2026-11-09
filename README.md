@@ -1,10 +1,16 @@
 # EquiLane
 
+[日本語](README.md) | [English](README.en.md)
+
 **Intel Intrinsicsが、他のCPU向けに正しくポートされているかを検証するツールです。**
 
 Intel Intrinsics GuideとIntel側の実行結果を基準に、OpenPOWER・ARM64 NEON・RISC-V RVVの
-移植実装が同じ振る舞いを再現できているか確認します。254操作の実装、入力生成、ビット単位の比較、
+移植実装が同じ振る舞いを再現できているか確認します。268操作の実装、入力生成、ビット単位の比較、
 不一致の再実行、HTMLレポートを収録しています。
+
+**268操作はIntel Intrinsics Guide全体ではありません。** Guide 3.6.9の7,126名称のうち268名称を登録しています。
+SVMLを除くSSEには未登録78名称、SSE2には未登録46名称があります。別名・マクロも名称ごとに数えた
+[収録範囲と未登録一覧](documentation/intrinsic-coverage.json)を公開しています。
 
 [公開ガイド・レポート](https://yuna-r.github.io/EquiLane/)
 
@@ -58,13 +64,32 @@ NaNの符号・payload、signed zeroなどの差も、そのまま比較結果�
 
 | 経路 | 既定の入力数 | 主な成果物 |
 |---|---:|---|
-| raw C wrapperを直接呼ぶ | 254操作 × 3入力 = 762件 / 対象 | `<role>/outputs.jsonl`、`compare-<role>.json` |
-| 共通C ABIへJSON入力を渡す | 254操作 × 8入力 = 2,032件 / 対象 | `native/<role>/`、`canonical/compare-<role>/` |
+| raw C wrapperを直接呼ぶ | 268操作 × 3入力 = 804件 / 対象 | `<role>/outputs.jsonl`、`compare-<role>.json` |
+| 共通C ABIへJSON入力を渡す | 265操作 × 8入力 + setzero 3入力 = 2,123件 / 対象 | `native/<role>/`、`canonical/compare-<role>/` |
 
 共通C ABIの経路はCPU・FP設定を事前確認し、隔離workerで実行します。
 ビルド証跡と、case・symbol・入力・結果を結ぶtraceabilityも保存します。
 RISC-V以外のDockerホストでは、VLEN 128 / 256の両方を確認します。
 件数と成否の機械可読な集計は `pipeline-summary.json` にあります。
+
+移植の見落としを詳しく探す場合は、境界値を増やした `adversarial` を選べます。
+
+```sh
+EQUILANE_PROFILE=adversarial ./docker/run.sh all artifacts/adversarial
+```
+
+既定で **1対象あたり135,427入力**、通常の8入力設定の約63.8倍を実行します。264操作は512入力、3つのsetzero操作は各1入力、
+入力が8bit値1個の `_mm_set1_epi8` は、存在する全256入力を調べます。
+整数の桁あふれ境界・各bit・レーン順序、±0・subnormal・NaNの符号とpayload、
+変換や丸めの境界、許可済みの全即値、非整列メモリと前後の保護領域を含めます。
+同じ入力を全対象へ渡すため、Intelに対する移植の不一致を再現できます。
+
+入力側の `adversarial-coverage.json` には、実際に含めた入力のhashと、
+各検証軸の収録数・未収録の境界値を保存します。512入力で全組合せを網羅したという意味ではありません。
+さらに増やす場合は `EQUILANE_COUNT_PER_CASE=2048` などを追加できます。
+この収録率と、C実装を実行して一致した割合は別に確認してください。
+大量の不一致も全件判定し、`differences.jsonl` へ保存します。
+HTMLの詳細表示と個別の再実行用ファイルは、既定では各比較の先頭128件までです。
 
 テスト工程までまとめて実行する場合：
 

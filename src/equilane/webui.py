@@ -134,7 +134,7 @@ _DASHBOARD = r'''<!doctype html>
   <main class="studio">
     <header class="masthead">
       <div class="brand"><span class="brand-mark" aria-hidden="true">≡</span><div><h1>EquiLane</h1><p>実行して、比べて、レポートへ。</p></div></div>
-      <div class="masthead-note"><span>Small checks. Clear reports.</span>{{MASCOT}}<span class="local-pill">LOCAL STUDIO</span></div>
+      <div class="masthead-note"><nav aria-label="Language"><a href="?lang=ja" lang="ja">Japanese</a> / <a href="?lang=en" lang="en">English</a></nav><span>Small checks. Clear reports.</span>{{MASCOT}}<span class="local-pill">LOCAL STUDIO</span></div>
     </header>
     <noscript><p>この画面で実行・履歴表示を使うにはJavaScriptを有効にしてください。保存済みのHTMLレポートは単体でも開けます。</p></noscript>
     <div class="notice" id="api-notice" role="alert" hidden><p id="api-error"></p><button id="retry-button" type="button">再接続</button></div>
@@ -150,7 +150,7 @@ _DASHBOARD = r'''<!doctype html>
                 <label for="target-arm"><input id="target-arm" name="targets" value="arm" type="checkbox">ARM64 / NEON</label>
                 <label for="target-riscv"><input id="target-riscv" name="targets" value="riscv" type="checkbox">RISC-V64 / RVV 1.0</label>
               </fieldset>
-              <div class="field"><label for="profile">チェックの種類</label><select id="profile" name="profile"><option value="smoke">さくっと / Smoke</option><option value="standard">しっかり / Standard</option><option value="stress">たっぷり / Stress</option></select></div>
+              <div class="field"><label for="profile">チェックの種類</label><select id="profile" name="profile"><option value="smoke">さくっと / Smoke</option><option value="standard">しっかり / Standard</option><option value="adversarial">境界を重点検証 / Adversarial</option><option value="stress">たっぷり / Stress</option></select></div>
               <div class="field-row">
                 <div class="field"><label for="count">入力数 / ケース</label><input id="count" name="count_per_case" type="number" value="8" min="1" max="100000" step="1" required inputmode="numeric" aria-describedby="count-hint"></div>
                 <div class="field"><label for="jobs">並列実行</label><select id="jobs" name="jobs"><option value="1">1つずつ</option><option value="auto">自動</option></select></div>
@@ -192,7 +192,7 @@ _DASHBOARD = r'''<!doctype html>
     const el = id => document.getElementById(id);
     const state = {reports: [], selectedId: null, busy: true, submitting: false, completedJob: null, timer: null, outputJob: null, followOutput: true};
     const number = value => value !== null && value !== undefined && value !== '' && Number.isFinite(Number(value)) ? Number(value).toLocaleString('ja-JP') : '—';
-    const defaults = {smoke: 8, standard: 1000, stress: 100000};
+    const defaults = {smoke: 8, standard: 1000, adversarial: 512, stress: 100000};
     const targetRoles = ['openpower', 'arm', 'riscv'];
     const targetNames = {openpower: 'OpenPOWER', arm: 'ARM64 / NEON', riscv: 'RISC-V64 / RVV'};
     const formatDate = value => {
@@ -241,7 +241,8 @@ _DASHBOARD = r'''<!doctype html>
       targets.forEach(role => { if (targetNames[role]) addBadge(container, [targetNames[role], 'neutral']); });
     };
     const selectReport = report => {
-      const url = reportURL(report.url);
+      let url = reportURL(report.url);
+      if (url && document.documentElement.lang === 'en') url = url.replace(/\.html(?=$|[?#])/, '.en.html');
       if (!url) { notice('このレポートのURLを開けません。履歴を再取得してください。'); return; }
       state.selectedId = report.id;
       el('report-title').textContent = 'レポートを読む';
@@ -410,6 +411,8 @@ _DASHBOARD = r'''<!doctype html>
 '''
 
 
-def render_dashboard() -> str:
-    """Return the local dashboard without external assets or user-supplied HTML."""
-    return _DASHBOARD.replace("{{MASCOT}}", mascot_markup())
+def render_dashboard(*, language: str = "ja") -> str:
+    """Return a self-contained dashboard in Japanese or English."""
+    from .i18n import translate_html
+    html = _DASHBOARD.replace("{{MASCOT}}", mascot_markup())
+    return translate_html(html, language=language, strict=language == "en")

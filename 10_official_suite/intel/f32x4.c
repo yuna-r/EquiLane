@@ -165,3 +165,39 @@ void intel_storer_f32x4(void *destination, f32x4 a)
 {
     _mm_storer_ps((float *)destination, a);
 }
+
+/* Aligned memory and zero constructors added to the encoded case registry. */
+f32x4 intel_setzero_f32x4(void)
+{
+    return _mm_setzero_ps();
+}
+
+f32x4 intel_load_f32x4(const void *source)
+{
+    return _mm_load_ps((const float *)source);
+}
+
+void intel_store_f32x4(void *destination, f32x4 a)
+{
+    _mm_store_ps((float *)destination, a);
+}
+
+f32x4 intel_loadh_f32x4(f32x4 a, const void *source)
+{
+    return _mm_loadh_pi(a, (const __m64 *)source);
+}
+
+void intel_storeh_f32x4(void *destination, f32x4 a)
+{
+    _mm_storeh_pi((__m64 *)destination, a);
+}
+
+f32x4 intel_loadl_f32x4(f32x4 a, const void *source)
+{
+    return _mm_loadl_pi(a, (const __m64 *)source);
+}
+
+void intel_storel_f32x4(void *destination, f32x4 a)
+{
+    _mm_storel_pi((__m64 *)destination, a);
+}

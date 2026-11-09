@@ -1,22 +1,24 @@
 # OpenPOWER examples
 
+[日本語](README.md) | [English](README.en.md)
+
 <p>
   <img alt="OpenPOWER" src="https://img.shields.io/badge/OpenPOWER-POWER8-cb2027?style=flat">
   <img alt="VSX" src="https://img.shields.io/badge/vector-VSX-f7b500?style=flat">
   <img alt="ppc64le" src="https://img.shields.io/badge/arch-ppc64le-5c6bc0?style=flat">
 </p>
 
-Intel IntrinsicをOpenPOWERへ移すときの中心部分を、全146ケース分まとめました。
+Intel IntrinsicをOpenPOWERへ移すときの中心部分を、全254ケース分まとめました。
 細切れにしすぎず、データ型ごとの塊で読めます。
 
 ```text
 openpower/
-├── f32x4.c  18 operations // arithmetic, compare, bit casts, conversion, lane, mask
-├── f64x2.c  40 operations // arithmetic, bit, construct, lane, compare, conversion, memory
-├── i8x16.c  19 operations // arithmetic, saturation, average, SAD, shift, mask
-├── i16x8.c  31 operations // arithmetic, multiply, average, shift, pack, lane
-├── i32x4.c  25 operations // arithmetic, logic, compare, shift, construct, lane
-└── i64x2.c  13 operations // arithmetic, shift, construct, lane
+├── f32x4.c  83 operations // arithmetic, compare, bit casts, conversion, lane, mask
+├── f64x2.c  75 operations // arithmetic, bit, construct, lane, compare, conversion, memory
+├── i8x16.c  21 operations // arithmetic, saturation, average, SAD, shift, mask
+├── i16x8.c  33 operations // arithmetic, multiply, average, shift, pack, lane
+├── i32x4.c  27 operations // arithmetic, logic, compare, shift, construct, lane
+└── i64x2.c  15 operations // arithmetic, shift, construct, lane
 ```
 
 | Family | Intel Intrinsics | OpenPOWER expression |

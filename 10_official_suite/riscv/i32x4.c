@@ -112,3 +112,19 @@ void riscv_storeu_i32x4(void *destination, i32x4 a)
         ((u32x4)a)[0], ((u32x4)a)[1], ((u32x4)a)[2], ((u32x4)a)[3]};
     __builtin_memcpy(destination, values, sizeof(values));
 }
+
+/* Aligned memory and zero constructors added to the encoded case registry. */
+i32x4 riscv_setzero_i32x4(void)
+{
+    return rvv_splats(0);
+}
+
+i32x4 riscv_load_i32x4(const void *source)
+{
+    return riscv_loadu_i32x4(__builtin_assume_aligned(source, 16));
+}
+
+void riscv_store_i32x4(void *destination, i32x4 a)
+{
+    riscv_storeu_i32x4(__builtin_assume_aligned(destination, 16), a);
+}

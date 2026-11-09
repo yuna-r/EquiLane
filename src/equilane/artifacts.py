@@ -48,7 +48,7 @@ from .records import (
 from .targets import FP_CONTROL_KEYS, TARGETS
 
 
-PROFILES = {"smoke", "standard", "exhaustive-small", "stress"}
+PROFILES = {"smoke", "standard", "exhaustive-small", "stress", "adversarial"}
 ROLE_FILES = {role: (target.results_file, target.manifest_file, target.architecture)
               for role, target in TARGETS.items()}
 ABI_VERSION = 1
