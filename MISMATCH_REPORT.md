@@ -365,7 +365,7 @@ OpenPOWER実機の出力をこの記録では測定していません。JSONのO
 共通ABIに接続済みなのはadd / set1 / shuffleの3例です。
 RISC-V encoded adapterはcross compile済みですが、Linux libc / fenvとのlink・実行は未検証です。
 cross buildやraw wrapperの実行だけで、仕様に適合するnative結果manifest一式が完成したとは
-主張しません。詳細は [`NATIVE_STATUS.md`](NATIVE_STATUS.md) を参照してください。
+主張しません。詳細は [Native status](documentation/native-status.json) を参照してください。
 
 ## 8. 再現手順
 

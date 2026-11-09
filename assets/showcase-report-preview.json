@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.report-preview",
+  "generated_date": "2026-11-10",
+  "presentation": "SVG reconstruction of current report sections, not a browser screenshot",
+  "scope": {
+    "reference": "intel",
+    "target": "arm",
+    "native_encoded_abi": true,
+    "case_count": 254,
+    "input_count": 2032,
+    "inputs_per_case": 8,
+    "observed_inputs_only": true,
+    "execution_errors": 0,
+    "unsupported": 0,
+    "invalid_inputs": 0,
+    "matched_inputs": 2016,
+    "mismatched_inputs": 16,
+    "not_comparable_inputs": 0,
+    "match_rate_percent_display": "99.21",
+    "outcome": "mismatch",
+    "purpose": "Intel Intrinsics port conformance against the selected case contracts"
+  },
+  "example": {
+    "case_id": "sse2.cvt.f32x4.i32x4",
+    "input_id": "0156f8264ecaa3f888da4a582b1bd9b5fb21a9a3364bd5e97ed6110df3e165c6",
+    "input_lane": 2,
+    "input_bits": "0x7f7fffff",
+    "intel_bits": "0x80000000",
+    "arm_bits": "0x7fffffff",
+    "xor": "0xffffffff",
+    "rounding": "nearest_even",
+    "fp_mode": "ieee",
+    "comparison_mode": "bit_exact"
+  },
+  "source_artifacts": [
+    {
+      "path": "artifacts/docker-complete/canonical/compare-arm/summary.json",
+      "sha256": "251f4e0a3f6e539393eb8a898dea7688f45d845ab16a50b93c709674c1a9a0c9"
+    },
+    {
+      "path": "artifacts/docker-complete/vectors/test-vectors.manifest.json",
+      "sha256": "1da7230d35e429f8c3391075e1b992c4d4c4c6f6b41d3cbd8943e54a62f24e06"
+    },
+    {
+      "path": "artifacts/docker-complete/native/intel/intel-results.manifest.json",
+      "sha256": "fae6231282dee043e7754a43e7dd5e144ad5aeb000bf3cacf57949d71c24106c"
+    },
+    {
+      "path": "artifacts/docker-complete/native/arm/arm-results.manifest.json",
+      "sha256": "f133ac70035b2f5ca71345cb68a18ede711387edc78706de6f6f384f4d2e8fc6"
+    },
+    {
+      "path": "artifacts/docker-complete/canonical/compare-arm/failures/0156f8264ecaa3f888da4a582b1bd9b5fb21a9a3364bd5e97ed6110df3e165c6/failure.json",
+      "sha256": "4706f4fffbac8657a57346e849c14c4fd968c58ce860c083355f55a7ae7f7d13"
+    },
+    {
+      "path": "src/equilane/data/intel-intrinsics.json",
+      "sha256": "afc1fbb65ac5111266ae16c577a92f66f23b32632cabf6d963cce61e82ce3b8a"
+    },
+    {
+      "path": "src/equilane/showcase.py",
+      "sha256": "8afaf45a993b6a2ba4957119e510fe713bef2ba43280f3937d6d9aeecf27d4c6"
+    }
+  ],
+  "guide_catalog": {
+    "version": "3.6.9",
+    "date": "07/12/2024"
+  },
+  "note": "Mismatch is an unmet port contract. Native execution completion does not imply conformance; Docker/QEMU provenance remains in the authenticated result manifests."
+}

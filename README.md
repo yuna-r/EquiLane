@@ -1,77 +1,115 @@
 # EquiLane
 
-**Intrinsics Equivalence Testing**
+**Intel Intrinsicsが、他のCPU向けに正しくポートされているかを検証するツールです。**
 
-Intel Intrinsics と OpenPOWER・ARM64 NEON・RISC-V64 RVV の実装を、同じ入力で見比べるツールです。
-254のケースと、結果をまとめるHTMLレポートを収録しています。
+Intel Intrinsics GuideとIntel側の実行結果を基準に、OpenPOWER・ARM64 NEON・RISC-V RVVの
+移植実装が同じ振る舞いを再現できているか確認します。254操作の実装、入力生成、ビット単位の比較、
+不一致の再実行、HTMLレポートを収録しています。
 
-![EquiLane report](assets/showcase-report-preview.svg)
+[公開ガイド・レポート](https://yuna-r.github.io/EquiLane/)
 
-レポートには比較結果、ケース一覧、独立したモデル検証の不一致をまとめています。
-ケースを検索して絞り込めます。外部の画像やフォントに依存しない、1ファイルのHTMLです。
+## まず4環境で比較する
 
-## 使う
+検証環境は **Ubuntu 26.04 LTS のDocker** に揃えています。
+DockerとBuildxを用意し、このリポジトリのルートで実行してください。
+異種CPUを動かすための設定は [Dockerガイド](docker/guide.json) にあります。
 
-Python 3.11以上が必要です。
+```sh
+./docker/run.sh all
+```
+
+各イメージのビルド、C実装の実行、Intelとの比較を行います。
+初回はコンパイラなどの準備に時間がかかります。完了後、次のファイルを開きます。
+
+```text
+artifacts/docker/pipeline-report.html
+```
+
+| 対象 | C実装の命令セット | Docker platform |
+|---|---|---|
+| Intel | SSE2 | `linux/amd64` |
+| OpenPOWER | POWER8 / VSX | `linux/ppc64le` |
+| ARM64 | NEON | `linux/arm64` |
+| RISC-V64 | RVV 1.0 | `linux/riscv64` |
+
+ホストと同じCPUは直接、異なるCPUはエミュレータで実行します。
+エミュレータの結果は、その実行環境での観測として記録します。
+全種類の物理CPUを揃えて測定した結果ではありません。
+
+## Intel Intrinsics Guideから結果を読む
+
+たとえば `_mm_add_pd` を調べる場合は、次の順に辿れます。
+
+1. Guideのprototypeで引数と戻り値を、Operationで計算内容を確認する。
+2. EquiLaneの [add-f64x2のcase](10_official_suite/cases/add-f64x2.py) で、入力型・比較方法・各対象のsymbolを確認する。
+3. レポートでそのcaseを探し、Intelと比較対象の出力を見る。不一致なら入力値・期待ビット・実測ビットを辿る。
+
+Guideのintrinsic名と、EquiLaneのcase ID・実装symbolを対応付けています。
+GuideにあるISA情報と、各CPU向け実装の必要ISAはそれぞれ記録します。
+NaNの符号・payload、signed zeroなどの差も、そのまま比較結果に残します。
+
+**終了コード1は、検証した範囲でIntel側と一致しない結果が見つかったことを表します。**
+ケース契約が要求する振る舞いを満たしているか、移植実装を確認する必要があります。
+レポートの実行エラー・unsupported・入力不正は別に表示されるので、まずどの種類の結果か確認してください。
+
+## 何件を、どの経路で調べるか
+
+`all` は、次の2つの経路を実行します。
+
+| 経路 | 既定の入力数 | 主な成果物 |
+|---|---:|---|
+| raw C wrapperを直接呼ぶ | 254操作 × 3入力 = 762件 / 対象 | `<role>/outputs.jsonl`、`compare-<role>.json` |
+| 共通C ABIへJSON入力を渡す | 254操作 × 8入力 = 2,032件 / 対象 | `native/<role>/`、`canonical/compare-<role>/` |
+
+共通C ABIの経路はCPU・FP設定を事前確認し、隔離workerで実行します。
+ビルド証跡と、case・symbol・入力・結果を結ぶtraceabilityも保存します。
+RISC-V以外のDockerホストでは、VLEN 128 / 256の両方を確認します。
+件数と成否の機械可読な集計は `pipeline-summary.json` にあります。
+
+テスト工程までまとめて実行する場合：
+
+```sh
+./docker/run.sh verify
+```
+
+`verify` は、各CPU向けのCMake/CTestと、Python回帰、ブラウザ動作、sanitizer、cross buildを追加します。
+portable modelにはNaN・丸め処理の既知の不一致があります。これらも検証結果に残すため、
+工程が動作していても結果全体が不一致になる場合があります。
+
+## 開発用の画面を使う
+
+```sh
+docker compose up --build studio
+```
+
+[localhost:8765](http://localhost:8765) で入力生成やレポート表示を試せます。
+Studioの `check` は、共通Pythonモデルを使う開発用fixtureです。
+4種類のC実装を比較する場合は `docker/run.sh` を使います。
+
+Python 3.11以上の環境へ直接インストールすることもできます。
 
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e .
-
-equilane serve
-```
-
-[localhost:8765](http://localhost:8765) を開くと、新しい検証を実行し、
-過去のレポートも見返せます。画面で比較対象を選べます。出力先は `.equilane/checks/` です。
-
-端末から直接レポートを作る場合：
-
-```sh
 equilane check --target all --showcase-report
 ```
 
-最後に表示される `showcase_report` のHTMLをブラウザで開きます。
-`--target arm` / `--target riscv` で個別に指定できます。省略時はOpenPOWERです。
+![Intel→ARM64移植適合性レポートの抜粋](assets/showcase-report-preview.svg)
 
-独立したモデル検証、sanitizer、cross buildも含める場合：
+## 詳しく調べる・ケースを追加する
 
-```sh
-equilane check --project equilane.toml --quality --showcase-report
-```
+- [Dockerの設定と実行方法](docker/guide.json)
+- [開発・case追加・native replayの手順](documentation/development.json)
+- [native機能と検証の記録](documentation/native-status.json)
+- [全工程の完了条件と証跡](documentation/native-contract.json)
+- [既知の不一致の詳細](MISMATCH_REPORT.md)
 
-現在のportable modelには、NaNと丸め処理の既知の不一致があります。
-`--quality` はこれらをレポートに記録し、検証失敗として終了します。
-原因別の件数・ビット差・CPU向け実装の観測は [不一致の詳細レポート](MISMATCH_REPORT.md)、
-テストの構成は [バグ探索用テスト](tests/BUG_HUNT.md) にあります。
-カバレッジは既定では計測しません。必要な場合だけ上のコマンドに `--coverage` を追加します。
-
-入力を増やして比較する場合：
-
-```sh
-equilane check --profile standard --count-per-case 1000 --jobs auto --showcase-report
-```
-
-## ケースを追加する
-
-```sh
-./10_official_suite/new-case my-add-i32x4 +
-```
-
-生成されるPythonファイル1つに、入力の契約とモデルの宣言をまとめています。
-ケースの書き方や実機adapterについては [開発・検証ガイド](DEVELOPMENT.md) を参照してください。
-
-## 検証の範囲
-
-通常の比較は共通Pythonモデルを使う開発用fixtureです。各CPUの実機間での一致を示す証拠ではありません。
-4環境それぞれに254操作のC実装があり、クロスビルドに対応しています。
-ARM64はこのMac上のNEONテスト、RISC-V64はQEMUのRVVテストで動作を確認しています。
-実機成果物を収集するnative runnerは引き続き開発中です。
-
-従来の `ioitf` コマンド、Python import、`ioitf.toml` も引き続き使えます。
-成果物の `ioitf.*` 識別子とC ABIは、既存データとの互換性のため維持しています。
+従来の `ioitf` コマンド、Python import、`ioitf.toml` も利用できます。
+成果物の `ioitf.*` 識別子とC ABIは互換性のため維持しています。
+READMEはパッケージの説明ファイルとして使い、詳細な仕様・検証記録はJSONにまとめています。
 
 原案：[daisukeokaoss](https://github.com/daisukeokaoss) ·
-[仕様書](https://github.com/daisukeokaoss/ToukaSpecification/blob/a4d888dfdca53d4335a6051bea9df8b9fda9bf35/README.md) · [Native status](NATIVE_STATUS.md) · [Apache-2.0](LICENSE)
+[仕様書](https://github.com/daisukeokaoss/ToukaSpecification/blob/a4d888dfdca53d4335a6051bea9df8b9fda9bf35/README.md) · [Apache-2.0](LICENSE)
 
-仕様書submoduleには元のMITライセンスが適用されます。著作権表示は [NOTICE](NOTICE) を参照してください。
+仕様書submoduleは元のMITライセンスです。著作権表示は [NOTICE](NOTICE) を参照してください。

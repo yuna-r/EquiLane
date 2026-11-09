@@ -1,0 +1,103 @@
+name: Verification reports
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages-reports
+  cancel-in-progress: false
+
+jobs:
+  reports:
+    name: Build all architecture reports
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    outputs:
+      verification_exit: ${{ steps.verify.outputs.exit_code || '2' }}
+      artifact_ready: ${{ steps.upload.outcome == 'success' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up CPU emulation
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64,ppc64le,riscv64
+          image: docker.io/tonistiigi/binfmt:latest
+      - name: Verify Docker pipeline
+        id: verify
+        shell: bash
+        env:
+          EQUILANE_GIT_COMMIT: ${{ github.sha }}
+          EQUILANE_JOBS: '2'
+        run: |
+          set +e
+          ./docker/run.sh verify artifacts/docker-ci
+          result=$?
+          echo "exit_code=$result" >> "$GITHUB_OUTPUT"
+          if [ "$result" -eq 1 ]; then
+            echo "::warning::Verification found semantic or portable-model mismatches; publishing their report."
+          elif [ "$result" -gt 1 ]; then
+            echo "::warning::Verification encountered test or infrastructure errors; publishing the incomplete report."
+          fi
+          exit 0
+      - name: Export public report files
+        if: always()
+        run: |
+          python3 docker/export_pages.py --input artifacts/docker-ci --output _site \
+            --commit "$REPORT_COMMIT" --repository "$REPORT_REPOSITORY" --run-id "$REPORT_RUN_ID"
+        env:
+          REPORT_COMMIT: ${{ github.sha }}
+          REPORT_REPOSITORY: ${{ github.repository }}
+          REPORT_RUN_ID: ${{ github.run_id }}
+      - name: Upload public Pages artifact
+        id: upload
+        if: always() && hashFiles('_site/index.html') != ''
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    name: Publish reports
+    needs: reports
+    if: always() && needs.reports.outputs.artifact_ready == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Deploy public report artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  verification-status:
+    name: Verification verdict
+    needs: [reports, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preserve the verification verdict after publication
+        env:
+          VERIFICATION_EXIT: ${{ needs.reports.outputs.verification_exit }}
+          REPORT_BUILD: ${{ needs.reports.result }}
+          DEPLOYMENT: ${{ needs.deploy.result }}
+        run: |
+          if [ "$REPORT_BUILD" != success ] || [ "$DEPLOYMENT" != success ]; then
+            echo "::error::Report generation or publication did not complete."
+            exit 1
+          fi
+          case "$VERIFICATION_EXIT" in
+            0) echo "All verification stages passed." ;;
+            1) echo "::error::Published report retains semantic or portable-model mismatches."; exit 1 ;;
+            *) echo "::error::Published report records test or infrastructure failures."; exit 1 ;;
+          esac

@@ -12,7 +12,7 @@ from .cases import CaseDefinition
 from .mascot import mascot_markup
 from .metrics import collect_verification_metrics
 from .intrinsic_guide import intrinsic_for_case
-from .mismatch_details import _intrinsic_markup, render_mismatch_details
+from .mismatch_details import _intrinsic_markup, lane_diff, render_mismatch_details
 from .targets import TARGETS
 
 
@@ -142,7 +142,7 @@ _STYLES = """
     .matrix-row b { color: var(--text); font-family: var(--mono); overflow-wrap: anywhere; }
     .matrix-row[data-status="pass"] b { color: var(--ok); }
     .matrix-row[data-status="fail"] b, .matrix-row[data-status="mismatch"] b { color: var(--red); }
-    .case-filters { display: grid; grid-template-columns: 1.7fr 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 12px; padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); }
+    .case-filters { display: grid; grid-template-columns: 1.7fr .8fr 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 12px; padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); }
     .filter-field { display: grid; gap: 6px; min-width: 0; }
     .filter-field label { color: var(--muted); font-size: 10px; font-weight: 650; }
     input, select, button { min-height: 40px; width: 100%; border: 1px solid #d7c9e3; border-radius: 10px; background: #fff; color: var(--text); font: 12px/1.5 var(--display); padding: 8px 10px; }
@@ -161,6 +161,33 @@ _STYLES = """
     .case-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
     .case-card .case-guide { margin-top:12px; font-size:11px; }
     .case-guide a { color:var(--violet); }
+    .case-card .case-id { margin-top: 6px; font: 10px/1.6 var(--mono); }
+    .case-card .signature { white-space: pre-wrap; font-size: 11px; }
+    .case-card details { margin-top: 12px; padding: 12px; }
+    .case-card details p { margin-top: 10px; }
+    .case-card pre, .native-comparison pre { overflow-wrap: anywhere; white-space: pre-wrap; font: 11px/1.7 var(--mono); padding: 12px; background: #f3eef7; border-radius: 10px; }
+    .run-reading { padding: 26px; border: 1px solid var(--line); border-radius: 24px; background: var(--panel); }
+    .run-reading > p { margin-bottom: 0; color: var(--muted); font-size: 12px; }
+    .run-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 20px; }
+    .run-step { padding: 17px; border-radius: 15px; background: #f4eef9; min-width: 0; }
+    .run-step h3 { margin: 8px 0; font-size: 16px; }
+    .run-step p { margin: 0; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+    .run-step[data-state="pass"] { background: var(--mint); }
+    .run-step[data-state="fail"] { background: var(--rose); }
+    .run-step[data-state="unknown"] { background: #fcf2df; }
+    .reading-next { margin-top: 18px; padding: 14px 17px; border-left: 3px solid #b6a0cb; background: #faf6fc; font-size: 12px; }
+    .reading-next a { color: var(--violet); font-weight: 700; }
+    .reading-legend { margin: 12px 0 0; padding-left: 18px; color: var(--muted); font-size: 12px; }
+    .reading-legend li { margin-top: 6px; }
+    .workload-details { margin: 0; padding: 0; border: 0; border-radius: 0; background: none; }
+    .workload-details > summary { padding: 20px 26px; font-size: 14px; }
+    .native-comparison { padding: 26px; border: 1px solid var(--line); border-radius: 22px; background: var(--panel); }
+    .native-comparison > p { font-size: 12px; color: var(--muted); }
+    .native-comparison .finding-table { overflow-x: auto; margin-top: 14px; }
+    .native-comparison table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .native-comparison th, .native-comparison td { padding: 10px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+    .native-comparison tr.changed { background: #fff1f3; }
+    .native-comparison .native-prototype { font-size: 12px; }
     .signature { margin-top: 16px; padding: 10px 12px; border: 1px solid #d1e2d5; border-radius: 10px; background: #edf4ee; color: #355b49; font: 10px/1.7 var(--mono); overflow-wrap: anywhere; }
     .case-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
     .case-meta span { padding: 4px 7px; border: 1px solid #e1d9e8; border-radius: 7px; background: #fffdf9; color: #625570; font: 8px/1.5 var(--mono); }
@@ -191,6 +218,7 @@ _STYLES = """
       .hero { padding: 30px; gap: 18px; }
       .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .load-spectrum-layout, .split, .evidence { grid-template-columns: 1fr; }
+      .run-steps { grid-template-columns: 1fr; }
       .load-chart-panel { border-top: 1px solid var(--line); border-left: 0; }
       .load-chart { width: min(280px, 100%); }
       .case-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -244,6 +272,7 @@ _CATALOG_SCRIPT = """
   const search = document.getElementById("case-search");
   const type = document.getElementById("case-type");
   const mode = document.getElementById("case-mode");
+  const isa = document.getElementById("case-isa");
   const count = document.getElementById("case-count");
   const empty = document.getElementById("case-empty");
   const reset = document.getElementById("case-reset");
@@ -256,7 +285,8 @@ _CATALOG_SCRIPT = """
     cards.forEach((card, index) => {
       const matches = terms.every(term => searchable[index].includes(term)) &&
         (!type.value || card.dataset.element === type.value) &&
-        (!mode.value || card.dataset.mode === mode.value);
+        (!mode.value || card.dataset.mode === mode.value) &&
+        (!isa || !isa.value || searchable[index].includes(normalize(`guide-isa=${isa.value};`)));
       card.hidden = !matches;
       if (matches) visible += 1;
     });
@@ -267,10 +297,12 @@ _CATALOG_SCRIPT = """
   search.addEventListener("input", update);
   type.addEventListener("change", update);
   mode.addEventListener("change", update);
+  if (isa) isa.addEventListener("change", update);
   reset.addEventListener("click", () => {
     search.value = "";
     type.value = "";
     mode.value = "";
+    if (isa) isa.value = "";
     update();
     search.focus();
   });
@@ -336,22 +368,56 @@ def _case_cards(
         searchable = f"{case.id} {description} {_signature(case)} {comparison} {isa}"
         intrinsic = intrinsic_for_case(case.id)
         guide = ""
+        title = _text(case.id)
+        contract_details = ""
+        signature = _text(_signature(case))
         if intrinsic is not None:
-            searchable += f" {intrinsic['name']} {intrinsic['isa']}"
+            searchable += f" {intrinsic['name']} {intrinsic['isa']} {intrinsic['prototype']} {' '.join(intrinsic['instructions'])} guide-isa={intrinsic['isa']};"
+            # Presentation helpers also accept partial CaseDefinition previews;
+            # a catalog lookup does not supply missing executable bindings.
+            intel_binding = case.data.get("intel", {})
+            if isinstance(intel_binding, dict) and isinstance(intel_binding.get("symbol"), str):
+                title = f'<code>{_text(intrinsic["name"])}</code>'
+            description = intrinsic["summary_ja"]
+            signature = _text(intrinsic["prototype"])
             guide = f'<p class="case-guide">Intel Intrinsics Guide: {_intrinsic_markup(intrinsic, compact=True)}</p>'
+            note = intrinsic.get("binding_note")
+            if isinstance(note, str) and note:
+                guide += f'<p class="case-guide">{_text(note)}</p>'
+            bindings = "".join(
+                _matrix_row(TARGETS[role].label,
+                            str(case.data[role].get("symbol", "未記録")) + " // " + ", ".join(str(value) for value in case.required_isa(role)))
+                for role in ("intel", *target_roles) if role in case.target_roles
+            )
+            environment = case.data.get("environment", {})
+            environment = environment if isinstance(environment, dict) else {}
+            rounding = ", ".join(str(mode) for mode in environment.get("fp_rounding_modes", [])) or "未記録"
+            flags = ("採取する" if environment.get("observe_fp_exceptions") is True else
+                     "比較契約に含めない" if environment.get("observe_fp_exceptions") is False else "未記録")
+            extra = "".join(
+                f'<p>{label}</p><pre>{_text(dumps(case.data[key]))}</pre>'
+                for key, label in (("immediates", "Immediate の許可値"), ("memory_contract", "Memory contract"))
+                if key in case.data
+            )
+            contract_details = f'''<details class="case-contract"><summary>EquiLane の契約・各アーキテクチャの binding</summary>
+              <p>Case ID: <code>{_text(case.id)}</code></p><p>論理シグネチャ：{_text(_signature(case))}</p>
+              <p>このケースの呼び出し：<code>{_text(intrinsic['case_call'])}</code>。</p>
+              <p>Guide ISA とフレームワークの required_isa は区別します。</p>
+              <div class="matrix">{bindings}</div><p>丸め：<code>{_text(rounding)}</code>。FP exceptions：{flags}。</p>{extra}</details>'''
         cards.append(
             f"""
             <article class="case-card" data-search="{_text(searchable)}" data-mode="{_text(comparison)}" data-element="{_text(_case_element(case))}">
               <div class="case-index">CASE // {index:02d}</div>
-              <h3>{_text(case.id)}</h3>
+              <h3>{title}</h3>
               <p>{_text(description)}</p>
-              <div class="signature">{_text(_signature(case))}</div>
+              <pre class="signature">{signature}</pre>
               <div class="case-meta">
                 <span>{_text(str(comparison).upper())}</span>
                 <span>{vectors_each} VECTORS</span>
                 <span>{_text(isa)}</span>
               </div>
               {guide}
+              {contract_details}
             </article>"""
         )
     return "".join(cards)
@@ -370,8 +436,117 @@ def _finding_status(value: object) -> str:
     return "unrecorded"
 
 
-def _quality_section(quality: Mapping[str, JSONValue] | None) -> str:
+def _run_reading(summary: Mapping[str, JSONValue], *, native_evidence: bool, case_count: int,
+                 target_roles: tuple[str, ...], inputs: int, quality_failed: bool = False) -> str:
+    """Explain the EquiLane result contract without inventing execution evidence."""
+    target_names = "・".join(TARGETS[role].label for role in target_roles)
+    if native_evidence:
+        scope = f"Intel Intrinsics を {target_names} に移植した C 実装が、Intel を基準とするケース契約を満たすか検証しています。"
+        boundary = "Docker / QEMU を使った場合はその実行環境の観測です。物理CPU間での検証と区別して読みます。"
+    else:
+        scope = "共通の Python モデルを使う development fixture の比較です。各CPUの C 実装を実行した結果ではありません。"
+        boundary = "fixture の一致は、入力生成・比較・集計の動作確認です。CPUごとの実装やモデル自体の正しさは、この一致だけでは確認できません。"
+    execution = summary.get("execution_counts")
+    execution_state, execution_title = "unknown", "実行の内訳は未集計"
+    execution_copy = "集計に実行ステータスの内訳がありません。比較不能の件数と元の result record を確認してください。"
+    if isinstance(execution, dict):
+        values = [execution.get(key) for key in ("execution_errors", "unsupported", "invalid_inputs")]
+        if all(type(value) is int and value >= 0 for value in values):
+            errors, unsupported, invalid = values
+            execution_state = "fail" if errors or invalid else "unknown" if unsupported else "pass"
+            execution_title = "実行エラーなし" if not errors and not invalid else "実行ステータスを確認"
+            execution_copy = f"実行エラー {errors:,}件 ／ unsupported {unsupported:,}件 ／ invalid input {invalid:,}件。結果の一致・不一致とは分けて集計しています。"
+    outcome = str(summary.get("outcome", "unknown"))
+    matched, different, unavailable = (int(summary.get(key, 0)) for key in
+                                      ("matched_inputs", "mismatched_inputs", "not_comparable_inputs"))
+    if not int(summary.get("record_count", 0)):
+        comparison_title, comparison_state = "比較対象の入力なし", "unknown"
+        next_step = "入力を生成して実行し、結果が揃ってから比較します。空の実行を、検証済みの一致として扱いません。"
+    elif outcome == "pass":
+        comparison_title, comparison_state = ("今回の入力では移植契約に適合" if native_evidence else "今回の入力ではすべて一致"), "pass"
+        next_step = "必要な境界値・immediate・丸めモードをケース契約に含めて入力を増やし、同じ経路で再比較できます。一致率100%は今回観測した範囲の結果です。"
+    elif outcome == "mismatch":
+        comparison_title, comparison_state = ("ポートの適合性：未適合あり" if native_evidence else "モデル比較：不一致あり"), "fail"
+        next_step = "未適合の intrinsic と入力を選び、Intel の要求に対して移植実装の戻り値・丸め・FP flags・メモリ効果のどこが合っていないか確認します。保存した failure bundle から同じ入力を replay できます。" if native_evidence else "不一致の intrinsic と入力を選び、保存した期待値・モデル出力・比較契約を確認します。"
+    else:
+        comparison_title, comparison_state = "比較を完了できない入力あり", "unknown"
+        next_step = "まず unsupported・invalid input・signal・runtime error などの実行ステータスを確認し、比較できる結果を揃えます。"
+    if native_evidence:
+        next_step += " NaN の payload、signed zero、変換時の丸めもケース契約に従って判定します。要求を満たさない結果は移植の未適合として確認します。Intel 側や入力の前提も保存データで切り分けます。"
+    if quality_failed:
+        next_step = "独立したモデル検証または品質ゲートに失敗があります。比較結果とは別に、下の『独立したモデル検証と失敗箇所』で失敗分類を確認してください。 " + next_step
+    return f'''<section class="run-reading" id="read-first" aria-labelledby="reading-title">
+      <div class="kicker">Intel Intrinsics port conformance</div><h2 id="reading-title">移植の適合性を、この実行でどこまで確認したか</h2>
+      <div class="run-steps">
+        <div class="run-step" data-state="{'pass' if native_evidence else 'unknown'}"><span class="panel-label">01 / Intrinsic → case contract</span>
+          <h3>{case_count:,} ケース / 合計 {inputs:,} 入力</h3><p>{_text(scope)}</p></div>
+        <div class="run-step" data-state="{execution_state}"><span class="panel-label">02 / Execute</span>
+          <h3>{execution_title}</h3><p>{_text(execution_copy)}</p></div>
+        <div class="run-step" data-state="{comparison_state}"><span class="panel-label">03 / Conform to the Intel contract</span>
+          <h3>{comparison_title}</h3><p>一致 {matched:,}件 ／ 不一致 {different:,}件 ／ 比較不能 {unavailable:,}件。
+          不一致には出力値の差と実行ステータスの差が含まれます。</p></div>
+      </div>
+      <p>{_text(boundary)}</p>
+      <div class="reading-next"><strong>次に確認すること</strong><br>{_text(next_step)}<br>
+        <a href="#cases">intrinsic・ISA からケースを探す</a> ／ <a href="#native-results">保存した比較詳細を見る</a></div>
+      <details><summary>一致・不一致・比較不能の区別</summary><ul class="reading-legend">
+        <li><strong>一致：</strong>その入力に対する両実装の結果が、ケースの比較規則を満たしました。未実行の入力や別のFP modeの保証には広げません。</li>
+        <li><strong>不一致：</strong>戻り値、許可されたメモリ効果、FP exceptions、または実行ステータスがケース契約を満たしていません。CPU固有の挙動も、移植契約への適合が必要です。</li>
+        <li><strong>比較不能：</strong>両経路が unsupported などの同じ非正常ステータスで、値の比較を実施できませんでした。</li>
+      </ul></details></section>'''
+
+
+def _native_result_details(summary: Mapping[str, JSONValue], *, native_evidence: bool) -> str:
+    rows = summary.get("native_findings")
+    rows = rows if native_evidence and isinstance(rows, list) else []
+    cards = []
+    for index, row in enumerate(rows, 1):
+        if not isinstance(row, dict):
+            continue
+        role = str(row.get("target_role", ""))
+        if role not in TARGETS or role == "intel":
+            continue
+        record = row.get("input")
+        record = record if isinstance(record, dict) else {}
+        intel, target = row.get("intel"), row.get("target")
+        intel = intel if isinstance(intel, dict) else {}
+        target = target if isinstance(target, dict) else {}
+        expected, observed = intel.get("observed", {}), target.get("observed", {})
+        intrinsic = intrinsic_for_case(row.get("case_id", record.get("case_id")))
+        name = intrinsic["name"] if intrinsic else str(row.get("case_id", record.get("case_id", "未記録")))
+        prototype = f'<pre class="native-prototype">{_text(intrinsic["prototype"])}</pre>' if intrinsic else ""
+        environment = record.get("environment")
+        environment = environment if isinstance(environment, dict) else {}
+        lanes = lane_diff({"expected": expected, "actual": observed})
+        lane_rows = "".join(f'<tr class="{"changed" if lane["expected"] != lane["actual"] else ""}">'
+            f'<th scope="row"><code>{_text(lane["path"])}</code></th><td><code>{_text(lane["expected"])}</code><br>{_text(lane["expected_class"])}</td>'
+            f'<td><code>{_text(lane["actual"])}</code><br>{_text(lane["actual_class"])}</td>'
+            f'<td><code>{_text(lane.get("xor", "算出不可"))}</code></td></tr>' for lane in lanes)
+        table = ('<div class="finding-table"><table><thead><tr><th>Lane / memory / flag</th><th>Intel baseline</th>'
+                 f'<th>{_text(TARGETS[role].label)}</th><th>XOR</th></tr></thead><tbody>{lane_rows}</tbody></table></div>') if lanes else ""
+        saved = {"input": record, "intel": intel, "target": target, "first_difference": row.get("first_difference")}
+        cards.append(f'''<details class="native-finding"><summary>{_text(name)} → {_text(TARGETS[role].label)} ／ {_text(row.get('input_id', record.get('input_id', '未記録')))}</summary>
+          {prototype}{_intrinsic_markup(intrinsic, compact=True)}
+          <p>丸め：<code>{_text(environment.get('rounding', '未記録'))}</code> ／ FP mode：<code>{_text(environment.get('fp_mode', '未記録'))}</code>。
+          実行ステータス：Intel <code>{_text(intel.get('status', '未記録'))}</code> ／ {_text(TARGETS[role].label)} <code>{_text(target.get('status', '未記録'))}</code>。</p>
+          {table}<details><summary>入力・Intel / 対象の結果・メモリ効果をJSONで確認</summary><pre>{_text(dumps(saved))}</pre></details></details>''')
+    if cards:
+        note = f"保存した比較詳細 {len(cards):,}件。Intel baseline と対象の実測値をそのまま表示します。"
+    elif native_evidence:
+        note = "このHTMLに入力ごとの比較詳細は添付されていません。不一致がある場合は comparison の failure bundle に保存した入力と各結果を確認してください。"
+    else:
+        note = "この実行は development fixture です。CPU別C実装の実測値は記録されていません。独立したモデル検証の詳細は別の欄に表示します。"
+    return f'''<section class="native-comparison" id="native-results"><div class="kicker">Recorded comparison details</div>
+      <h2>{'Intel reference と移植実装の結果' if native_evidence else 'Development fixture の結果記録'}</h2><p>{_text(note)}</p>{''.join(cards)}</section>'''
+
+
+def _quality_section(quality: Mapping[str, JSONValue] | None, *, native_evidence: bool = False) -> str:
     if quality is None:
+        if native_evidence:
+            return '''<section class="panel oracle-report" id="model-oracle" data-status="unrecorded">
+              <div class="kicker">Independent model check / not run</div><h2>独立したモデル検証：未実施</h2>
+              <p>Intel baseline と各対象の C 実装を比較する工程とは別に、Python モデルを独立した期待値と照合する工程があります。
+              この実行にはモデル検証の結果を添付していません。C 実装の比較結果とモデル検証の成否は分けて扱います。</p></section>'''
         return '''<section class="panel oracle-report" id="model-oracle" data-status="unrecorded">
           <div class="kicker">Independent model check / not run</div>
           <h2>独立したモデル検証：未実施</h2>
@@ -556,8 +731,10 @@ def render_showcase_html(
         "not_comparable": "COMPARISON INCOMPLETE",
     }.get(outcome, outcome.upper())
     status_copy = {
-        "pass": "Every observed lane completed the equivalence comparison without divergence.",
-        "mismatch": "At least one observed lane returned a divergent result.",
+        "pass": ("The observed target-port results met the selected Intel case contracts."
+                 if native_evidence else "Every observed lane completed the fixture comparison without divergence."),
+        "mismatch": ("At least one observed target-port result failed the selected Intel case contract."
+                     if native_evidence else "At least one fixture result failed the selected case comparison."),
         "not_comparable": "One or more signals could not be compared safely.",
     }.get(outcome, "Verification sequence completed.")
     headline_outcome = outcome
@@ -566,7 +743,7 @@ def render_showcase_html(
         status_title = "QUALITY CHECK FAILED"
         headline_outcome = "quality_failed"
         status_copy = f"Paired comparison: {outcome}. Independent quality checks failed; see failure attribution."
-    quality_section = _quality_section(quality)
+    quality_section = _quality_section(quality, native_evidence=native_evidence)
     quality_status = "unrecorded" if quality is None else (
         "pass" if quality.get("status") == "pass" else "fail"
     )
@@ -611,7 +788,8 @@ def render_showcase_html(
                 f"{result['matched_inputs']:,} / {result['record_count']:,} matched",
                 result['outcome'],
             )
-    route_title = "Dual-path verification" if len(target_roles) == 1 else "Cross-architecture verification"
+    route_title = ("Intel reference → target port" if native_evidence else
+                   "Dual-path verification" if len(target_roles) == 1 else "Cross-architecture verification")
     route_kicker = "Two paths, one input" if len(target_roles) == 1 else f"One baseline, {len(target_roles)} target lanes"
     input_count = record_count // len(target_roles)
     record_label = "Input records" if len(target_roles) == 1 else "Comparison pairs"
@@ -627,12 +805,12 @@ def render_showcase_html(
         f"{input_count:,} unique inputs × {len(target_roles) + 1} implementation paths; Intel is evaluated once"
     )
     observatory_label = (
-        "CROSS-ARCHITECTURE OBSERVATORY"
+        "INTEL INTRINSICS PORT CONFORMANCE"
         if native_evidence
         else "SEMANTIC EQUIVALENCE OBSERVATORY"
     )
     hero_copy = (
-        "The same deterministic inputs crossed the selected native architectures. Compare their observed outputs, then follow the evidence below."
+        "Verify that each target port meets the Intel Intrinsics case contract. The same deterministic inputs crossed the selected native architectures; inspect the saved results to locate unmet requirements."
         if native_evidence
         else "The same deterministic inputs crossed paired development fixtures. Compare their observed outputs, then follow the evidence below."
     )
@@ -647,6 +825,14 @@ def render_showcase_html(
     cards = _case_cards(ordered_cases, vectors_each, target_roles)
     element_options = _filter_options(_case_element(case) for case in ordered_cases)
     comparison_options = _filter_options(str(case.comparison["mode"]) for case in ordered_cases)
+    guide_isa_options = _filter_options(
+        str(intrinsic["isa"]) for case in ordered_cases
+        if (intrinsic := intrinsic_for_case(case.id)) is not None
+    )
+    run_reading = _run_reading(summary, native_evidence=native_evidence, case_count=case_count,
+                              target_roles=target_roles, inputs=input_count,
+                              quality_failed=quality_status == "fail")
+    native_details = _native_result_details(summary, native_evidence=native_evidence)
 
     return f"""<!doctype html>
 <html lang="ja">
@@ -666,24 +852,29 @@ def render_showcase_html(
     </div>
 
     <nav class="report-nav" aria-label="Report sections">
-      <a href="#overview">Overview</a><a href="#workload">Workload</a>
+      <a href="#overview">Overview</a><a href="#read-first">結果の読み方</a><a href="#workload">Workload</a>
       <a href="#paths">Paths</a><a href="#cases">Cases</a><a href="#evidence">Evidence</a>
+      <a href="#native-results">比較詳細</a>
       <a class="nav-quality" data-status="{quality_status}" href="#model-oracle">{quality_nav_label}</a>
     </nav>
 
     <header class="hero" id="overview">
       <div>
         <div class="eyebrow">A little care for every lane</div>
-        <h1>EquiLane <span>Same inputs. Clear answers.</span></h1>
+        <h1>EquiLane <span>Intel Intrinsics を、正しくポートできているか。</span></h1>
         <p class="lede">{_text(hero_copy)}</p>
         <div class="status-line">{_text(status_title)} // {_text(headline_outcome.upper())}</div>
       </div>
       <div class="core-wrap" aria-label="Paired comparison match rate">
         {mascot_markup()}
         <div class="core-label"><strong>{_text(rate_text)}%</strong><span>PAIRED COMPARISON MATCH RATE</span></div>
-        <p class="core-note">Independent model checks are reported separately.</p>
+        <p class="core-note">今回観測した入力の一致率。未実行の入力の保証には広げません。</p>
       </div>
     </header>
+
+    {run_reading}
+
+    {native_details}
 
     {quality_section}
 
@@ -695,6 +886,7 @@ def render_showcase_html(
     </div>
 
     <section class="load-spectrum-section" id="workload" aria-labelledby="load-spectrum-title">
+      <details class="workload-details"><summary>Workload / 入力・レーン・ビット位置の集計を見る</summary>
       <div class="load-spectrum-layout">
         <div class="density-ledger">
           <div class="kicker">Test load spectrum</div>
@@ -765,6 +957,7 @@ def render_showcase_html(
           <div class="load-baseline">Mint → sage → butter → peach load spectrum<br>Failure indication remains red</div>
         </aside>
       </div>
+      </details>
     </section>
 
     <section id="paths">
@@ -793,16 +986,18 @@ def render_showcase_html(
 
     <section id="cases">
       <div class="section-head">
-        <div><div class="kicker">Meet the cases</div><h2>Case collection</h2></div>
+        <div><div class="kicker">Intrinsic → contract → architecture binding</div><h2>Intrinsic catalog</h2></div>
         <div class="section-code"><span class="case-count" id="case-count" role="status" aria-live="polite" aria-atomic="true">{case_count} / {case_count} cases</span><br>{vectors_each:,} VECTORS / CASE</div>
       </div>
       <form class="case-filters" id="case-filters" role="search" aria-label="Filter the case catalog">
-        <div class="filter-field"><label for="case-search">Find a case</label><input id="case-search" type="search" placeholder="Name, operation, ISA…" autocomplete="off" spellcheck="false"></div>
+        <div class="filter-field"><label for="case-search">Intrinsic / case / operation</label><input id="case-search" type="search" placeholder="_mm_add_pd, ADDPD, case ID…" autocomplete="off" spellcheck="false"></div>
+        <div class="filter-field"><label for="case-isa">Guide ISA</label><select id="case-isa"><option value="">All Guide ISA</option>{guide_isa_options}</select></div>
         <div class="filter-field"><label for="case-type">Result type</label><select id="case-type"><option value="">All result types</option>{element_options}</select></div>
         <div class="filter-field"><label for="case-mode">Comparison mode</label><select id="case-mode"><option value="">All comparison modes</option>{comparison_options}</select></div>
         <button id="case-reset" type="button">Reset filters</button>
       </form>
-      <p class="catalog-note">Filters affect this catalog only. Verification totals describe the complete run; individual case verdicts are not inferred from aggregate results.</p>
+      <p class="catalog-note">Guide の intrinsic 名・prototype を入口に、EquiLane の呼び出し・immediate・FP mode・各アーキテクチャの binding を確認できます。
+      Guide ISA と case の required_isa は別の分類です。Filters affect this catalog only. Verification totals describe the complete run; individual case verdicts are not inferred from aggregate results.</p>
       <noscript><p class="catalog-note">Enable JavaScript to search this catalog. All cases are shown below.</p></noscript>
       <p class="empty-state" id="case-empty" hidden>No cases match these filters. Try another name or reset the filters.</p>
       <div class="case-grid">{cards}</div>

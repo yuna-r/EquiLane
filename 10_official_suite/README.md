@@ -53,7 +53,7 @@ openpower/f64x2.o: ELF 64-bit LSB relocatable, OpenPOWER ELF V2 ABI
 ```
 
 4アーキテクチャ × 6ブロック = 24個のELF objectを生成します。
-ARMの実機テストとRISC-VのQEMUテストは [Native status](../NATIVE_STATUS.md) を参照してください。
+ARMの実機テストとRISC-VのQEMUテストは [Native status](../documentation/native-status.json) を参照してください。
 通常の`check`は共通Pythonモデルによるfixtureで、native runnerによる成果物収集は開発中です。
 
 ```sh

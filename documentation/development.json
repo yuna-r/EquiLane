@@ -1,0 +1,837 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.development-guide",
+  "language": "ja",
+  "title": "開発・検証ガイド",
+  "sections": [
+    {
+      "id": "開発・検証ガイド",
+      "level": 1,
+      "title": "開発・検証ガイド",
+      "blocks": []
+    },
+    {
+      "id": "native-abi-workflow",
+      "level": 2,
+      "title": "共通C ABIで実行する",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "全254操作のnative runnerは、caseの契約を検証して共通C ABIを生成し、Linuxの隔離workerで実際のC symbolを呼びます。Intelの結果を基準に、対象の実装が移植の契約を満たすか検証します。不一致は原因を調査・修正する対象であり、単なるCPU差として合格にはしません。通常の check は従来のPython fixture検証です。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane generate-vectors --output artifacts/vectors\nequilane run-native --input artifacts/vectors --role arm --output artifacts/native/arm --compiler clang --jobs 2"
+        },
+        {
+          "type": "paragraph",
+          "text": "run-native は対象CPUと一致するUbuntuコンテナ内で実行します。全環境のビルド・Cテスト・Python回帰・比較・JSON/HTMLレポートまで実行する入口は ./docker/run.sh verify です。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./docker/run.sh verify\n./docker/run.sh all\n./docker/run.sh wrappers"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "verify: 全4環境のCMake/CTest、raw wrapper比較、共通C ABI比較、RISC-V VLEN 128/256、Python/ブラウザ/sanitizer/cross build。",
+            "all: raw wrapperと共通C ABIの採取・比較・レポート。",
+            "wrappers: raw wrapperだけの採取・比較・レポート。"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "生成先の pipeline-summary.json と pipeline-report.html が各工程の結果をまとめます。意味上の不一致は終了コード1、Dockerや検証工程の異常は別のerrorとして記録します。検証の完了条件と証跡は native-contract.json を参照してください。"
+        },
+        {
+          "type": "table",
+          "columns": [
+            "run-native の引数",
+            "用途"
+          ],
+          "rows": [
+            [
+              "--input / --vectors",
+              "canonical test-vectors manifest、JSONL、または成果物ディレクトリ"
+            ],
+            [
+              "--role intel|openpower|arm|riscv",
+              "実行CPUと一致する対象"
+            ],
+            [
+              "--output",
+              "native結果・build・probe・traceを保存するディレクトリ"
+            ],
+            [
+              "--compiler clang",
+              "strict FPに対応するClang"
+            ],
+            [
+              "--library",
+              "build-evidence.json付きの既存ライブラリ。case・source・header・binary hashを再確認する"
+            ],
+            [
+              "--timeout 5",
+              "呼出しworkerの期限（秒）"
+            ],
+            [
+              "--jobs 2",
+              "ケース単位の隔離worker並列数"
+            ]
+          ]
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane compare-results --input artifacts/vectors --intel artifacts/native/intel --target-role arm --target artifacts/native/arm --output artifacts/comparison-arm --showcase-report\nequilane validate-native-trace --input artifacts/vectors --role arm --output artifacts/native/arm"
+        },
+        {
+          "type": "paragraph",
+          "text": "validate-native-trace はnative manifest、case contractとinput ID、symbol、build unit、保持されたライブラリ/objectのバイト列、実測preflight、Docker image identityの対応を検証します。target CPUのコードは実行しません。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane replay --failure artifacts/comparison-arm/failures/$INPUT_ID/failure.json --role arm --output artifacts/replay/arm --timeout 5 --jobs 1\nequilane replay --failure artifacts/comparison-arm/failures/$INPUT_ID/failure.json --role intel --output artifacts/replay/intel\nequilane verify-replay --failure artifacts/comparison-arm/failures/$INPUT_ID/failure.json --intel \"$(pwd)/artifacts/replay/intel\" --target-role arm --target \"$(pwd)/artifacts/replay/arm\""
+        },
+        {
+          "type": "paragraph",
+          "text": "verify-replay の相対結果pathはfailure bundleを基準に解決されます。別の場所へ保存した再実行結果を指定する場合は、上の例のように絶対pathを渡します。"
+        }
+      ]
+    },
+    {
+      "id": "共通の検証環境",
+      "level": 2,
+      "title": "共通の検証環境",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "アーキテクチャ比較の基準環境はUbuntu 26.04 LTSのDockerです。\nホストにはDockerを用意し、C compilerとPythonは各コンテナ内のものを使います。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./docker/run.sh all"
+        },
+        {
+          "type": "paragraph",
+          "text": "Intel / OpenPOWER / ARM64 / RISC-V64の254操作を各3入力で実行し、Intelの結果を基準に\n3対象を比較します。出力先は `artifacts/docker/`、別の出力先も第2引数で指定できます。\n不一致は隠さず記録し、採取後の比較は終了コード1になります。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./docker/run.sh intel artifacts/docker\n./docker/run.sh openpower artifacts/docker\n./docker/run.sh arm artifacts/docker\n./docker/run.sh riscv artifacts/docker\n./docker/run.sh compare artifacts/docker"
+        },
+        {
+          "type": "paragraph",
+          "text": "Dockerの all はraw C wrapperと共通C ABIの両経路を実行します。通常の equilane check とReport Studioの check は共通Pythonモデルを使うfixture検証です。必要なエミュレータ、CPU設定、成果物の範囲は [Docker検証ガイド](../docker/guide.json) にまとめています。"
+        }
+      ]
+    },
+    {
+      "id": "まずは動かす",
+      "level": 2,
+      "title": "まずは動かす",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "git clone --recurse-submodules <repository-url> EquiLane\ncd EquiLane\n\npython3 -m venv .venv\nsource .venv/bin/activate\npython -m pip install -e .\n\nequilane check"
+        },
+        {
+          "type": "paragraph",
+          "text": "最後に`\"status\":\"pass\"`が出れば成功です。"
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "text": "{\"case_count\":254,\"record_count\":2032,\"status\":\"pass\"}"
+        },
+        {
+          "type": "paragraph",
+          "text": "実行中はvectors生成、Intel / 選択した対象のfixture、比較、レポート生成の進捗が表示されます。\n進捗はstderr、最後のJSONはstdoutなので、スクリプトからもそのまま扱えます。\n進捗を消したい場合だけ`equilane check --quiet`を使います。"
+        },
+        {
+          "type": "paragraph",
+          "text": "ケース数やvectors数が多いときは、`--jobs`でCPUコアを使えます。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check --profile standard --count-per-case 1000 --jobs auto\nequilane check --jobs 8"
+        },
+        {
+          "type": "paragraph",
+          "text": "`auto`は利用可能な論理CPU数、数字はworker process数です。指定しなければ従来どおり\n1 processで動きます。vectors生成、Intel / 選択した対象のfixture、比較をケース単位で並列化し、\n完了後は元の順番へ戻すため、1 processと同じ並び・SHA-256の成果物になります。\n`--quality`を併用した場合はsanitizer buildの並列数にも同じ値を使います。\n小さいsmoke runではprocess起動分だけ不利なことがあるため、件数が多いとき向けです。"
+        },
+        {
+          "type": "paragraph",
+          "text": "最後には、かわいいレポートを付けない普通の`equilane check`でも検証メトリクスが表示されます。\n件数は実際に指定したprofileとvectors数から計算されます。たとえばstandard runでは次の形です。"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "text": "Verification metrics\n  cases                                         254\n  trials                                    254,000\n  implementation-path evaluations          508,000\n  lane verdicts                           1,131,000\n  bit positions                          30,016,000\n  match rate                                   100%\n  mismatch                                         0"
+        },
+        {
+          "type": "paragraph",
+          "text": "この表もstderrへ出るため、stdoutの最終JSONは従来どおり1行のままです。"
+        },
+        {
+          "type": "paragraph",
+          "text": "続けて、通常実行では負荷の軽い品質メトリクスだけを表示します。すでに読み込んだ\ncontractとportable modelから集計するため、追加のbuildやtest実行はありません。"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "text": "Quality metrics\n  valid contracts              254 / 254\n  portable models              254 / 254\n  standard boundary floors     254 / 254\n  architecture bindings      1016 / 1016\n  contract drift                       0"
+        },
+        {
+          "type": "paragraph",
+          "text": "独立した回帰テストやsanitizerを確認したいときだけ、`--quality`を付けます。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check --quality"
+        },
+        {
+          "type": "paragraph",
+          "text": "このオプションでは通常のequivalence checkに加え、次の重い品質ゲートを順番に実行します。"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "Python全回帰テスト（coverageは`--coverage`指定時のみ）",
+            "ASan / UBSanを有効にしたportable C build + CTest",
+            "Intel x86_64 / OpenPOWER ppc64le / ARM64 NEON / RISC-V64 RVVのClang cross build"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "実行中は`[7/8] Run quality gates`の下に3本の進捗バーを表示します。Pythonは\nテスト件数、sanitizerは3工程、cross buildは24コンパイルを分母に、実測値で\n`0%`から`100%`へ進みます。"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "text": "[7/8] Run quality gates\n  [1/3] Python tests (coverage optional)      [=======-----------]  39% 35/89\n  [2/3] C sanitizers                 [============------]  66% 2/3\n  [3/3] 4-architecture cross build    [===============---]  83% 20/24"
+        },
+        {
+          "type": "paragraph",
+          "text": "ここで出るsource line coverageは、等価性の一致率とは別の値です。Python実装の\n実行可能行のうち回帰テストで通った割合を表し、現在は記録のみで合否基準にはしていません。"
+        },
+        {
+          "type": "paragraph",
+          "text": "結果は`<check output>/quality/summary.json`へ、各コマンドのlogと、明示指定した場合のcoverage注釈は\n同じ`quality/`以下へ残ります。3ゲートのどれかが失敗するとコマンドも非0で終了します。\n通常の`equilane check`ではこれらを実行しないため、普段の速度は変わりません。\nsource line coverageは`--quality --coverage`のときだけ計測します。"
+        },
+        {
+          "type": "paragraph",
+          "text": "`--quality --showcase-report` を併用すると、HTMLにもモデル出力と独立した期待値の差を\n表示します。その他のテスト失敗・実行エラーと区別し、入力・期待値・実測値を確認できます。\nfixture比較が一致してもquality検証が失敗した場合は、レポート冒頭に失敗を表示します。\n確認済みのNaN不一致と原因箇所は[`tests/BUG_HUNT.md`](../tests/BUG_HUNT.md)に記載しています。"
+        },
+        {
+          "type": "paragraph",
+          "text": "`equilane check`ひとつで、caseの確認、入力生成、両側の実行、答え合わせまで進みます。\n途中の記録は`.equilane/checks/<timestamp>/`へ残ります。"
+        },
+        {
+          "type": "paragraph",
+          "text": "> ここで動くのはローカル開発用fixtureです。CPU実機で一致した証拠ではありません。"
+        }
+      ]
+    },
+    {
+      "id": "レポート",
+      "level": 2,
+      "title": "レポート",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "`--showcase-report`を付けると、いつもの成果物に\n淡い色と丸いカード、ムササビのマスコットを使ったHTMLレポートが加わります。プレビューはsmoke実行と独立したモデル検証の\n実測結果です。fixture比較の一致と、モデル出力の不一致2,159件を区別して表示しています。\n内訳は公式nearest-even契約の106件と、丸めモードを拡張した検証用契約の2,053件です。"
+        },
+        {
+          "type": "paragraph",
+          "text": "![Showcase report preview](../assets/showcase-report-preview.svg)"
+        },
+        {
+          "type": "paragraph",
+          "text": "プレビューと同じ検証を実行する場合："
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check --quality --showcase-report"
+        },
+        {
+          "type": "paragraph",
+          "text": "高密度runを実行する場合："
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check --profile standard --count-per-case 1000 --showcase-report"
+        },
+        {
+          "type": "paragraph",
+          "text": "254ケース × 1,000 vectorsで254,000 trials。両経路あわせて508,000 fixture evaluations、\n1,131,000 lane verdicts、30,016,000 paired bit positionsを照合します。境界値や特殊値を含む\ndeterministic streamをどれだけ通したかは、レポートの矩形ロードグラフにも出ます。"
+        },
+        {
+          "type": "paragraph",
+          "text": "実行結果の`showcase_report`が生成したファイルです。"
+        },
+        {
+          "type": "code",
+          "language": "json",
+          "text": "{\"showcase_report\":\".equilane/checks/.../showcase.html\",\"status\":\"pass\"}"
+        },
+        {
+          "type": "paragraph",
+          "text": "外部画像やWebフォントを使わない1ファイル完結なので、そのままブラウザで開いたり\n共有したりできます。"
+        },
+        {
+          "type": "paragraph",
+          "text": "表示デザインを変えても、判定元はcanonical JSON成果物です。"
+        }
+      ]
+    },
+    {
+      "id": "不一致の詳細を調べる",
+      "level": 3,
+      "title": "不一致の詳細を調べる",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "`--quality --showcase-report` のHTMLには、不一致の原因別・ケース別・丸めモード別の内訳、\n代表例、レーンごとの期待ビット・実測ビット・XOR差を表示します。検索して入力IDや操作を\n絞り込めます。記録行数と、重複を除いた入力数は区別して表示します。"
+        },
+        {
+          "type": "paragraph",
+          "text": "保存済みのquality JSONから、検証を再実行せず詳細HTMLだけを作る場合："
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane mismatch-report \\\n  --quality .equilane/checks/RUN/quality/summary.json \\\n  --observations tests/data/mismatch-report-2026-10-16.json \\\n  --output .equilane/mismatch-details.html"
+        },
+        {
+          "type": "paragraph",
+          "text": "`RUN`は保存済みの実行ディレクトリ名に置き換えます。\n`--quality`には、単独の`equilane.quality_runner`が書いた`summary.json`も指定できます。\n`--observations`は任意です。指定した場合は、今回のPython検証と別に採取したARM/RISC-Vの\n観測スナップショットを、記録日・実行種別・比較基準・入力・出力とともに表示します。\n省略した対象のnative結果を、Pythonモデルから推測することはありません。\n生成成功時の終了コード0は、HTMLが書けたことを示します。不一致の解消や検証の成功を\n示すものではありません。"
+        },
+        {
+          "type": "paragraph",
+          "text": "現在の原因分析と実行範囲は [不一致の詳細レポート](../MISMATCH_REPORT.md) を参照してください。"
+        }
+      ]
+    },
+    {
+      "id": "intelと各アーキテクチャを見比べる",
+      "level": 2,
+      "title": "Intelと各アーキテクチャを見比べる",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Repositoryの一番上に来る[`10_official_suite/`](../10_official_suite)へ、\n254個のcontractと、Intel / OpenPOWER / ARM / RISC-Vそれぞれの全254操作をまとめてあります。"
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Intel Intrinsic",
+            "OpenPOWER / VSX"
+          ],
+          "rows": [
+            [
+              "`_mm_add_pd(a, b)`",
+              "`vec_add(a, b)`"
+            ],
+            [
+              "`_mm_cmpeq_pd(a, b)`",
+              "lane comparison + all-bits mask"
+            ],
+            [
+              "`_mm_adds_epi16(a, b)`",
+              "`vec_adds(a, b)`"
+            ],
+            [
+              "`_mm_subs_epu8(a, b)`",
+              "`vec_subs(a, b)`"
+            ],
+            [
+              "`_mm_set1_pd(x)`",
+              "`vec_splats(x)`"
+            ],
+            [
+              "`_mm_shuffle_epi32(v, 27)`",
+              "`{v[3], v[2], v[1], v[0]}`"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "[`intel/`](../10_official_suite/intel)と[`openpower/`](../10_official_suite/openpower)を\n左右対称にし、どちらもf32 / f64 / i8 / i16 / i32 / i64の6つの塊で置いてあります。"
+        },
+        {
+          "type": "paragraph",
+          "text": "Clangのcross buildも1コマンドです。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./10_official_suite/cross-compile.sh"
+        },
+        {
+          "type": "paragraph",
+          "text": "x86-64 / ppc64le / aarch64 / riscv64 のELF objectを、6ブロックずつ合計24個生成します。\nRVVは`-march=rv64gcv -mrvv-vector-bits=scalable`で固定16-byteの論理ベクトルを扱います。"
+        }
+      ]
+    },
+    {
+      "id": "比較対象を選ぶ",
+      "level": 3,
+      "title": "比較対象を選ぶ",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check --target arm --showcase-report\nequilane check --target riscv --showcase-report\nequilane check --target arm --target riscv --showcase-report\nequilane check --target all --showcase-report"
+        },
+        {
+          "type": "paragraph",
+          "text": "Intelを共通の基準にします。複数対象ではIntel fixtureを1回だけ実行し、各対象と比較します。\nHTMLは対象ごとの一致数を表示します。summaryの`record_count`は比較ペア数、\nCLI最終JSONの`record_count`はユニーク入力数です。複数対象の詳細成果物は\n`comparison/<role>/`、合計は`comparison/summary.json`へ残します。"
+        },
+        {
+          "type": "paragraph",
+          "text": "新しい`arm` / `riscv` bindingはプロジェクトの拡張です。古いIntel/OpenPOWERだけの\ncase packも読み込めます。そのcaseに追加対象のbindingがなければ`unsupported`として扱います。\nARMのNaN・signed zero・変換結果やRVVのNaN canonicalizationは、C実装でそのまま返します。\nPython fixtureは共通モデルであり、これらのCPU差を再現するものではありません。"
+        }
+      ]
+    },
+    {
+      "id": "ケースをひとつ増やす",
+      "level": 2,
+      "title": "ケースをひとつ増やす",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "よくあるinteger vectorの2項演算なら、1コマンドで雛形を作れます。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./10_official_suite/new-case my-new-i32x4 +"
+        },
+        {
+          "type": "paragraph",
+          "text": "1ケースは、この1ファイルだけです。"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "text": "10_official_suite/cases/my-new-i32x4.py"
+        },
+        {
+          "type": "paragraph",
+          "text": "既存ファイルは上書きしません。生成されたファイルを直したら、いつものコマンドを\n実行します。上半分はYAMLのcontract、末尾は短いmodel宣言です。"
+        },
+        {
+          "type": "paragraph",
+          "text": "model部分はcase ID、型、演算だけを宣言します。"
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "text": "CASE_ID, MINIMUM_COUNTS, candidates, execute = binary_case(\n    \"sse2.my-new.i32x4.default\", \"i32x4\", \"+\", standard=8)"
+        },
+        {
+          "type": "paragraph",
+          "text": "共通の境界値、乱数生成、lane処理は見えません。変換、比較、shuffle、packにも\n同じ粒度のfamilyがあり、公式254ケースはすべてこの形に揃っています。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check"
+        },
+        {
+          "type": "paragraph",
+          "text": "これでローカルのcase追加は完了です。中央の巨大なswitch文へcase IDを足す必要はありません。\n実例は[`10_official_suite/cases/`](../10_official_suite/cases)にあります。"
+        }
+      ]
+    },
+    {
+      "id": "変更後の確認",
+      "level": 2,
+      "title": "変更後の確認",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "普段はこの2つで大丈夫です。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check\npython -m unittest discover -s tests -v"
+        },
+        {
+          "type": "paragraph",
+          "text": "Native側を変更した場合だけ、Cのテストも実行します。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "cmake -S . -B build/native -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release\ncmake --build build/native --parallel\nctest --test-dir build/native --output-on-failure"
+        }
+      ]
+    },
+    {
+      "id": "必要になったら開くところ",
+      "level": 2,
+      "title": "必要になったら開くところ",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "ここから先は、いま必要な項目だけどうぞ。"
+        }
+      ]
+    },
+    {
+      "id": "収録している254ケース",
+      "level": 2,
+      "title": "収録している254ケース",
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "f64 arithmetic / memory: packed / scalar add、sub、mul、div、sqrt、min、max、\nload / store（scalar、unaligned、high / low、reverseを含む）",
+            "f64 bit / lane: `_mm_and_pd`、`_mm_or_pd`、`_mm_xor_pd`、`_mm_set1_pd`、\n`_mm_andnot_pd`、`_mm_move_sd`、`_mm_unpacklo_pd`、`_mm_unpackhi_pd`、\n`_mm_shuffle_pd`、`_mm_set_pd`、cast ×6、movemask、packed min/max",
+            "f64 comparison: `_mm_cmpeq_pd`、`_mm_cmplt_pd`、`_mm_cmple_pd`、`_mm_cmpgt_pd`、\n`_mm_cmpge_pd`、`_mm_cmpneq_pd`、`_mm_cmpord_pd`、`_mm_cmpunord_pd`、\n`_mm_cmpnlt_pd`、`_mm_cmpnle_pd`、`_mm_cmpngt_pd`、`_mm_cmpnge_pd`、\nscalar compare ×12、scalar COMI ×6",
+            "f32 arithmetic / memory: packed / scalar add、sub、mul、div、sqrt、min、max、\nload / store（scalar、unaligned、reverseを含む）",
+            "f32 logic / comparison: packed and、or、xor、andnot、packed / scalar compare ×12、\nscalar COMI ×6",
+            "f32 lane / conversion: movemask、unpack ×2、shuffle、move ×3、set / setr / set1、\n`_mm_cvtps_pd`、`_mm_cvtpd_ps`、`_mm_cvtepi32_pd`、`_mm_cvtepi32_ps`、\npacked / scalar convert（round / truncateを含む）",
+            "f64 conversion: packed / scalar convert（f32、i32、i64、round / truncateを含む）",
+            "i8 arithmetic / saturation / comparison / construction: `_mm_add_epi8`、`_mm_sub_epi8`、\n`_mm_adds_epi8`、`_mm_adds_epu8`、`_mm_subs_epi8`、`_mm_subs_epu8`、\n`_mm_cmpeq_epi8`、`_mm_cmpgt_epi8`、`_mm_avg_epu8`、`_mm_sad_epu8`、\n`_mm_min_epu8`、`_mm_max_epu8`、byte shift ×2、unpack ×2、movemask、signed less-than、set、setr、set1",
+            "i16 arithmetic / saturation / comparison / construction: `_mm_add_epi16`、`_mm_sub_epi16`、\n`_mm_adds_epi16`、`_mm_adds_epu16`、`_mm_subs_epi16`、`_mm_subs_epu16`、\n`_mm_cmpeq_epi16`、`_mm_cmpgt_epi16`、mul ×3、`_mm_madd_epi16`、\n`_mm_avg_epu16`、min/max、immediate shift ×3、vector-count shift ×3、unpack ×2、\npack ×2、shuffle ×2、signed less-than、set、setr、set1、extract、insert",
+            "i32 arithmetic / construction: `_mm_add_epi32`、`_mm_sub_epi32`、`_mm_mul_epu32`、\n`_mm_cvtsi32_si128`、`_mm_set1_epi32`",
+            "i32 logic: `_mm_and_si128`、`_mm_or_si128`、`_mm_xor_si128`、`_mm_andnot_si128`",
+            "i32 comparison: `_mm_cmpeq_epi32`、`_mm_cmpgt_epi32`、`_mm_cmplt_epi32`",
+            "i32 shift: immediate ×3、vector-count ×3",
+            "i32 lane / pack / memory: `_mm_shuffle_epi32`、`_mm_unpacklo_epi32`、`_mm_unpackhi_epi32`、\n`_mm_packs_epi32`、low-lane extract、set、setr、unaligned load / store",
+            "i64 arithmetic / lane: `_mm_add_epi64`、`_mm_sub_epi64`、shift ×2、unpack ×2、\n`_mm_move_epi64`、`_mm_cvtsi64_si128`、`_mm_set1_epi64x`、vector-count shift ×2、\nlow-lane extract、set、low-lane load / store"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "254ケースすべてをportable fixtureで確認でき、公式Intel/OpenPOWER/ARM/RISC-V sourceにも\n全254操作が揃っています。"
+        }
+      ]
+    },
+    {
+      "id": "1ファイルcase-packの書き方",
+      "level": 2,
+      "title": "1ファイルcase packの書き方",
+      "blocks": []
+    },
+    {
+      "id": "case-yaml",
+      "level": 3,
+      "title": "`CASE_YAML`",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Pythonファイルの先頭へ、case ID、引数、戻り値、必要ISA、比較方法を書きます。\nこれは文字列ですが、普通のYAMLとして読めます。"
+        },
+        {
+          "type": "code",
+          "language": "python",
+          "text": "CASE_YAML = \"\"\"\nschema_version: 1\nid: sse2.add.f64x2.default\ndescription: two-lane IEEE 754 binary64 addition\n\nintel:\n  symbol: intel_mm_add_pd\n  required_isa: [sse2]\n\nopenpower:\n  symbol: power_mm_add_pd\n  required_isa: [power8, vsx]\n\narm:\n  symbol: arm_mm_add_pd\n  required_isa: [neon]\n\nriscv:\n  symbol: riscv_mm_add_pd\n  required_isa: [rvv]\n\nsignature:\n  arguments:\n    - {name: a, type: vector, element: f64, lanes: 2}\n    - {name: b, type: vector, element: f64, lanes: 2}\n  return: {type: vector, element: f64, lanes: 2}\n\ninput_domain: {exclude: []}\ncomparison: {mode: bit_exact}\nenvironment:\n  fp_rounding_modes: [nearest_even]\n  observe_fp_exceptions: false\ntags: []\n\"\"\"\n\nfrom equilane.casepack_families import float_binary_case\n\n\nCASE_ID, MINIMUM_COUNTS, candidates, execute = float_binary_case(\n    \"sse2.add.f64x2.default\", \"f64x2\", \"+\")"
+        },
+        {
+          "type": "paragraph",
+          "text": "`equilane`は`CASE_YAML`をPythonのASTから静的に読み、contractの検証中にはmodelを\n実行しません。入力生成が必要になった段階だけ同じファイルのmodel部分を読み込みます。\n従来の`case.yaml + model.py`と旧名`development.py`も互換目的で読み込めます。"
+        }
+      ]
+    },
+    {
+      "id": "浮動小数点は文字列にする",
+      "level": 3,
+      "title": "浮動小数点は文字列にする",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "YAML自体は浮動小数点を扱えますが、このプロジェクトのcase定義では生の\n浮動小数点numberを受け付けません。環境ごとの丸めや文字列化の違いを避け、\n同じcaseから常に同じhashを作るためです。"
+        },
+        {
+          "type": "code",
+          "language": "yaml",
+          "text": "# NG: YAMLの浮動小数点number\nabs_tolerance: 0.001\n\n# OK: 正確に解釈できる10進文字列\nabs_tolerance: \"0.001\"\nrel_tolerance: \"0\""
+        },
+        {
+          "type": "paragraph",
+          "text": "具体的なf32/f64入力はcase pack末尾の共通familyでIEEE 754の32/64-bit値として生成します。\n`NaN`、無限大、`-0.0`もbit表現のまま扱えるため、値やNaN payloadを失いません。"
+        },
+        {
+          "type": "paragraph",
+          "text": "YAMLではほかにanchor、alias、merge key、明示tag、重複keyも受け付けません。\nJSON形式のcaseも読み込めます。"
+        }
+      ]
+    },
+    {
+      "id": "実機で動くcaseへ育てる",
+      "level": 2,
+      "title": "実機で動くcaseへ育てる",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "ローカル開発だけならcase packの1ファイルで動きます。実機検証へ進める場合は、\n対象に応じて次を追加します。"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "`adapters/intel/`: Intel Intrinsicを呼ぶ実装",
+            "`adapters/openpower/`: OpenPOWER互換実装を呼ぶ実装",
+            "`adapters/arm/`: ARM64 NEONの実装",
+            "`adapters/riscv/`: RISC-V64 RVVの実装",
+            "`adapters/portable/`: ホストで確認できる補助実装",
+            "`include/framework/example_cases.h`: 公開C symbol",
+            "`tests/native/test_native.c`: ABIと代表入力のテスト"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "IntelとOpenPOWERのコードは、それぞれの対象CPU上で別々にビルド・実行します。\narm64 macOS / LinuxではARM adapter、Linux x86_64ではIntel adapter、ppc64leでは\nOpenPOWER adapter、riscv64ではRVV adapterも対象になります。"
+        },
+        {
+          "type": "paragraph",
+          "text": "詳しくは[Native status](native-status.json)を参照してください。"
+        }
+      ]
+    },
+    {
+      "id": "framework側へテストを追加する",
+      "level": 2,
+      "title": "Framework側へテストを追加する",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "変更した場所に近いファイルへ追加します。"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "case schema、YAML、入力生成: `tests/test_cases_generator.py`",
+            "project fileの読み込み: `tests/test_project.py`",
+            "manifestとartifact検証: `tests/test_artifacts.py`",
+            "比較ルール: `tests/test_compare.py`",
+            "CLIと一連の処理: `tests/test_end_to_end.py`",
+            "failure bundleと再実行: `tests/test_replay.py`",
+            "C ABIとadapter: `tests/native/test_native.c`"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "同じfixtureモデル同士の比較では見逃すバグを探すテストと、確認済みのNaN不一致は\n[`tests/BUG_HUNT.md`](../tests/BUG_HUNT.md)を参照してください。"
+        },
+        {
+          "type": "paragraph",
+          "text": "Python側は標準の`unittest`です。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "python -m unittest discover -s tests -v"
+        },
+        {
+          "type": "paragraph",
+          "text": "Native側:"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "cmake -S . -B build/native -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release\ncmake --build build/native --parallel\nctest --test-dir build/native --output-on-failure"
+        }
+      ]
+    },
+    {
+      "id": "中で何をしているのか",
+      "level": 2,
+      "title": "中で何をしているのか",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "text",
+          "text": "case pack ──> test vectors ──┬──> Intel result\n                             └──> OpenPOWER result\n                                      │\n                                      ▼\n                                   compare\n                                      │\n                         summary / JUnit / failure bundle"
+        },
+        {
+          "type": "paragraph",
+          "text": "Frameworkとテストsuiteは分けてあります。"
+        },
+        {
+          "type": "code",
+          "language": "text",
+          "text": "EquiLane/\n├── 10_official_suite/     # 254 cases + 4アーキテクチャ各254操作\n├── src/equilane/             # CLIとartifact処理\n├── adapters/              # native / portable adapter\n├── contracts/             # ISA registry\n├── tests/                 # framework自身のテスト\n└── equilane.toml             # 使用するsuiteの指定"
+        },
+        {
+          "type": "paragraph",
+          "text": "特定のproject fileを使う場合:"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane check --project ../my-intrinsics/equilane.toml"
+        },
+        {
+          "type": "paragraph",
+          "text": "相対パスは、その`equilane.toml`がある場所を基準に解決されます。"
+        }
+      ]
+    },
+    {
+      "id": "工程をひとつずつ実行する",
+      "level": 2,
+      "title": "工程をひとつずつ実行する",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane validate-cases\n\nequilane generate-vectors \\\n  --output artifacts/vectors \\\n  --count-per-case 8\n\nequilane fixture-run \\\n  --input artifacts/vectors/test-vectors.manifest.json \\\n  --role intel --output artifacts/intel \\\n  --i-understand-this-is-not-native-evidence\n\nequilane fixture-run \\\n  --input artifacts/vectors/test-vectors.manifest.json \\\n  --role openpower --output artifacts/openpower \\\n  --i-understand-this-is-not-native-evidence\n\nequilane compare-results \\\n  --input artifacts/vectors/test-vectors.manifest.json \\\n  --intel artifacts/intel/intel-results.manifest.json \\\n  --openpower artifacts/openpower/power-results.manifest.json \\\n  --output artifacts/comparison \\\n  --allow-development-fixtures"
+        },
+        {
+          "type": "paragraph",
+          "text": "インストールせずに試す場合は`PYTHONPATH=src python -m equilane`を使えます。"
+        }
+      ]
+    },
+    {
+      "id": "不一致を別のホストで再確認する",
+      "level": 2,
+      "title": "不一致を別のホストで再確認する",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "不一致が見つかると、`<output>/failures/<input_id>/`へその入力だけのfailure bundleを\n保存します。別ホストで取り直した結果は`verify-replay`で照合できます。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane verify-replay \\\n  --failure artifacts/comparison/failures/$INPUT_ID/failure.json \\\n  --intel replay/intel/intel-results.manifest.json \\\n  --openpower replay/openpower/power-results.manifest.json"
+        },
+        {
+          "type": "paragraph",
+          "text": "`--failure`には`failure.json`またはbundleディレクトリを指定できます。"
+        },
+        {
+          "type": "paragraph",
+          "text": "ARM/RISC-Vでは`--openpower`の代わりに`--target-role arm --target replay/arm/arm-results.manifest.json`\nなどを指定します。対象を省略して`--target`だけ渡すとbundleの対象を使います。\n開発fixtureだけの再実行は、ローカルの同じcase packを使って次のように実行できます。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "equilane replay --failure artifacts/comparison/failures/$INPUT_ID/failure.json \\\n  --role arm --output replay/arm --i-understand-this-is-not-native-evidence"
+        },
+        {
+          "type": "paragraph",
+          "text": "このopt-inを付けない replay はnative C ABIを使います。bundleの認証済みJSONとローカルcaseの契約を照合し、bundle内のPythonや共有ライブラリを実行せず、信頼するローカルソースをビルドします。既存ライブラリを指定する場合も build-evidence.json とsource/contract/binary hashを検証します。"
+        },
+        {
+          "type": "paragraph",
+          "text": "Bundleは、ファイルのSHA-256、case contract、input ID、使用ISA、両方の基準結果、\n不一致件数、最初の差分を検証します。bundle外へ出るpathやsymlinkも拒否します。"
+        },
+        {
+          "type": "paragraph",
+          "text": "Development fixtureの成果物を使う場合は`--allow-development-fixtures`が必要です。\nこの指定を付けてもnative evidenceにはなりません。"
+        }
+      ]
+    },
+    {
+      "id": "現在の制限と終了コード",
+      "level": 2,
+      "title": "現在の制限と終了コード",
+      "blocks": []
+    },
+    {
+      "id": "現在の制限",
+      "level": 3,
+      "title": "現在の制限",
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "Dockerのraw wrapper検証と、共通C ABIの run-native は別の検証経路です。",
+            "CPU feature、IEEE制御、4丸めモード、FP例外の事前probeを実行し、build-evidence.json と native-traceability.json を保存します。",
+            "native replay は認証済み単一入力を隔離workerで再実行します。",
+            "QEMUで採取した結果はエミュレータの観測です。",
+            "既定の公式case packはFP例外観測を無効にしています。FP例外を観測する独自caseには仕様に従ったregression witnessが必要です。",
+            "個別機能の検証完了状態は native-contract.json と保存された実行証跡を参照してください。"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "終了コード",
+      "level": 3,
+      "title": "終了コード",
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "`0`: 一致、または検証・生成成功",
+            "`1`: 比較結果の不一致",
+            "`2`: case定義や入力のエラー",
+            "`3`: 必要なISAや機能が利用できない",
+            "`4`: runnerまたは成果物の異常",
+            "`5`: Intel回帰oracleエラー"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "インストールで詰まったとき",
+      "level": 2,
+      "title": "インストールで詰まったとき",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Python 3.11以上が必要です。macOSの`/usr/bin/python3`が古い場合は、Homebrewなどで\n入れたPythonから仮想環境を作成してください。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "python3 --version"
+        }
+      ]
+    },
+    {
+      "id": "仕様を読む",
+      "level": 2,
+      "title": "仕様を読む",
+      "blocks": [
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "[まずはこちら: 読みやすい解説版](https://github.com/daisukeokaoss/ToukaSpecification/blob/a4d888dfdca53d4335a6051bea9df8b9fda9bf35/doc/intel-openpower-intrinsics-equivalence-test-framework-spec-for-everyone.md)",
+            "[IOITF specification](https://github.com/daisukeokaoss/ToukaSpecification/blob/a4d888dfdca53d4335a6051bea9df8b9fda9bf35/doc/intel-openpower-intrinsics-equivalence-test-framework-spec.md)",
+            "[Native implementation status](native-status.json)"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "ホスト間ではcanonical JSON / JSONLだけを交換します。`__m128i`やOpenPOWERのvector型など、\nCPU固有型の生バイト列はABIの共通形式に使いません。\nDockerのraw wrapper検証形式と、run-native が出力する既存仕様のnative manifest形式は区別します。"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "state": "verified",
+    "completion_contract": "native-contract.json",
+    "evidence_policy": "Implementation descriptions do not certify completion; each requirement needs saved verification evidence.",
+    "date": "2026-11-10",
+    "port_conformance": "unresolved",
+    "evidence_method": "Retained native Docker executions plus latest-source quality and separately refreshed, reauthenticated reports; see native-contract.json."
+  },
+  "purpose": "Intel Intrinsicsの他アーキテクチャへの移植が正しいかを、Intel実行結果とcase契約を基準に検証するための開発手順。"
+}

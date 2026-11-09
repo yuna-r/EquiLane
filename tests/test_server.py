@@ -344,7 +344,7 @@ class DashboardHTTPTests(unittest.TestCase):
 
     def test_external_host_bind_is_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "host"):
-            create_server(host="0.0.0.0", project=PROJECT / "equilane.toml", reports_root=self.root)
+            create_server(host="192.0.2.1", project=PROJECT / "equilane.toml", reports_root=self.root)
 
 
 if __name__ == "__main__":

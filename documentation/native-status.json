@@ -1,0 +1,276 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.native-status",
+  "language": "en",
+  "title": "Native implementation status",
+  "sections": [
+    {
+      "id": "native-implementation-status",
+      "level": 1,
+      "title": "Native implementation status",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "EquiLane verifies that Intel Intrinsics have been ported correctly to OpenPOWER, ARM64 NEON and RISC-V64 RVV. Intel C execution supplies the reference observations; the case contract defines what must match. The normal check command still uses shared Python development fixtures and therefore cannot certify the native ports."
+        },
+        {
+          "type": "paragraph",
+          "text": "For exact observed inputs, output bits, model failure attribution, and reproduction\ncommands, see the [detailed mismatch report](../MISMATCH_REPORT.md). Native observations\nare listed separately from shared Python-model findings."
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Target",
+            "Official C wrappers",
+            "Example ABI callbacks",
+            "Execution checked here"
+          ],
+          "rows": [
+            [
+              "Intel / SSE2",
+              "254",
+              "3",
+              "Ubuntu 26.04 Docker, emulated amd64"
+            ],
+            [
+              "OpenPOWER / POWER8 VSX",
+              "254",
+              "3",
+              "Ubuntu 26.04 Docker, emulated POWER9"
+            ],
+            [
+              "ARM64 / NEON",
+              "254",
+              "3",
+              "Ubuntu 26.04 Docker on ARM64; native arm64 Mac"
+            ],
+            [
+              "RISC-V64 / RVV 1.0",
+              "254",
+              "3",
+              "Ubuntu 26.04 Docker, emulated RVA23 / VLEN 128; bare-metal QEMU VLEN 128/256"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Every target has six C blocks (`f32x4`, `f64x2`, `i8x16`, `i16x8`, `i32x4`,\n`i64x2`). Their 24 standalone objects cross-compile without target libc sysroots:"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./10_official_suite/cross-compile.sh"
+        },
+        {
+          "type": "paragraph",
+          "text": "The ARM and RISC-V bindings are project extensions. Old case packs containing\nonly Intel and OpenPOWER remain valid; missing extra bindings yield `unsupported`.\nThe new targets use little-endian LP64 architecture profiles (`aarch64`, `riscv64`)."
+        }
+      ]
+    },
+    {
+      "id": "docker-baseline",
+      "level": 2,
+      "title": "Docker baseline",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The common execution environment is **Ubuntu 26.04 LTS**, using the official\nmulti-platform Ubuntu image with an explicit Docker platform for every target:"
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Role",
+            "Docker platform",
+            "Wrapper instruction profile",
+            "Ubuntu userspace requirement"
+          ],
+          "rows": [
+            [
+              "`intel`",
+              "`linux/amd64`",
+              "x86-64 / SSE2",
+              "x86-64"
+            ],
+            [
+              "`openpower`",
+              "`linux/ppc64le`",
+              "POWER8 / VSX",
+              "POWER9 or later"
+            ],
+            [
+              "`arm`",
+              "`linux/arm64`",
+              "ARMv8-A / NEON",
+              "ARMv8-A"
+            ],
+            [
+              "`riscv`",
+              "`linux/riscv64`",
+              "RV64GCV / RVV 1.0",
+              "RVA23"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "The wrapper compile profile and the minimum CPU needed to run the distribution\nare separate. In particular, POWER8 wrapper flags do not make Ubuntu 26.04\nuserspace run on POWER8. Canonical documents the [architecture baselines](https://ubuntu.com/project/docs/how-ubuntu-is-made/concepts/supported-architectures/)\nand [RISC-V QEMU requirements](https://ubuntu.com/hardware/docs/boards/how-to/ubuntu_supported/qemu-riscv/)."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./docker/run.sh all"
+        },
+        {
+          "type": "paragraph",
+          "text": "all builds each target image, executes the raw C wrapper corpus and the canonical encoded-ABI input stream, then compares OpenPOWER, ARM and RISC-V against the captured Intel outputs. verify additionally runs each architecture's CMake/CTest and the host-native container's full regression, browser behavior, sanitizer and cross-build gates. RISC-V VLEN 128/256 are exercised on non-RISC-V Docker hosts. Every bit difference remains visible. Docker execution mode, image identity, measured CPU/FP controls, build evidence and per-case traceability are retained. The legacy wrapper baseline below is distinct from the final full verification run."
+        },
+        {
+          "type": "paragraph",
+          "text": "On 2026-11-10, all four Ubuntu 26.04 containers compiled and executed all 254\noperations (762 samples per target) using Ubuntu Clang 21.1.8. The Docker daemon\nwas ARM64: ARM ran directly and the other three targets used emulation.\nThe exact comparisons retained these differences, without normalization:"
+        },
+        {
+          "type": "table",
+          "columns": [
+            "Target vs Intel",
+            "Matched",
+            "Unresolved port mismatches",
+            "Samples"
+          ],
+          "rows": [
+            [
+              "OpenPOWER",
+              "737",
+              "25",
+              "762"
+            ],
+            [
+              "ARM64",
+              "738",
+              "24",
+              "762"
+            ],
+            [
+              "RISC-V64, VLEN 128",
+              "739",
+              "23",
+              "762"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "The comparison command exited with status 1, because the target ports did not satisfy the selected comparison contract. These are unresolved findings, not passing portability results.\nLocal evidence is in `artifacts/docker/<role>/` and\n`artifacts/docker/compare-<role>.json`; generated artifacts are not committed.\nThese observations use the new Linux wrapper corpus and reference, separate\nfrom the older Rosetta / bare-metal QEMU observations below."
+        },
+        {
+          "type": "paragraph",
+          "text": "See the [Docker guide](../docker/guide.json) for requirements, individual targets,\nVLEN settings, artifact locations, and Report Studio."
+        }
+      ]
+    },
+    {
+      "id": "native-checks",
+      "level": 2,
+      "title": "Native checks",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "On ARM64 macOS or Linux, CMake builds the NEON adapter and wrapper self-test.\nThe latter performs 4,596 checks even in Release builds: integer boundaries,\nsaturating packs, complete shuffle immediates, full-width shifts, scalar inactive\nlanes, subnormal widening and unaligned memory guards. Native NaN, zero-tie and\nfloat-to-integer differences are printed without normalization."
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "cmake -S . -B build/native -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release\ncmake --build build/native --parallel\nctest --test-dir build/native --output-on-failure"
+        },
+        {
+          "type": "paragraph",
+          "text": "With LLVM Clang and `qemu-system-riscv64` available:"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./tests/native/test_riscv_smoke.sh\npython3 tests/native/test_riscv_suite.py"
+        },
+        {
+          "type": "paragraph",
+          "text": "The smoke performs 18 checks at each VLEN, including memory guards, vector widths,\nsaturation, large shifts, dynamic rounding and exception flags. The full suite\nexecutes all 254 wrappers with three deterministic inputs each. At both VLENs,\n750 of 762 byte results matched the strict SSE2/Rosetta reference; 12 floating\nadd/subtract/multiply samples differed because RVV retains its canonical NaN.\nThe command records every difference in `build/riscv-native-suite/summary.json`\nand exits with status 1. Under the bit-exact contract these are unresolved port-conformance failures. RVV canonical NaN behavior explains the observed differences but does not make the target conform. These findings are separate from the portable model's known bugs. This is emulated execution, with a Rosetta reference."
+        },
+        {
+          "type": "paragraph",
+          "text": "RVV uses explicit element counts and `-mrvv-vector-bits=scalable`. A larger\nphysical register must not overwrite the fixed 16-byte logical vector slots.\nDetailed implementation mappings and observed bits are in [ARM](../10_official_suite/arm/README.md)\nand [RISC-V](../10_official_suite/riscv/README.md)."
+        }
+      ]
+    },
+    {
+      "id": "c-abi-boundary",
+      "level": 2,
+      "title": "C ABI boundary",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "The legacy example adapter libraries retain their three registered callbacks. The generated native-suite library additionally exports every configured case symbol through the same ioitf_input/ioitf_output ABI. The Linux coordinator validates canonical inputs, audits the dynamic symbol registry, performs CPU/IEEE/rounding/exception preflight and executes calls in isolated workers."
+        },
+        {
+          "type": "paragraph",
+          "text": "The common boundary implements LP64 size/offset assertions, strict case-specific\nRFC 8785 decoding, output-capacity negotiation, logical lane encoding, requested\nrounding and FP exception capture. Input preparation precedes flag clearing;\nextraction follows observation. The three public example contracts disable FP\nexception observation, while the internal capture path is independently tested.\nShuffle accepts only the registered literals `0`, `1`, `27` and `255`.\nThe portable adapter remains a development fixture."
+        },
+        {
+          "type": "paragraph",
+          "text": "Implementation now includes the generated encoded-ABI library, bounded and restartable worker processes, dynamic symbol lookup and audit, measured CPU/FP preflight, compiler/object/source/link evidence, pointer-buffer decoding, native replay and per-case traceability. These implementation descriptions do not certify the final run: documentation/native-contract.json records the acceptance requirements and their saved verification evidence."
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "state": "verified",
+    "completion_contract": "native-contract.json",
+    "legacy_wrapper_baseline_date": "2026-11-10",
+    "date": "2026-11-10",
+    "port_conformance": "unresolved",
+    "evidence_method": "Retained native Docker executions plus latest-source quality and separately refreshed, reauthenticated reports; see native-contract.json."
+  },
+  "purpose": "Verify that each target implementation reproduces Intel Intrinsics behavior under the selected case contract.",
+  "port_conformance": {
+    "status": "unresolved",
+    "engineering_completion_contract": "native-contract.json",
+    "mismatch_rule": "A mismatch is an unmet port-conformance contract, not an accepted cross-CPU variation.",
+    "canonical_results": [
+      {
+        "target": "openpower",
+        "inputs": 2032,
+        "matched_inputs": 2006,
+        "unresolved_mismatched_inputs": 26,
+        "execution_errors": 0
+      },
+      {
+        "target": "arm",
+        "inputs": 2032,
+        "matched_inputs": 2016,
+        "unresolved_mismatched_inputs": 16,
+        "execution_errors": 0
+      },
+      {
+        "target": "riscv",
+        "inputs": 2032,
+        "matched_inputs": 1994,
+        "unresolved_mismatched_inputs": 38,
+        "execution_errors": 0
+      },
+      {
+        "target": "riscv-vlen256",
+        "inputs": 2032,
+        "matched_inputs": 1994,
+        "unresolved_mismatched_inputs": 38,
+        "execution_errors": 0
+      }
+    ]
+  },
+  "verification_summary": {
+    "pipeline_status": "findings",
+    "tests_run": 1349,
+    "skipped": 0,
+    "execution_and_assertion_errors": 0,
+    "portable_model_mismatches": 2159,
+    "encoded_abi_tests": 40,
+    "native_non_ok_records": 0
+  }
+}

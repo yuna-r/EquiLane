@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.native-completion-contract",
+  "status": "verified",
+  "scope": {
+    "operating_system": "Ubuntu 26.04 LTS",
+    "architectures": [
+      "x86_64",
+      "ppc64le",
+      "aarch64",
+      "riscv64"
+    ],
+    "official_operations_per_architecture": 254,
+    "abi_version": 1,
+    "data_interchange": [
+      "canonical JSON",
+      "canonical JSONL"
+    ],
+    "execution_evidence": "Docker native or emulated execution is recorded explicitly. An emulated result is evidence about that execution environment; a target mismatch still fails the selected Intel behavior contract."
+  },
+  "requirements": [
+    {
+      "id": "encoded_abi_all_cases",
+      "status": "verified",
+      "acceptance": [
+        "Every registered official operation exports its configured ioitf_case_fn symbol for all four architectures.",
+        "Canonical operands, immediate values and pointer buffers are validated and decoded without running a Python development model.",
+        "Return encodings and memory-effect records validate against authenticated signature and buffer-shape contracts; value compatibility is assessed separately under port_conformance."
+      ],
+      "evidence": [
+        {
+          "file": "artifacts/docker-complete/encoded-verification/summary.json",
+          "sha256": "38ff17b4d52e623b8e6eecfd6947a7d24ec3f957028f9f5ab77c00ceb47809cb",
+          "description": "All four architectures each passed 10 real encoded-ABI tests, including all 254 exported case symbols and actual calls."
+        }
+      ]
+    },
+    {
+      "id": "isolated_native_execution",
+      "status": "verified",
+      "acceptance": [
+        "Native calls run in an isolated worker with bounded execution time.",
+        "Signals, timeouts, unsupported capabilities, invalid input and infrastructure errors remain distinguishable."
+      ],
+      "evidence": [
+        {
+          "file": "artifacts/docker-complete/quality/manifest.json",
+          "sha256": "13f540a016fbeba7579dbf75f9def6a7d6e5a6a8764bdad8a92995037d397d4f",
+          "description": "Latest-source regression includes signal, timeout, restart, input-identity and cleanup tests; zero execution/assertion errors."
+        }
+      ]
+    },
+    {
+      "id": "cpu_and_fp_preflight",
+      "status": "verified",
+      "acceptance": [
+        "Architecture and required instruction features are observed before producing native result artifacts.",
+        "IEEE controls, requested rounding modes and required FP exception probes are measured rather than inferred from the contract.",
+        "Each call saves and restores caller controls and records FP exceptions when the case requests them."
+      ],
+      "evidence": [
+        {
+          "file": "artifacts/docker-complete/native/arm/preflight-observations.json",
+          "sha256": "bfb57aa01b635099531c8c360a4ceddc660bba87bd8a54cd39cbfb1b073df440",
+          "description": "Measured architecture/ISA, IEEE controls, four rounding modes and five FP exception witnesses."
+        },
+        {
+          "file": "artifacts/docker-complete/native/intel/preflight-observations.json",
+          "sha256": "77824fd0a7ebe55805e8c2d57357a4127427e199f2c1726ae5698d8886cdfd80",
+          "description": "Measured architecture/ISA, IEEE controls, four rounding modes and five FP exception witnesses."
+        },
+        {
+          "file": "artifacts/docker-complete/native/openpower/preflight-observations.json",
+          "sha256": "bf1c0b7036de280c490da5668bdce318d134f1853e64a656a262964dbedd830a",
+          "description": "Measured architecture/ISA, IEEE controls, four rounding modes and five FP exception witnesses."
+        },
+        {
+          "file": "artifacts/docker-complete/native/riscv/preflight-observations.json",
+          "sha256": "c3a76d6991ee130646695c00c4b995fc71b609c977a23f85cb72545882589c2c",
+          "description": "Measured architecture/ISA, IEEE controls, four rounding modes and five FP exception witnesses."
+        },
+        {
+          "file": "artifacts/docker-complete/native/riscv-vlen256/preflight-observations.json",
+          "sha256": "6d73a4a7f57e17d1f2be2b67362da1cb8727f72ac67d0f48707cc1ad2376ce63",
+          "description": "Measured architecture/ISA, IEEE controls, four rounding modes and five FP exception witnesses."
+        }
+      ]
+    },
+    {
+      "id": "native_build_and_symbol_evidence",
+      "status": "verified",
+      "acceptance": [
+        "Compiler identity, target, source hashes, object hashes, flags and final binary identity are collected from the actual build.",
+        "Configured case symbols are resolved and tied to their build units.",
+        "Loaded shared libraries and their identities are recorded for the worker process."
+      ],
+      "evidence": [
+        {
+          "file": "artifacts/docker-complete/native/arm/native-build-evidence.json",
+          "sha256": "713fbc95ce2457727eb11124278776843dde2aeaf89183153c508b18c0b9b89a",
+          "description": "Compiler, source/header/object/binary identities and the 254-symbol audit from each actual build."
+        },
+        {
+          "file": "artifacts/docker-complete/native/intel/native-build-evidence.json",
+          "sha256": "55c276db6d00fb4a7230b7566947ebd02492a67b6b464999650080d945ff640e",
+          "description": "Compiler, source/header/object/binary identities and the 254-symbol audit from each actual build."
+        },
+        {
+          "file": "artifacts/docker-complete/native/openpower/native-build-evidence.json",
+          "sha256": "221dcab61162e3e8998449bfa7459796c613e1228623a1226834c9bd7a4f093b",
+          "description": "Compiler, source/header/object/binary identities and the 254-symbol audit from each actual build."
+        },
+        {
+          "file": "artifacts/docker-complete/native/riscv/native-build-evidence.json",
+          "sha256": "436d6fba6226d2afec3d1a7e72fc3c1310ed5ac8cb134bc3e3665e437bea8a58",
+          "description": "Compiler, source/header/object/binary identities and the 254-symbol audit from each actual build."
+        },
+        {
+          "file": "artifacts/docker-complete/native/riscv-vlen256/native-build-evidence.json",
+          "sha256": "fa5ebcb4045d184659852ba1cfd6f985219d15ffe773fcad4f45477ec8b28cb0",
+          "description": "Compiler, source/header/object/binary identities and the 254-symbol audit from each actual build."
+        }
+      ]
+    },
+    {
+      "id": "canonical_native_results",
+      "status": "verified",
+      "acceptance": [
+        "Native result manifests pass the existing strict artifact validator without a development-fixture marker.",
+        "All four architectures consume the same authenticated input artifact.",
+        "Comparisons classify violations of the Intel-reference case contract as unresolved port-conformance failures, retain every mismatch and produce reports and failure bundles."
+      ],
+      "evidence": [
+        {
+          "file": "artifacts/docker-complete/canonical/compare-arm/summary.json",
+          "sha256": "251f4e0a3f6e539393eb8a898dea7688f45d845ab16a50b93c709674c1a9a0c9",
+          "description": "2,032 identical authenticated inputs; port-contract failures remain mismatches and produce failure bundles."
+        },
+        {
+          "file": "artifacts/docker-complete/canonical/compare-openpower/summary.json",
+          "sha256": "5cba49f07bd06848168d7c12f149b7bbc667a35cf1016b6a3ea4127e3cbd3aeb",
+          "description": "2,032 identical authenticated inputs; port-contract failures remain mismatches and produce failure bundles."
+        },
+        {
+          "file": "artifacts/docker-complete/canonical/compare-riscv/summary.json",
+          "sha256": "aab43688b3984a7915291b3c295932ab37d2281cda78546a880d855c54840ea0",
+          "description": "2,032 identical authenticated inputs; port-contract failures remain mismatches and produce failure bundles."
+        },
+        {
+          "file": "artifacts/docker-complete/canonical/compare-riscv-vlen256/summary.json",
+          "sha256": "aab43688b3984a7915291b3c295932ab37d2281cda78546a880d855c54840ea0",
+          "description": "2,032 identical authenticated inputs; port-contract failures remain mismatches and produce failure bundles."
+        }
+      ]
+    },
+    {
+      "id": "native_failure_replay",
+      "status": "verified",
+      "acceptance": [
+        "A validated failure bundle can be replayed through its trusted local native implementation.",
+        "Bundle files are data only and do not provide executable Python or shared libraries.",
+        "A changed local contract, wrong role or development-fixture downgrade is rejected.",
+        "The existing verify-replay command validates and compares independently captured native replay artifacts."
+      ],
+      "evidence": [
+        {
+          "file": "artifacts/docker-complete/replay-verification.json",
+          "sha256": "43cf063bbef19cf965762f381dac4376f9e891ff1a05e41c7c09ae78e40b354c",
+          "description": "Actual Intel and ARM C replay results reproduce the authenticated failure with no result differences."
+        }
+      ]
+    },
+    {
+      "id": "traceability",
+      "status": "verified",
+      "acceptance": [
+        "A machine-readable traceability artifact maps case IDs to authenticated contracts, exported symbols, build units and result inputs.",
+        "Traceability records can be verified against the same result manifest and build evidence."
+      ],
+      "evidence": [
+        {
+          "file": "artifacts/docker-complete/native/arm/native-traceability.json",
+          "sha256": "fbe625143482508ec9fc30dc0091c8644544de1bcf04e6d52e75ca5eb708a7d7",
+          "description": "Trace binds each case contract, symbol, build units, ordered input IDs and actual native result bytes; strict reauthentication completed."
+        },
+        {
+          "file": "artifacts/docker-complete/native/intel/native-traceability.json",
+          "sha256": "7df9bffcfcf3e4c8cca226690fc54b85132c9bc0e62a436982cdac243a0d450e",
+          "description": "Trace binds each case contract, symbol, build units, ordered input IDs and actual native result bytes; strict reauthentication completed."
+        },
+        {
+          "file": "artifacts/docker-complete/native/openpower/native-traceability.json",
+          "sha256": "7909a65d685c95ba93d843a02098009cd3e8ca5cc55cb0a445b24e138a21547c",
+          "description": "Trace binds each case contract, symbol, build units, ordered input IDs and actual native result bytes; strict reauthentication completed."
+        },
+        {
+          "file": "artifacts/docker-complete/native/riscv/native-traceability.json",
+          "sha256": "8ff6d65008dc1b89833eb12c6c3bba9afdbf37b3e4c6b6e71f7f91f96b77ec3a",
+          "description": "Trace binds each case contract, symbol, build units, ordered input IDs and actual native result bytes; strict reauthentication completed."
+        },
+        {
+          "file": "artifacts/docker-complete/native/riscv-vlen256/native-traceability.json",
+          "sha256": "8a5c19712f862f55af53848757f7e5ddfb5faaf0ad6d27374696a70588666bab",
+          "description": "Trace binds each case contract, symbol, build units, ordered input IDs and actual native result bytes; strict reauthentication completed."
+        }
+      ]
+    },
+    {
+      "id": "docker_pipeline",
+      "status": "verified",
+      "acceptance": [
+        "A documented Docker command builds, tests, captures and compares all four architectures and publishes a combined JSON and HTML report.",
+        "Regression, C ABI tests and required browser behavior tests execute in the container with their dependencies present.",
+        "Incomplete runs invalidate old success markers and preserve infrastructure errors separately from semantic mismatches."
+      ],
+      "evidence": [
+        {
+          "file": "artifacts/docker-complete/pipeline-summary.json",
+          "sha256": "b688ffc12ed0a2a2c9db94d6e25143a1c6d6a5d85168ae068f612e8f90552b86",
+          "description": "Accepted aggregate of actual four-target stages, refreshed canonical HTML/JSON reports, latest-source quality and retained findings."
+        },
+        {
+          "file": "artifacts/docker-complete/report-refresh.log",
+          "sha256": "04944062c55f1095a50f138bc009cc3cfd63c37271154acdbb370129148e67d4",
+          "description": "Canonical comparisons and aggregate reports regenerated from the latest corrected Python sources."
+        }
+      ]
+    }
+  ],
+  "completion_policy": {
+    "required_status": "verified",
+    "all_requirements_must_be_verified": true,
+    "semantic_mismatches_are_not_hidden": true,
+    "implementation_presence_alone_is_not_verification": true,
+    "interpretation": "The requirement statuses certify the verification pipeline engineering. They do not certify that every port conforms; port_conformance remains a separate result and cannot pass while contract violations remain."
+  },
+  "purpose": "Verify that Intel Intrinsics have been ported correctly to OpenPOWER, ARM64 NEON and RISC-V64 RVV implementations, using the Intel implementation and the authenticated case contract as the reference.",
+  "port_conformance": {
+    "status": "unresolved",
+    "reference": "Intel Intrinsics Guide semantics, captured Intel C implementation output and the selected case comparison contract",
+    "rule": "A target output that violates the case comparison contract is a port-conformance failure requiring investigation or correction. CPU-specific behavior can explain a mismatch but does not turn a bit-exact mismatch into a pass.",
+    "engineering_completion_is_not_port_conformance": true,
+    "known_portable_model_findings": {
+      "status": "unresolved",
+      "count": 2159,
+      "scope": "Independent portable Python model verification; separate from target C port conformance."
+    },
+    "canonical_results": [
+      {
+        "target": "openpower",
+        "inputs": 2032,
+        "matched_inputs": 2006,
+        "unresolved_mismatched_inputs": 26,
+        "execution_errors": 0
+      },
+      {
+        "target": "arm",
+        "inputs": 2032,
+        "matched_inputs": 2016,
+        "unresolved_mismatched_inputs": 16,
+        "execution_errors": 0
+      },
+      {
+        "target": "riscv",
+        "inputs": 2032,
+        "matched_inputs": 1994,
+        "unresolved_mismatched_inputs": 38,
+        "execution_errors": 0
+      },
+      {
+        "target": "riscv-vlen256",
+        "inputs": 2032,
+        "matched_inputs": 1994,
+        "unresolved_mismatched_inputs": 38,
+        "execution_errors": 0
+      }
+    ]
+  },
+  "verification_date": "2026-11-10",
+  "verification_scope": "Verification-pipeline engineering and its retained evidence. Target-port conformance is a separate unresolved verdict.",
+  "verification_record": {
+    "pipeline_status": "findings",
+    "pipeline_exit_code": 1,
+    "latest_source_quality": {
+      "tests_run": 1349,
+      "skipped": 0,
+      "test_execution_and_assertion_errors": 0,
+      "portable_model_mismatches": 2159
+    },
+    "architecture_specific_encoded_abi_tests": {
+      "tests_run": 40,
+      "architectures": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "native_execution": {
+      "inputs_per_target": 2032,
+      "targets": [
+        "intel",
+        "openpower",
+        "arm",
+        "riscv",
+        "riscv-vlen256"
+      ],
+      "non_ok_records": 0
+    },
+    "native_replay": {
+      "status": "reproduced",
+      "roles": [
+        "intel",
+        "arm"
+      ],
+      "result_differences": []
+    },
+    "initial_full_verify": {
+      "accepted_as_clean_exit": false,
+      "note": "The running launcher file was edited during the first full verification, causing a trailing shell parse error. Its completed build, CTest and native captures were retained. Latest-source quality, canonical comparisons, strict trace reauthentication and reports were run separately after fixes. This record does not claim that the initial raw verify invocation exited successfully."
+    },
+    "final_evidence_method": [
+      "Retained actual four-target Docker build/CTest/capture results.",
+      "Ran the latest-source quality gates separately.",
+      "Ran all four architecture-specific encoded ABI suites.",
+      "Recomputed canonical comparisons and regenerated reports from corrected sources.",
+      "Reauthenticated manifests, traces, measured probes, binary/object bytes and comparison counts."
+    ],
+    "local_evidence_policy": "Evidence paths refer to ignored local run artifacts, not files embedded in the source checkout. Re-running the documented Docker workflow produces a new evidence set."
+  }
+}

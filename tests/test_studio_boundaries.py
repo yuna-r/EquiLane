@@ -530,6 +530,22 @@ class HTTPBoundaryTests(unittest.TestCase):
                     create_server(port=port, project=PROJECT, reports_root=PROJECT)
                 server.assert_not_called()
 
+    def test_container_bind_retains_localhost_host_and_origin_checks(self):
+        with mock.patch("equilane.server.DashboardServer") as constructor:
+            create_server(host="0.0.0.0", project=PROJECT, reports_root=PROJECT)
+        constructor.assert_called_once_with(("0.0.0.0", 0), PROJECT, PROJECT)
+        server = SimpleNamespace(
+            server_address=("0.0.0.0", 8123), reports=mock.Mock(), checks=mock.Mock(),
+        )
+        self.assertEqual(self.post(server=server, headers={
+            "Origin": "http://127.0.0.1:8123",
+        }).response[0], 202)
+        for headers in ({"Host": "0.0.0.0:8123"}, {"Host": "192.0.2.1:8123"},
+                        {"Origin": "http://192.0.2.1:8123"}):
+            with self.subTest(headers=headers):
+                server.checks.reset_mock()
+                self.assert_rejected(403, server=server, headers=headers)
+
     def test_response_headers_count_utf8_bytes_and_disable_caching_and_sniffing(self):
         handler = MemoryHandler()
         handler.request_version = "HTTP/1.1"

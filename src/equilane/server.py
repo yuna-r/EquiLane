@@ -465,10 +465,14 @@ def create_server(
     project: Path,
     reports_root: Path,
 ) -> DashboardServer:
-    """Create a loopback-only server; port zero selects an available port."""
+    """Create a local dashboard; wildcard binding is opt-in for containers.
 
-    if host not in {"127.0.0.1", "localhost", "::1"}:
-        raise ValueError("dashboard host must be 127.0.0.1, localhost, or ::1")
+    HTTP Host and Origin checks still accept only localhost authorities.
+    Port zero selects an available port.
+    """
+
+    if host not in {"127.0.0.1", "localhost", "::1", "0.0.0.0"}:
+        raise ValueError("dashboard host must be 127.0.0.1, localhost, ::1, or 0.0.0.0")
     if type(port) is not int or not 0 <= port <= 65535:
         raise ValueError("dashboard port must be an integer between 0 and 65535")
     return DashboardServer((host, port), Path(project), Path(reports_root))

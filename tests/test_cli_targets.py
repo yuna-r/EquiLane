@@ -131,10 +131,11 @@ class TargetCLITests(unittest.TestCase):
                 "--input", str(output / "vectors/test-vectors.manifest.json"),
                 "--intel", str(output / "intel/intel-results.manifest.json"),
                 "--target-role", "arm", "--target", str(output / "arm/arm-results.manifest.json"),
-                "--output", str(root / "separate-comparison"), "--allow-development-fixtures",
+                "--output", str(root / "separate-comparison"), "--allow-development-fixtures", "--showcase-report",
             ])
             self.assertEqual(code, 0, stderr)
             self.assertEqual(comparison["status"], "match")
+            self.assertTrue(Path(comparison["showcase_report"]).is_file())
 
     def test_parser_keeps_legacy_flags_and_accepts_new_fixture_and_replay_targets(self):
         fixture = _parser().parse_args(["fixture-run", "--input", "input", "--role", "arm", "--output", "arm"])
@@ -182,9 +183,12 @@ class TargetCLITests(unittest.TestCase):
                     output = root / f"replay-{replay_role}"
                     args = ["replay", "--failure", str(failure_path), "--project", str(project),
                             "--role", replay_role, "--output", str(output)]
-                    code, _, stderr = self._main(args)
+                    from equilane.errors import UnsupportedError
+                    with mock.patch("equilane.native_replay.replay_native", side_effect=UnsupportedError("native platform unavailable")) as native:
+                        code, _, stderr = self._main(args)
+                    native.assert_called_once()
                     self.assertEqual(code, 3)
-                    self.assertIn("native replay is not implemented", stderr)
+                    self.assertIn("native platform unavailable", stderr)
                     self.assertFalse(output.exists())
                     completed = subprocess.run(
                         [sys.executable, "-m", "equilane", *args,

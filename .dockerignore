@@ -1,0 +1,17 @@
+.git
+.venv
+.ioitf
+.equilane
+.pytest_cache
+**/__pycache__
+**/*.pyc
+**/*.egg-info
+build
+dist
+artifacts
+work
+llvm-project
+.DS_Store
+.agents
+.codex
+.aws

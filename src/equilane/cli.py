@@ -227,7 +227,44 @@ def _compare_results(args: argparse.Namespace) -> int:
         allow_development_fixtures=args.allow_development_fixtures,
         jobs=args.jobs,
     )
-    _print(result.as_json())
+    value = result.as_json()
+    if args.showcase_report:
+        from .showcase import write_showcase_report
+        inputs = context.input_artifact
+        report_summary = dict(read_canonical_json(result.files.summary_path))
+        execution_counts = {"execution_errors": 0, "unsupported": 0, "invalid_inputs": 0}
+        native_findings = []
+        for record in inputs.records:
+            input_id = str(record["input_id"])
+            intel = context.intel_artifact.records[input_id]
+            target = context.openpower_artifact.records[input_id]
+            statuses = {intel["status"], target["status"]}
+            if statuses & {"runtime_error", "signal", "infrastructure_error"}:
+                execution_counts["execution_errors"] += 1
+            elif "unsupported" in statuses:
+                execution_counts["unsupported"] += 1
+            elif "invalid_input" in statuses:
+                execution_counts["invalid_inputs"] += 1
+            if statuses != {"ok"} or intel.get("observed") != target.get("observed"):
+                native_findings.append({"case_id": record["case_id"], "input_id": input_id,
+                                        "target_role": args.target_role, "input": record,
+                                        "intel": intel, "target": target})
+        report_summary["execution_counts"] = execution_counts
+        report_summary["native_findings"] = native_findings
+        report = write_showcase_report(
+            args.output / "showcase.html", cases=cases,
+            summary=report_summary,
+            profile=str(inputs.manifest["profile"]),
+            seed=str(inputs.manifest.get("seed", next((r["generation"]["seed"] for r in inputs.records
+                                                      if "seed" in r["generation"]), "not-recorded"))),
+            vector_sha256=inputs.sha256, case_definitions_sha256=inputs.case_definitions_sha256,
+            isa_contract_sha256=inputs.used_isa_contract.sha256,
+            generated_at=datetime.now(timezone.utc),
+            native_evidence=not (context.intel_artifact.development_fixture or context.openpower_artifact.development_fixture),
+            target_roles=(args.target_role,),
+        )
+        value["showcase_report"] = str(report)
+    _print(value)
     return result.exit_code
 
 
@@ -303,6 +340,34 @@ def _verify_replay(args: argparse.Namespace) -> int:
     return EXIT_MATCH if verification.reproduced else EXIT_MISMATCH
 
 
+def _native_run(args: argparse.Namespace) -> int:
+    from .artifacts import validate_input_artifact
+    from .native import run_native
+
+    cases, isa = _contracts(args)
+    inputs = validate_input_artifact(args.input, cases, isa)
+    result = run_native(input_artifact=inputs, cases=cases, isa_registry=isa,
+                        role=args.role, output=args.output, library=args.library,
+                        compiler=args.compiler, timeout=args.timeout, jobs=args.jobs)
+    errors = sum(record["status"] != "ok" for record in result.records)
+    _print({"status": "native_complete" if not errors else "native_execution_failed",
+            "role": args.role, "manifest": str(result.manifest_path),
+            "record_count": result.record_count, "execution_errors": errors,
+            "native_evidence": True, "sha256": result.sha256})
+    return EXIT_RUNNER if errors else EXIT_MATCH
+
+
+def _validate_native_trace(args: argparse.Namespace) -> int:
+    from .artifacts import validate_input_artifact
+    from .native_traceability import validate_traceability
+    cases,isa=_contracts(args)
+    inputs=validate_input_artifact(args.input,cases,isa)
+    trace=validate_traceability(args.output,input_artifact=inputs,cases=cases,isa_registry=isa,role=args.role)
+    _print({"status":"valid","role":args.role,"case_count":len(trace["cases"]),
+            "result_sha256":trace["result_sha256"]})
+    return EXIT_MATCH
+
+
 def _fixture_replay(args: argparse.Namespace) -> int:
     """Replay an embedded input with explicitly opted-in local Python models."""
 
@@ -313,10 +378,16 @@ def _fixture_replay(args: argparse.Namespace) -> int:
     from .replay import load_failure_bundle
 
     if not args.i_understand_this_is_not_native_evidence:
-        raise UnsupportedError(
-            "native replay is not implemented; development replay requires "
-            "--i-understand-this-is-not-native-evidence"
-        )
+        from .native_replay import replay_native
+        local_cases, _ = _contracts(args)
+        result = replay_native(failure=args.failure, role=args.role, output=args.output,
+                               local_cases=local_cases, library=args.library,
+                               compiler=args.compiler, timeout=args.timeout, jobs=args.jobs)
+        errors = sum(record["status"] != "ok" for record in result.records)
+        _print({"status": "native_replay_complete" if not errors else "native_replay_failed",
+                "manifest": str(result.manifest_path), "record_count": result.record_count,
+                "role": args.role, "native_evidence": True})
+        return EXIT_RUNNER if errors else EXIT_MATCH
     bundle = load_failure_bundle(args.failure)
     if args.role not in ("intel", bundle.target_role):
         raise ValidationError("replay role must be Intel or the failure bundle's target")
@@ -572,7 +643,7 @@ def _serve_dashboard(args: argparse.Namespace) -> int:
     project = load_project(args.project)
     try:
         serve(
-            host="127.0.0.1",
+            host=args.host,
             port=args.port,
             project=project.path.resolve(),
             reports_root=args.reports.resolve(),
@@ -630,6 +701,11 @@ def _parser() -> argparse.ArgumentParser:
 
     dashboard = subcommands.add_parser("serve", help="serve the local report dashboard")
     dashboard.add_argument("--project", type=Path, help="suite project file")
+    dashboard.add_argument(
+        "--host", choices=("127.0.0.1", "localhost", "::1", "0.0.0.0"),
+        default="127.0.0.1",
+        help="bind address (use 0.0.0.0 inside Docker with a localhost port mapping)",
+    )
     dashboard.add_argument("--port", type=_parse_port, default=8765)
     dashboard.add_argument(
         "--reports", type=Path, default=Path(OUTPUT_DIRECTORY) / "checks",
@@ -736,6 +812,24 @@ def _parser() -> argparse.ArgumentParser:
     )
     fixture.set_defaults(handler=_fixture_run)
 
+    native = subcommands.add_parser("run-native", help="compile and run real C ABI cases in isolated Linux workers")
+    _add_contract_arguments(native)
+    native.add_argument("--input", "--vectors", required=True, type=Path)
+    native.add_argument("--role", choices=TARGET_ROLES, required=True)
+    native.add_argument("--output", required=True, type=Path)
+    native.add_argument("--compiler", default="clang")
+    native.add_argument("--library", type=Path, help="existing library with authenticated build-evidence.json")
+    native.add_argument("--timeout", type=float, default=5.0, help="per-call worker deadline in seconds")
+    native.add_argument("-j", "--jobs", type=_parse_jobs, default=1)
+    native.set_defaults(handler=_native_run)
+
+    trace = subcommands.add_parser("validate-native-trace", help="verify native traceability, case bindings and retained build artifacts")
+    _add_contract_arguments(trace)
+    trace.add_argument("--input", required=True, type=Path)
+    trace.add_argument("--role", choices=TARGET_ROLES, required=True)
+    trace.add_argument("--output", required=True, type=Path, help="native result directory")
+    trace.set_defaults(handler=_validate_native_trace)
+
     compare = subcommands.add_parser("compare-results")
     _add_contract_arguments(compare)
     compare.add_argument("--input", required=True, type=Path)
@@ -750,14 +844,18 @@ def _parser() -> argparse.ArgumentParser:
         help="case-level worker processes (positive integer or 'auto')",
     )
     compare.add_argument("--allow-development-fixtures", action="store_true")
+    compare.add_argument("--showcase-report", action="store_true", help="write the searchable HTML report from these validated artifacts")
     compare.set_defaults(handler=_compare_results)
 
-    replay = subcommands.add_parser("replay", help="replay a failure input with explicit development opt-in")
+    replay = subcommands.add_parser("replay", help="replay a failure with native C, or explicitly opt into development models")
     _add_contract_arguments(replay)
     replay.add_argument("--failure", required=True, type=Path)
     replay.add_argument("--role", choices=TARGET_ROLES, required=True)
     replay.add_argument("--output", required=True, type=Path)
     replay.add_argument("-j", "--jobs", default=1, type=_parse_jobs)
+    replay.add_argument("--compiler", default="clang")
+    replay.add_argument("--library", type=Path)
+    replay.add_argument("--timeout", type=float, default=5.0)
     replay.add_argument("--i-understand-this-is-not-native-evidence", action="store_true")
     replay.set_defaults(handler=_fixture_replay)
 

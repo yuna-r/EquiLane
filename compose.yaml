@@ -1,0 +1,11 @@
+services:
+  studio:
+    build: .
+    image: equilane/ubuntu26.04:studio
+    working_dir: /opt/equilane
+    command: ["equilane", "serve", "--host", "0.0.0.0", "--port", "8765"]
+    ports:
+      - "127.0.0.1:8765:8765"
+    volumes:
+      - ./artifacts/studio:/opt/equilane/.equilane
+    init: true

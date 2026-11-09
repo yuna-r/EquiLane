@@ -113,6 +113,19 @@ class CLIAdversarialTests(unittest.TestCase):
             with self.subTest(legacy=legacy):
                 self._run_check(legacy=legacy, quality=False)
 
+    def test_dashboard_bind_defaults_to_loopback_and_accepts_explicit_container_bind(self):
+        for options, host in (([], "127.0.0.1"), (["--host", "0.0.0.0"], "0.0.0.0")):
+            with self.subTest(host=host), mock.patch("equilane.server.serve") as serve:
+                self.assertEqual(main([
+                    "serve", "--project", str(PROJECT / "equilane.toml"), *options,
+                ]), 0)
+                self.assertEqual(serve.call_args.kwargs["host"], host)
+
+    def test_dashboard_bind_rejects_arbitrary_lan_addresses(self):
+        with redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as result:
+            main(["serve", "--host", "192.0.2.1"])
+        self.assertEqual(result.exception.code, 2)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "artifact_type": "equilane.docker-guide",
+  "language": "ja",
+  "title": "Ubuntu 26.04 LTSでの検証",
+  "sections": [
+    {
+      "id": "ubuntu-26-04-ltsでの検証",
+      "level": 1,
+      "title": "Ubuntu 26.04 LTSでの検証",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "EquiLaneは、Intel Intrinsicsが他のCPU向けに正しくポートされているかを検証します。Ubuntu 26.04 LTSのDocker環境を共通基準にし、同じ入力に対するIntel C実装の出力を基準として、OpenPOWER・ARM64 NEON・RISC-V64 RVVの実装がcase契約を満たすか確認します。ホストと異なるアーキテクチャはエミュレータで実行します。"
+        },
+        {
+          "type": "table",
+          "columns": [
+            "コマンドの対象",
+            "Docker platform",
+            "Ubuntuイメージ",
+            "wrapperの命令セット"
+          ],
+          "rows": [
+            [
+              "`intel`",
+              "`linux/amd64`",
+              "[`ubuntu:26.04`](https://hub.docker.com/_/ubuntu)",
+              "SSE2"
+            ],
+            [
+              "`openpower`",
+              "`linux/ppc64le`",
+              "[`ppc64le/ubuntu:26.04`](https://hub.docker.com/r/ppc64le/ubuntu/)",
+              "POWER8 / VSX"
+            ],
+            [
+              "`arm`",
+              "`linux/arm64`",
+              "[`arm64v8/ubuntu:26.04`](https://hub.docker.com/r/arm64v8/ubuntu/)",
+              "ARMv8-A / NEON"
+            ],
+            [
+              "`riscv`",
+              "`linux/riscv64`",
+              "[`riscv64/ubuntu:26.04`](https://hub.docker.com/r/riscv64/ubuntu/)",
+              "RV64GCV / RVV 1.0"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "表のアーキテクチャ別リポジトリは公式Ubuntuイメージの各ビルドです。\nDockerfileは同じ公式マルチアーキテクチャイメージを使い、`--platform`で対象を選びます。\nベースイメージは26.04のmanifest digestへ固定しています。"
+        }
+      ]
+    },
+    {
+      "id": "前提",
+      "level": 2,
+      "title": "前提",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Docker EngineとBuildxが必要です。Docker Desktopは異なるアーキテクチャのビルド・実行を\n標準でエミュレートします。利用できる対象はDockerの導入状態にもよるため、\n実行エラーが出た場合はエミュレータの対応を確認してください。"
+        },
+        {
+          "type": "paragraph",
+          "text": "Linuxでbinfmt登録が必要な場合は、Dockerホストへ一度だけ登録します。\nこれはホストのbinfmt設定を更新する管理コマンドです。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "docker run --privileged --rm tonistiigi/binfmt --install amd64,arm64,ppc64le,riscv64"
+        },
+        {
+          "type": "paragraph",
+          "text": "詳細は[Dockerのマルチプラットフォームガイド](https://docs.docker.com/build/building/multi-platform/)を参照してください。\nスクリプトはこの管理コマンドを自動実行しません。"
+        },
+        {
+          "type": "paragraph",
+          "text": "Ubuntu本体が必要とするCPUと、wrapperのコンパイル対象は分けて扱います。"
+        },
+        {
+          "type": "list",
+          "ordered": false,
+          "items": [
+            "OpenPOWERのUbuntu 26.04はPOWER9以降が必要です。QEMUは `power9` を選び、wrapperはPOWER8向けにビルドします。",
+            "RISC-VのUbuntu 26.04はRVA23が必要です。QEMU 10.1以降の `rva23s64` CPUを使います。\nwrapperは `-march=rv64gcv -mabi=lp64d -mrvv-vector-bits=scalable` でビルドします。"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "根拠は[UbuntuのCPU基準](https://ubuntu.com/project/docs/how-ubuntu-is-made/concepts/supported-architectures/)と\n[RISC-V QEMUの要件](https://ubuntu.com/hardware/docs/boards/how-to/ubuntu_supported/qemu-riscv/)です。\n古いQEMUではコンテナのshellやPythonが起動する前に失敗する場合があります。"
+        }
+      ]
+    },
+    {
+      "id": "4環境をまとめて比較する",
+      "level": 2,
+      "title": "4環境をまとめて比較する",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "リポジトリのルートで実行します。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./docker/run.sh all"
+        },
+        {
+          "type": "paragraph",
+          "text": "all は各環境のイメージをビルドし、raw C wrapperと共通C ABIの実行結果を採取してIntelと比較します。verify はさらに各環境のCMake/CTestと、ホストCPU向けコンテナのPython/ブラウザ/sanitizer/cross buildを実行します。既定の出力先は artifacts/docker/ です。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./docker/run.sh all artifacts/docker/run-001"
+        },
+        {
+          "type": "paragraph",
+          "text": "比較は戻り値とmemory出力をcase契約に従って照合します。bit_exact契約ではNaNの符号・payloadやsigned zeroも一致が必要です。CPU固有の挙動で説明できる差であっても、契約を満たさない結果は未解決の移植不一致として扱います。不一致は終了コード1、ビルドや実行の失敗は別のerrorとして記録します。"
+        }
+      ]
+    },
+    {
+      "id": "個別採取と再比較",
+      "level": 2,
+      "title": "個別採取と再比較",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "./docker/run.sh intel\n./docker/run.sh openpower\n./docker/run.sh arm\n./docker/run.sh riscv\n./docker/run.sh compare"
+        },
+        {
+          "type": "paragraph",
+          "text": "個別の対象指定はその対象の出力を採取します。`compare` は保存済みのIntel出力と\n各対象の出力を比較します。同じ組の比較では同じ出力ディレクトリを指定してください。"
+        },
+        {
+          "type": "paragraph",
+          "text": "環境変数で調整できます。"
+        },
+        {
+          "type": "table",
+          "columns": [
+            "変数",
+            "既定値",
+            "用途"
+          ],
+          "rows": [
+            [
+              "`EQUILANE_IMAGE_PREFIX`",
+              "`equilane/ubuntu26.04`",
+              "ローカルDockerイメージ名のprefix"
+            ],
+            [
+              "`EQUILANE_BUILD`",
+              "`1`",
+              "`0`で既存イメージを使う"
+            ],
+            [
+              "`EQUILANE_RISCV_CPU`",
+              "`rva23s64,vlen=128`",
+              "RISC-VエミュレータのCPU設定"
+            ],
+            [
+              "EQUILANE_JOBS",
+              "2",
+              "native workerとビルドの並列数"
+            ],
+            [
+              "EQUILANE_PROFILE",
+              "smoke",
+              "共通C ABIの入力profile"
+            ],
+            [
+              "EQUILANE_COUNT_PER_CASE",
+              "8",
+              "共通C ABIのケースごとの入力数"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "イメージを一度ビルドしたあと、コードを変えずに採取し直す場合："
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "EQUILANE_BUILD=0 ./docker/run.sh all artifacts/docker/repeat"
+        },
+        {
+          "type": "paragraph",
+          "text": "DockerホストがRISC-V以外の場合、all / verify / wrappers はVLEN 128に加えてVLEN 256の採取も自動で実行します。RISC-Vホストの実行では物理CPUのVLENを設定で変更できません。EQUILANE_RISCV_CPU はエミュレータの基準設定を変える場合に使います。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "EQUILANE_RISCV_CPU=rva23s64,vlen=256 ./docker/run.sh all artifacts/docker/vlen256"
+        },
+        {
+          "type": "paragraph",
+          "text": "QEMUは `QEMU_CPU` でCPUを選びます。この変数が `-cpu` に対応することは\n[QEMUの実装](https://github.com/qemu/qemu/blob/master/linux-user/main.c)で確認できます。\nコンテナのCPU設定はDockerで動くQEMUへ渡すもので、物理CPUの機能を追加する設定ではありません。"
+        }
+      ]
+    },
+    {
+      "id": "結果の範囲",
+      "level": 2,
+      "title": "結果の範囲",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "raw wrapper比較は1対象あたり254操作 × 3入力、762サンプルです。共通C ABI比較は既定のsmoke profileで各case 8入力、2,032入力です。raw wrapperは intel/、openpower/、arm/、riscv/ へ、共通C ABIの結果は native/<role>/ へ保存します。"
+        },
+        {
+          "type": "table",
+          "columns": [
+            "ファイル",
+            "内容"
+          ],
+          "rows": [
+            [
+              "`<role>/manifest.json`",
+              "compiler、実行種別、イメージなどの採取情報"
+            ],
+            [
+              "`<role>/outputs.jsonl`",
+              "各サンプルの出力バイト列"
+            ],
+            [
+              "`<role>/corpus.json`",
+              "決定的な入力の定義"
+            ],
+            [
+              "`<role>/build.log`",
+              "ビルドのログ"
+            ],
+            [
+              "`<role>/build/`",
+              "生成した呼出しコード、実行ファイル、object"
+            ],
+            [
+              "`compare-<role>.json`",
+              "Intelとの比較結果と差分"
+            ]
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "実行種別はDocker daemon側のCPUを基準に `docker-native` または `docker-emulated` として記録します。\nDockerクライアントを実行したMacのCPUと、接続先daemonのCPUが違う場合にもdaemon側を使います。\nエミュレータでの結果はそのQEMU実装の観測です。実行完了・一致数・不一致数は各回の成果物で確認します。"
+        },
+        {
+          "type": "paragraph",
+          "text": "2026-11-10の初回基準では、4対象すべて762サンプルの採取を完了しました。\nIntelとの差はOpenPOWER 25件、ARM64 24件、RISC-V64（VLEN 128）23件で、比較コマンドは\n終了コード1を返しました。環境と集計は [Native status](../documentation/native-status.json) に記録しています。"
+        },
+        {
+          "type": "paragraph",
+          "text": "raw wrapper runnerは公式C wrapperを直接呼び、各操作3入力をnearest-evenで実行します。別経路の run-native は共通C ABIでcanonical入力をdecodeし、case契約に従った丸めとFP例外観測、pointer buffer出力、動的symbol監査、プロセス隔離を実行します。両経路ともPythonモデルを期待値に使いません。共通ABIの成果物は既存の compare-results / failure bundle / verify-replay が扱う形式です。"
+        }
+      ]
+    },
+    {
+      "id": "report-studioとpythonの検証",
+      "level": 2,
+      "title": "Report StudioとPythonの検証",
+      "blocks": [
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "docker compose up --build studio"
+        },
+        {
+          "type": "paragraph",
+          "text": "[localhost:8765](http://localhost:8765) を開きます。\nStudioはホストCPU向けのコンテナで動き、生成したレポートは `artifacts/studio/` へ保存します。\n終了は `Ctrl+C`、再起動は同じコマンドです。"
+        },
+        {
+          "type": "paragraph",
+          "text": "Studioの `check` は従来のPython fixture検証です。\n同じイメージでCLIだけ使う場合は、作成済みの対象イメージと出力先を指定します。"
+        },
+        {
+          "type": "code",
+          "language": "sh",
+          "text": "mkdir -p artifacts/docker/fixture\ndocker run --rm --platform linux/arm64 \\\n  --mount type=bind,src=\"$(pwd)/artifacts/docker/fixture\",dst=/artifacts \\\n  equilane/ubuntu26.04:arm \\\n  equilane check --target all --output /artifacts/check --showcase-report"
+        },
+        {
+          "type": "paragraph",
+          "text": "この例はARM64イメージです。別のCPUを使う場合はplatformとイメージのtagを揃えてください。\n`check --quality` の独立モデル検証には既知の不一致があり、Dockerでも検証失敗として残ります。\n詳細は [不一致レポート](../MISMATCH_REPORT.md) と [native実装の範囲](../documentation/native-status.json) を参照してください。"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "state": "verified",
+    "completion_contract": "../documentation/native-contract.json",
+    "date": "2026-11-10",
+    "port_conformance": "unresolved",
+    "evidence_method": "Retained native Docker executions plus latest-source quality and separately refreshed, reauthenticated reports; see native-contract.json."
+  },
+  "entry_points": {
+    "complete_verification": "./docker/run.sh verify",
+    "native_comparisons": "./docker/run.sh all",
+    "raw_wrapper_comparisons": "./docker/run.sh wrappers",
+    "existing_results_report": "./docker/run.sh report",
+    "studio": "docker compose up --build studio"
+  },
+  "artifacts": {
+    "summary": "artifacts/docker/pipeline-summary.json",
+    "html_report": "artifacts/docker/pipeline-report.html",
+    "vectors": "artifacts/docker/vectors/test-vectors.manifest.json",
+    "native_results": "artifacts/docker/native/<role>/<role-specific>-results.manifest.json",
+    "native_comparison": "artifacts/docker/canonical/compare-<role>/summary.json",
+    "native_build_evidence": "artifacts/docker/native/<role>/build/build-evidence.json",
+    "native_traceability": "artifacts/docker/native/<role>/native-traceability.json",
+    "legacy_raw_wrapper_capture": "artifacts/docker/<role>/manifest.json",
+    "copied_native_build_evidence": "artifacts/docker/native/<role>/native-build-evidence.json",
+    "preflight_observations": "artifacts/docker/native/<role>/preflight-observations.json"
+  },
+  "purpose": "Intel Intrinsicsが、他のCPU向けに正しくポートされているかを検証する。"
+}

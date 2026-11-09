@@ -117,7 +117,7 @@ shuffleとshiftの全imm8を検査する際は、元の許可値を超える入�
 - PPC旧bundleと旧`ioitf`コマンドの互換性、ARM/RV bundleの再読み込み・再照合、
   ロード後のファイル改ざんからのsnapshot独立性も確認しています。
 
-Native側のテストは [Native status](../NATIVE_STATUS.md) を参照してください。
+Native側のテストは [Native status](../documentation/native-status.json) を参照してください。
 ARMでは4596検査、RVVでは同じELFのVLEN 128/256実行と、254操作×3入力の
 実測SSE2比較を行います。RVVのNaN差異12件はアーキテクチャの観測結果として記録し、
 portableモデルの不具合とは区別しています。
